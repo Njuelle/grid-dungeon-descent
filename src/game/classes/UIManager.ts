@@ -962,12 +962,46 @@ export class UIManager {
         }
     }
 
+    private disableAllGameInteractions(): void {
+        // Stop all walking sounds from units
+        if ((this.scene as any).gameManager) {
+            const gameManager = (this.scene as any).gameManager;
+            gameManager.stopAllWalkingSounds();
+
+            // Disable all unit interactions and tooltips
+            const units = gameManager.getUnits();
+            units.forEach((unit: any) => {
+                if (unit.sprite) {
+                    // Remove all listeners to prevent tooltips
+                    unit.sprite.removeAllListeners();
+                    // Make sprite non-interactive
+                    unit.sprite.disableInteractive();
+                }
+
+                // Hide any existing tooltips
+                if (unit.hideStatsTooltip) {
+                    unit.hideStatsTooltip();
+                }
+            });
+
+            // Clear any game highlights/previews
+            gameManager.clearHighlights();
+        }
+
+        // Hide any existing tooltips
+        this.hideSpellTooltip();
+        this.hideStatTooltip();
+    }
+
     private showDefeatScreen(onRestart: () => void): void {
         // Guard against duplicate calls
         if (this.bonusSelectionActive) {
             return;
         }
         this.bonusSelectionActive = true;
+
+        // Disable all game interactions and tooltips
+        this.disableAllGameInteractions();
 
         // Get screen dimensions
         const centerX = this.scene.scale.width / 2;
@@ -1611,6 +1645,241 @@ export class UIManager {
         }
     }
 
+    private showPlayerStatsModal(): void {
+        if (this.bonusHistoryModal) return; // Reuse the same modal property to prevent multiple modals
+
+        const player = this.currentPlayer;
+        if (!player) return;
+
+        const progress = GameProgress.getInstance();
+        const wins = progress.getWins();
+
+        // Calculate modal dimensions
+        const modalWidth = 500;
+        const modalHeight = 650; // Increased from 600 to prevent overlap
+
+        // Create modal container
+        this.bonusHistoryModal = this.scene.add.container(
+            this.scene.scale.width / 2,
+            this.scene.scale.height / 2
+        );
+        this.bonusHistoryModal.setDepth(200);
+
+        // Background overlay
+        const overlay = this.scene.add.graphics();
+        overlay.fillStyle(0x000000, 0.7);
+        overlay.fillRect(
+            -this.scene.scale.width / 2,
+            -this.scene.scale.height / 2,
+            this.scene.scale.width,
+            this.scene.scale.height
+        );
+
+        // Modal background - matching expedition records style
+        const modalBg = this.scene.add.graphics();
+        modalBg.fillStyle(0x3e2723, 0.9); // Dark brown
+        modalBg.fillRoundedRect(
+            -modalWidth / 2,
+            -modalHeight / 2,
+            modalWidth,
+            modalHeight,
+            20
+        );
+        modalBg.lineStyle(4, 0x8b7355, 0.9); // Bronze border
+        modalBg.strokeRoundedRect(
+            -modalWidth / 2,
+            -modalHeight / 2,
+            modalWidth,
+            modalHeight,
+            20
+        );
+
+        // Title
+        const title = this.scene.add
+            .text(0, -modalHeight / 2 + 40, "Player Statistics", {
+                fontSize: "32px",
+                color: "#d4af37", // Gold
+                fontStyle: "bold",
+                fontFamily: "serif",
+            })
+            .setOrigin(0.5);
+
+        // Win count
+        const winsText = this.scene.add
+            .text(0, -modalHeight / 2 + 80, `Victories: ${wins}`, {
+                fontSize: "20px",
+                color: "#f5deb3", // Wheat/beige
+                fontFamily: "serif",
+            })
+            .setOrigin(0.5);
+
+        // Stats section
+        let yOffset = -modalHeight / 2 + 140;
+        const lineHeight = 35;
+
+        // Combat Stats
+        const combatTitle = this.scene.add
+            .text(0, yOffset, "Combat Statistics", {
+                fontSize: "24px",
+                color: "#d4af37",
+                fontStyle: "bold",
+                fontFamily: "serif",
+            })
+            .setOrigin(0.5);
+        yOffset += lineHeight + 10;
+
+        const healthStat = this.scene.add
+            .text(0, yOffset, `Max Health: ${player.maxHealth}`, {
+                fontSize: "18px",
+                color: "#f5deb3",
+                fontFamily: "serif",
+            })
+            .setOrigin(0.5);
+        yOffset += lineHeight;
+
+        const forceStat = this.scene.add
+            .text(0, yOffset, `Force: ${player.force}`, {
+                fontSize: "18px",
+                color: "#f5deb3",
+                fontFamily: "serif",
+            })
+            .setOrigin(0.5);
+        yOffset += lineHeight;
+
+        const dexterityStat = this.scene.add
+            .text(0, yOffset, `Dexterity: ${player.dexterity}`, {
+                fontSize: "18px",
+                color: "#f5deb3",
+                fontFamily: "serif",
+            })
+            .setOrigin(0.5);
+        yOffset += lineHeight;
+
+        const intelligenceStat = this.scene.add
+            .text(0, yOffset, `Intelligence: ${player.intelligence || 0}`, {
+                fontSize: "18px",
+                color: "#f5deb3",
+                fontFamily: "serif",
+            })
+            .setOrigin(0.5);
+        yOffset += lineHeight + 20;
+
+        // Defense Stats
+        const defenseTitle = this.scene.add
+            .text(0, yOffset, "Defense Statistics", {
+                fontSize: "24px",
+                color: "#d4af37",
+                fontStyle: "bold",
+                fontFamily: "serif",
+            })
+            .setOrigin(0.5);
+        yOffset += lineHeight + 10;
+
+        const armorStat = this.scene.add
+            .text(0, yOffset, `Armor: ${player.armor}`, {
+                fontSize: "18px",
+                color: "#f5deb3",
+                fontFamily: "serif",
+            })
+            .setOrigin(0.5);
+        yOffset += lineHeight;
+
+        const magicResistStat = this.scene.add
+            .text(0, yOffset, `Magic Resistance: ${player.magicResistance}`, {
+                fontSize: "18px",
+                color: "#f5deb3",
+                fontFamily: "serif",
+            })
+            .setOrigin(0.5);
+        yOffset += lineHeight + 20;
+
+        // Action Points
+        const actionTitle = this.scene.add
+            .text(0, yOffset, "Action Economy", {
+                fontSize: "24px",
+                color: "#d4af37",
+                fontStyle: "bold",
+                fontFamily: "serif",
+            })
+            .setOrigin(0.5);
+        yOffset += lineHeight + 10;
+
+        const movementStat = this.scene.add
+            .text(
+                0,
+                yOffset,
+                `Max Movement Points: ${player.maxMovementPoints}`,
+                {
+                    fontSize: "18px",
+                    color: "#f5deb3",
+                    fontFamily: "serif",
+                }
+            )
+            .setOrigin(0.5);
+        yOffset += lineHeight;
+
+        const actionStat = this.scene.add
+            .text(0, yOffset, `Max Action Points: ${player.maxActionPoints}`, {
+                fontSize: "18px",
+                color: "#f5deb3",
+                fontFamily: "serif",
+            })
+            .setOrigin(0.5);
+
+        // Close button
+        const closeBtn = this.scene.add
+            .text(0, modalHeight / 2 - 40, "Close", {
+                fontSize: "24px",
+                color: "#ffffff",
+                backgroundColor: "#aa4444",
+                padding: { x: 20, y: 10 },
+            })
+            .setOrigin(0.5)
+            .setInteractive();
+
+        closeBtn.on("pointerdown", () => {
+            this.closeBonusHistoryModal(); // Reusing the same method
+        });
+        closeBtn.on("pointerover", () =>
+            closeBtn.setBackgroundColor("#cc6666")
+        );
+        closeBtn.on("pointerout", () => closeBtn.setBackgroundColor("#aa4444"));
+
+        // Add all elements to modal
+        this.bonusHistoryModal.add([
+            overlay,
+            modalBg,
+            title,
+            winsText,
+            combatTitle,
+            healthStat,
+            forceStat,
+            dexterityStat,
+            intelligenceStat,
+            defenseTitle,
+            armorStat,
+            magicResistStat,
+            actionTitle,
+            movementStat,
+            actionStat,
+            closeBtn,
+        ]);
+
+        // Make overlay interactive to close on click
+        overlay.setInteractive(
+            new Phaser.Geom.Rectangle(
+                -this.scene.scale.width / 2,
+                -this.scene.scale.height / 2,
+                this.scene.scale.width,
+                this.scene.scale.height
+            ),
+            Phaser.Geom.Rectangle.Contains
+        );
+        overlay.on("pointerdown", () => {
+            this.closeBonusHistoryModal();
+        });
+    }
+
     public updateLevelDisplay(): void {
         const difficulty = DifficultyScaling.getDifficultyDescription();
         const progress = GameProgress.getInstance();
@@ -1788,6 +2057,9 @@ export class UIManager {
         }
         this.bonusSelectionActive = true;
 
+        // Disable all game interactions and tooltips
+        this.disableAllGameInteractions();
+
         const progress = GameProgress.getInstance();
         progress.incrementWins();
 
@@ -1863,6 +2135,29 @@ export class UIManager {
         );
         historyButton.on("pointerout", () =>
             historyButton.setBackgroundColor("#4444aa")
+        );
+
+        // Add player stats button next to bonus history
+        const playerStatsButton = this.scene.add
+            .text(this.scene.scale.width - 100, 90, "Player Stats", {
+                fontSize: "18px",
+                color: "#ffffff",
+                backgroundColor: "#44aa44",
+                padding: { x: 10, y: 5 },
+            })
+            .setOrigin(0.5)
+            .setInteractive()
+            .setDepth(100)
+            .setAlpha(0); // Start invisible
+
+        playerStatsButton.on("pointerdown", () => {
+            this.showPlayerStatsModal();
+        });
+        playerStatsButton.on("pointerover", () =>
+            playerStatsButton.setBackgroundColor("#66cc66")
+        );
+        playerStatsButton.on("pointerout", () =>
+            playerStatsButton.setBackgroundColor("#44aa44")
         );
 
         // Get 3 random bonuses
@@ -2001,6 +2296,7 @@ export class UIManager {
                     bannerBg.destroy();
                     overlay.destroy();
                     historyButton.destroy();
+                    playerStatsButton.destroy();
                     this.bonusSelectionActive = false;
                     this.scene.input.setDefaultCursor("default");
 
@@ -2026,7 +2322,13 @@ export class UIManager {
 
         // Fade-in for other elements
         this.scene.tweens.add({
-            targets: [bannerBg, victoryText, instructionText, historyButton],
+            targets: [
+                bannerBg,
+                victoryText,
+                instructionText,
+                historyButton,
+                playerStatsButton,
+            ],
             alpha: 1,
             duration: 300,
             ease: "Power2.easeOut",
