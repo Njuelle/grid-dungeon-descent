@@ -11,7 +11,7 @@ export class Necromancer extends Enemy {
             attackRange: 5, // Long range magic (more than Magician's 4)
             force: 0, // No melee
             dexterity: 0, // No ranged physical
-            intelligence: 5, // High magic damage (more than Magician's 4)
+            intelligence: 5, // High magic damage (more than Magician's 3)
             armor: 0, // No physical armor
             magicResistance: 2, // Good magic resistance (unique trait)
         };

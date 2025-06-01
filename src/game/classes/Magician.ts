@@ -14,7 +14,7 @@ export class Magician extends Enemy {
             attackRange: 4,
             force: 1,
             dexterity: 1,
-            intelligence: 4, // This will be used by the getter in Enemy class
+            intelligence: 3, // This will be used by the getter in Enemy class
             armor: 0,
         };
         super(scene, gridX, gridY, baseStats, "Magician"); // Pass "Magician" as enemyType
