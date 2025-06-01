@@ -1287,7 +1287,7 @@ export function getRandomBonuses(
     // and reduce their probability of appearing
     const reducedProbabilityBonuses = alreadyPicked
         .filter((b) => b.type === "stat") // Only allow stat bonuses to be picked multiple times
-        .filter(() => Math.random() < 0.25); // 25% chance to include each already-picked stat bonus
+        .filter(() => Math.random() < 0.4); // 40% chance to include each already-picked stat bonus
 
     // Combine available bonuses: all not-picked bonuses + reduced probability already-picked stat bonuses
     const available = [...notPicked, ...reducedProbabilityBonuses];
