@@ -667,27 +667,37 @@ export class GameManager {
 
         console.log(`Calling moveAlongPath with ${path.length} steps`);
 
+        // Check for shadow step bonus BEFORE starting movement
+        let shadowStepApplied = false;
+        if (unit instanceof Player) {
+            const progress = GameProgress.getInstance();
+            const appliedBonuses = progress.getAppliedBonuses();
+
+            if (
+                appliedBonuses.includes("shadow_step") &&
+                !unit.hasMovedThisTurn
+            ) {
+                shadowStepApplied = true;
+                console.log(
+                    "[GameManager] Shadow Step: First movement is free!"
+                );
+                if (this.uiManager) {
+                    this.uiManager.addCombatLogMessage(
+                        "Shadow Step: Free movement!"
+                    );
+                }
+            }
+        }
+
         // Use the new moveAlongPath method
         unit.moveAlongPath(path, () => {
             console.log("Movement completed!");
             if (unit instanceof Player) {
-                // Check for shadow step bonus
-                const progress = GameProgress.getInstance();
-                const appliedBonuses = progress.getAppliedBonuses();
-
-                if (
-                    appliedBonuses.includes("shadow_step") &&
-                    !unit.hasMovedThisTurn
-                ) {
+                if (shadowStepApplied) {
+                    // Don't consume movement points for shadow step
                     console.log(
-                        "[GameManager] Shadow Step: First movement is free!"
+                        "[GameManager] Shadow Step: Movement points not consumed"
                     );
-                    // Don't consume movement points for first movement
-                    if (this.uiManager) {
-                        this.uiManager.addCombatLogMessage(
-                            "Shadow Step: Free movement!"
-                        );
-                    }
                 } else {
                     // Normal movement cost
                     unit.consumeMovementPoints(distance);
