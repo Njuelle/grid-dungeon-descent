@@ -288,7 +288,16 @@ export abstract class Enemy extends Unit {
 
         // Add damage preview if player has spell selected
         if (player && selectedSpell) {
-            // Calculate damage preview
+            // Calculate distance from player to this enemy
+            const distance =
+                Math.abs(player.gridX - this.gridX) +
+                Math.abs(player.gridY - this.gridY);
+
+            // Use player's getAttackDamage method to get accurate damage including all bonuses
+            const actualDamage = player.getAttackDamage(this, distance);
+
+            // Calculate min and max damage (since getAttackDamage includes randomness, we need to estimate the range)
+            // We'll use a simpler approach - get the damage without randomness for display
             const baseDamage = selectedSpell.damage;
             let statBonus = 0;
 
@@ -300,9 +309,11 @@ export abstract class Enemy extends Unit {
                 statBonus = player.intelligence || 0;
             }
 
-            // Apply power through pain bonus if present
+            // Apply bonuses manually for preview (to avoid randomness)
             const progress = GameProgress.getInstance();
             const appliedBonuses = progress.getAppliedBonuses();
+
+            // Power through pain bonus
             if (appliedBonuses.includes("power_through_pain")) {
                 const missingHP = player.maxHealth - player.health;
                 const powerThroughPainBonus = Math.min(3, missingHP);
@@ -311,9 +322,41 @@ export abstract class Enemy extends Unit {
                 }
             }
 
+            // Last stand bonus
+            if (appliedBonuses.includes("last_stand")) {
+                const healthPercent = player.health / player.maxHealth;
+                if (healthPercent <= 0.25) {
+                    statBonus += 2;
+                }
+            }
+
+            // Giant slayer bonus
+            if (appliedBonuses.includes("giant_slayer")) {
+                if (this.maxHealth > player.maxHealth) {
+                    statBonus += 3;
+                }
+            }
+
+            // Guerrilla tactics bonus
+            if (appliedBonuses.includes("guerrilla_tactics")) {
+                if (distance === player.attackRange) {
+                    statBonus += 2;
+                }
+            }
+
+            // Overload bonus
+            let overloadDamage = 0;
+            if (appliedBonuses.includes("overload")) {
+                overloadDamage = 1;
+            }
+
             // Calculate min and max damage (0.8x to 1.2x)
-            const rawDamageMin = Math.round((baseDamage + statBonus) * 0.8);
-            const rawDamageMax = Math.round((baseDamage + statBonus) * 1.2);
+            const rawDamageMin = Math.round(
+                (baseDamage + statBonus + overloadDamage) * 0.8
+            );
+            const rawDamageMax = Math.round(
+                (baseDamage + statBonus + overloadDamage) * 1.2
+            );
 
             // Apply resistance
             const damageType =

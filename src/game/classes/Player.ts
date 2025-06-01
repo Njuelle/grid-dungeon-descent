@@ -597,13 +597,11 @@ export class Player extends Unit {
     }
 
     public addActionPoints(points: number): void {
-        if (
-            this.stats.actionPoints !== undefined &&
-            this.stats.maxActionPoints !== undefined
-        ) {
-            this.stats.actionPoints = Math.min(
-                this.stats.maxActionPoints,
-                this.stats.actionPoints + points
+        if (this.stats.actionPoints !== undefined) {
+            // Allow going over max for bonuses (like Adrenaline Rush)
+            this.stats.actionPoints += points;
+            console.log(
+                `[Player] Added ${points} AP. Current: ${this.stats.actionPoints}`
             );
         }
     }

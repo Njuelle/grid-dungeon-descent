@@ -1022,11 +1022,11 @@ export class GameManager {
         // Apply healing bonuses after successful hit
         this.applyHealingBonuses(attacker, target, spell);
 
-        // Apply kill bonuses after successful hit
-        this.applyKillBonuses(attacker, target, spell);
-
         // Check if target was killed by this attack
         if (wasAlive && !target.isAlive()) {
+            // Apply kill bonuses only when the enemy is actually killed
+            this.applyKillBonuses(attacker, target, spell);
+
             this.removeUnit(target);
             this.checkVictory();
         }

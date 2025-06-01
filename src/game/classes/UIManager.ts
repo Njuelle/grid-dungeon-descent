@@ -1088,7 +1088,7 @@ export class UIManager {
         const restartBtn = this.createMedievalButton(
             centerX,
             centerY + 120, // Positioned within the extended panel
-            "⚔️ BEGIN ANEW",
+            "⚔️ NEW EXPEDITION",
             "#8b4513", // Saddle brown (matching main menu)
             "#a0522d", // Sienna hover
             () => {
