@@ -27,6 +27,7 @@ export class UIManager {
     private statTooltip?: Phaser.GameObjects.Container;
     private bonusSelectionActive: boolean = false;
     private uiReady: boolean = false;
+    private rerollUsedThisVictory: boolean = false;
 
     constructor(scene: Scene) {
         this.scene = scene;
@@ -2056,6 +2057,7 @@ export class UIManager {
             return;
         }
         this.bonusSelectionActive = true;
+        this.rerollUsedThisVictory = false; // Reset reroll usage for new victory
 
         // Disable all game interactions and tooltips
         this.disableAllGameInteractions();
@@ -2319,6 +2321,219 @@ export class UIManager {
                 ease: "Power3.easeOut",
             });
         });
+
+        // Add reroll button if player has gamblers_luck bonus and hasn't used it yet
+        let rerollButton: Phaser.GameObjects.Container | undefined;
+        if (
+            progress.getAppliedBonuses().includes("gamblers_luck") &&
+            !this.rerollUsedThisVictory
+        ) {
+            const rerollButtonY = this.scene.scale.height / 2 + 250;
+
+            // Create reroll button with medieval style
+            rerollButton = this.createMedievalButton(
+                this.scene.scale.width / 2,
+                rerollButtonY,
+                "🎲 Reroll Bonuses",
+                "#6b4423", // Dark brown
+                "#8b5a2b", // Lighter brown on hover
+                () => {
+                    // Mark reroll as used
+                    this.rerollUsedThisVictory = true;
+
+                    // Destroy current bonus cards
+                    bonusContainers.forEach((c) => c.destroy());
+                    bonusContainers.length = 0;
+
+                    // Destroy the reroll button
+                    if (rerollButton) {
+                        rerollButton.destroy();
+                        rerollButton = undefined;
+                    }
+
+                    // Get new bonuses
+                    const newBonuses = getRandomBonuses(
+                        3,
+                        progress.getAppliedBonuses()
+                    );
+
+                    // Recreate bonus cards
+                    newBonuses.forEach((bonus, index) => {
+                        const x =
+                            this.scene.scale.width / 2 + (index - 1) * 250;
+                        const y = this.scene.scale.height / 2 + 50;
+
+                        const container = this.scene.add.container(x, y);
+                        container.setDepth(100);
+                        container.setAlpha(0);
+
+                        // Card background with medieval style
+                        const cardBg = this.scene.add.graphics();
+                        cardBg.fillStyle(0x3e2723, 0.95); // Dark brown
+                        cardBg.fillRoundedRect(-100, -150, 200, 300, 15);
+
+                        // Bronze border
+                        cardBg.lineStyle(3, 0x8b7355, 0.9);
+                        cardBg.strokeRoundedRect(-100, -150, 200, 300, 15);
+
+                        // Gold inner border
+                        cardBg.lineStyle(1, 0xd4af37, 0.7);
+                        cardBg.strokeRoundedRect(-97, -147, 194, 294, 13);
+
+                        // Hover highlight (initially hidden)
+                        const hoverBg = this.scene.add.graphics();
+                        hoverBg.fillStyle(0x4a332a, 0.95); // Lighter brown
+                        hoverBg.fillRoundedRect(-100, -150, 200, 300, 15);
+                        hoverBg.lineStyle(3, 0xd4af37, 1); // Gold border
+                        hoverBg.strokeRoundedRect(-100, -150, 200, 300, 15);
+                        hoverBg.lineStyle(1, 0xffd700, 0.8); // Bright gold inner
+                        hoverBg.strokeRoundedRect(-97, -147, 194, 294, 13);
+                        hoverBg.setVisible(false);
+
+                        // Icon display
+                        let iconDisplay:
+                            | Phaser.GameObjects.Image
+                            | Phaser.GameObjects.Text;
+                        if (bonus.icon.startsWith("icon_")) {
+                            iconDisplay = this.scene.add.image(
+                                0,
+                                -100,
+                                bonus.icon
+                            );
+                            iconDisplay.setDisplaySize(48, 48);
+                        } else {
+                            iconDisplay = this.scene.add
+                                .text(0, -100, bonus.icon, {
+                                    fontSize: "48px",
+                                })
+                                .setOrigin(0.5);
+                        }
+
+                        // Bonus name
+                        const name = this.scene.add
+                            .text(0, -50, bonus.name, {
+                                fontSize: "20px",
+                                color: "#d4af37",
+                                fontStyle: "bold",
+                                fontFamily: "serif",
+                                align: "center",
+                                wordWrap: { width: 170 },
+                            })
+                            .setOrigin(0.5);
+
+                        // Bonus description
+                        const desc = this.scene.add
+                            .text(0, 20, bonus.description, {
+                                fontSize: "16px",
+                                color: "#f5deb3",
+                                fontFamily: "serif",
+                                align: "center",
+                                wordWrap: { width: 170 },
+                                lineSpacing: 4,
+                            })
+                            .setOrigin(0.5);
+
+                        // Add "Click to Select" hint
+                        const selectHint = this.scene.add
+                            .text(0, 120, "Click to Select", {
+                                fontSize: "14px",
+                                color: "#888888",
+                                fontStyle: "italic",
+                                fontFamily: "serif",
+                            })
+                            .setOrigin(0.5);
+
+                        // Create invisible hit area
+                        const hitArea = this.scene.add.rectangle(
+                            0,
+                            0,
+                            200,
+                            300,
+                            0x000000,
+                            0
+                        );
+                        hitArea.setInteractive();
+
+                        container.add([
+                            cardBg,
+                            hoverBg,
+                            iconDisplay,
+                            name,
+                            desc,
+                            selectHint,
+                            hitArea,
+                        ]);
+
+                        // Hover effects using the hit area
+                        hitArea.on("pointerover", () => {
+                            cardBg.setVisible(false);
+                            hoverBg.setVisible(true);
+                            container.setScale(1.05);
+                            selectHint.setColor("#d4af37");
+                            this.scene.input.setDefaultCursor("pointer");
+                        });
+
+                        hitArea.on("pointerout", () => {
+                            cardBg.setVisible(true);
+                            hoverBg.setVisible(false);
+                            container.setScale(1);
+                            selectHint.setColor("#888888");
+                            this.scene.input.setDefaultCursor("default");
+                        });
+
+                        hitArea.on("pointerdown", () => {
+                            // Visual feedback on click
+                            container.setScale(0.95);
+
+                            // Apply the bonus and restart
+                            this.scene.time.delayedCall(100, () => {
+                                progress.addBonus(bonus.id);
+
+                                // Clean up
+                                bonusContainers.forEach((c) => c.destroy());
+                                victoryText.destroy();
+                                instructionText.destroy();
+                                bannerBg.destroy();
+                                overlay.destroy();
+                                historyButton.destroy();
+                                playerStatsButton.destroy();
+                                this.bonusSelectionActive = false;
+                                this.scene.input.setDefaultCursor("default");
+
+                                onRestart();
+                            });
+                        });
+
+                        bonusContainers.push(container);
+                    });
+
+                    // Animate new cards
+                    bonusContainers.forEach((container, index) => {
+                        container.setY(container.y + 50);
+                        this.scene.tweens.add({
+                            targets: container,
+                            y: container.y - 50,
+                            alpha: 1,
+                            duration: 600,
+                            delay: index * 100,
+                            ease: "Power3.easeOut",
+                        });
+                    });
+                }
+            );
+
+            rerollButton.setDepth(100);
+            rerollButton.setAlpha(0);
+
+            // Animate reroll button entrance
+            this.scene.tweens.add({
+                targets: rerollButton,
+                alpha: 1,
+                duration: 300,
+                delay: 600,
+                ease: "Power2.easeOut",
+            });
+        }
 
         // Fade-in for other elements
         this.scene.tweens.add({

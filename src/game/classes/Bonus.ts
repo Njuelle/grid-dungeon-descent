@@ -1080,6 +1080,14 @@ export const AVAILABLE_BONUSES: Bonus[] = [
         type: "stat",
         effects: [{ stat: "force", value: 0 }], // Marker effect
     },
+    {
+        id: "gamblers_luck",
+        name: "Gambler's Luck",
+        description: "Can reroll bonus choices once per victory",
+        icon: "🎲",
+        type: "stat",
+        effects: [{ stat: "force", value: 0 }], // Marker effect
+    },
 ];
 
 // Helper function to check if a bonus would reduce a spell's AP cost below the minimum
