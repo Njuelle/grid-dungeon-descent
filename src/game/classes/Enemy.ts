@@ -111,7 +111,20 @@ export abstract class Enemy extends Unit {
         const selectedSpell = player?.getCurrentSpell();
 
         const x = this.sprite.x;
-        const y = this.sprite.y - 140;
+
+        // Calculate tooltip height based on content
+        const tooltipHeight = selectedSpell ? 170 : 130;
+        const tooltipOffset = 140;
+
+        // Check if positioning above would cause cropping (with some margin)
+        const topMargin = 20;
+        const wouldCropAtTop =
+            this.sprite.y - tooltipOffset - tooltipHeight / 2 < topMargin;
+
+        // Position tooltip below enemy if it would crop at top, otherwise above
+        const y = wouldCropAtTop
+            ? this.sprite.y + tooltipOffset // Below enemy
+            : this.sprite.y - tooltipOffset; // Above enemy (original behavior)
 
         // Container for all tooltip elements
         const container = this.scene.add.container(x, y);
