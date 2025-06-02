@@ -2170,6 +2170,9 @@ export class GameManager {
                 "[GameManager] Player victorious - game over triggered"
             );
 
+            // Play victory sound
+            this.scene.sound.play("victory", { volume: 0.7 });
+
             // Stop all walking sounds immediately
             this.stopAllWalkingSounds();
             if (this.onGameOver) this.onGameOver(true);

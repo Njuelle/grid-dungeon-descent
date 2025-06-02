@@ -328,6 +328,7 @@ export class Preloader extends Scene {
         this.load.audio("ranged_attack", "sound/ranged_attack.wav");
         this.load.audio("magic_attack", "sound/magic_attack.wav");
         this.load.audio("walk", "sound/walk.wav");
+        this.load.audio("victory", "sound/victory.wav");
     }
 
     create() {
