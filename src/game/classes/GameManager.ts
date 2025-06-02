@@ -790,6 +790,21 @@ export class GameManager {
                 this.highlightMoveRange(unit);
                 this.highlightAttackRange(unit);
 
+                // Fix cursor state: check if mouse is over a unit and restore pointer cursor
+                const pointer = this.scene.input.activePointer;
+                if (pointer) {
+                    const gridPos = this.grid.worldToGrid(pointer.x, pointer.y);
+                    if (gridPos) {
+                        const unitUnderMouse = this.getUnitAt(
+                            gridPos.x,
+                            gridPos.y
+                        );
+                        if (unitUnderMouse) {
+                            this.scene.input.setDefaultCursor("pointer");
+                        }
+                    }
+                }
+
                 // Keep unit selected if it can still act
                 this.selectedUnit = unit;
                 if (this.onUnitSelected) {
@@ -1037,6 +1052,24 @@ export class GameManager {
                     this.clearHighlights();
                     this.highlightMoveRange(attacker);
                     this.highlightAttackRange(attacker);
+
+                    // Fix cursor state: check if mouse is over a unit and restore pointer cursor
+                    const pointer = this.scene.input.activePointer;
+                    if (pointer) {
+                        const gridPos = this.grid.worldToGrid(
+                            pointer.x,
+                            pointer.y
+                        );
+                        if (gridPos) {
+                            const unitUnderMouse = this.getUnitAt(
+                                gridPos.x,
+                                gridPos.y
+                            );
+                            if (unitUnderMouse) {
+                                this.scene.input.setDefaultCursor("pointer");
+                            }
+                        }
+                    }
                 }
             });
         });
