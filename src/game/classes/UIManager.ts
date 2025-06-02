@@ -1672,7 +1672,7 @@ export class UIManager {
         // Add list container separately (it has its own mask)
         this.bonusHistoryModal.add(listContainer);
 
-        // Make overlay interactive to close on click
+        // Make overlay interactive to close on click and block all events underneath
         overlay.setInteractive(
             new Phaser.Geom.Rectangle(
                 -this.scene.scale.width / 2,
@@ -1682,9 +1682,63 @@ export class UIManager {
             ),
             Phaser.Geom.Rectangle.Contains
         );
-        overlay.on("pointerdown", () => {
-            this.closeBonusHistoryModal();
-        });
+
+        // Consume all pointer events to prevent click-through to game tiles
+        overlay.on(
+            "pointerdown",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                event.stopPropagation(); // Prevent event from reaching game tiles
+                this.closeBonusHistoryModal();
+            }
+        );
+
+        overlay.on(
+            "pointermove",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                // Only consume the event if not over interactive elements
+                const isOverButton =
+                    pointer.y >
+                    this.scene.scale.height / 2 + modalHeight / 2 - 80; // Close button area
+                if (!isOverButton) {
+                    event.stopPropagation(); // Prevent hover effects on game tiles
+                    this.scene.input.setDefaultCursor("default"); // Keep default cursor over modal
+                }
+            }
+        );
+
+        overlay.on(
+            "pointerover",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                event.stopPropagation();
+            }
+        );
+
+        overlay.on(
+            "pointerout",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                event.stopPropagation();
+            }
+        );
 
         // Clean up mask when modal is destroyed
         this.bonusHistoryModal.on("destroy", () => {
@@ -1934,9 +1988,60 @@ export class UIManager {
             ),
             Phaser.Geom.Rectangle.Contains
         );
-        overlay.on("pointerdown", () => {
-            this.closeBonusHistoryModal();
-        });
+        overlay.on(
+            "pointerdown",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                event.stopPropagation();
+                this.closeBonusHistoryModal();
+            }
+        );
+
+        overlay.on(
+            "pointermove",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                const isOverButton =
+                    pointer.y >
+                    this.scene.scale.height / 2 + modalHeight / 2 - 80;
+                if (!isOverButton) {
+                    event.stopPropagation();
+                    this.scene.input.setDefaultCursor("default");
+                }
+            }
+        );
+
+        overlay.on(
+            "pointerover",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                event.stopPropagation();
+            }
+        );
+
+        overlay.on(
+            "pointerout",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                event.stopPropagation();
+            }
+        );
     }
 
     public updateLevelDisplay(): void {
