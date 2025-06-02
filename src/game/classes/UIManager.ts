@@ -787,7 +787,12 @@ export class UIManager {
                 descBounds.height / 2
         );
 
-        this.spellTooltip = this.scene.add.container(x, y, [
+        // Position tooltip above the bottom bar instead of potentially overlapping with buttons
+        const bottomBarHeight = 100;
+        const tooltipY =
+            this.scene.scale.height - bottomBarHeight - totalHeight / 2 - 10; // 10px gap above bottom bar
+
+        this.spellTooltip = this.scene.add.container(x, tooltipY, [
             bg,
             titleText,
             descText,
@@ -1956,7 +1961,6 @@ export class UIManager {
         const containerPos =
             this.playerStatsContainer!.getWorldTransformMatrix();
         const worldX = containerPos.tx + x;
-        const worldY = containerPos.ty + y;
 
         // Create text elements first to measure their size
         const titleText = this.scene.add
@@ -2016,7 +2020,12 @@ export class UIManager {
                 descBounds.height / 2
         );
 
-        this.statTooltip = this.scene.add.container(worldX, worldY, [
+        // Position tooltip above the bottom bar instead of potentially overlapping with stats
+        const bottomBarHeight = 100;
+        const tooltipY =
+            this.scene.scale.height - bottomBarHeight - totalHeight / 2 - 10; // 10px gap above bottom bar
+
+        this.statTooltip = this.scene.add.container(worldX, tooltipY, [
             bg,
             titleText,
             descText,
