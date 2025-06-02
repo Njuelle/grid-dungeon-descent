@@ -1006,12 +1006,17 @@ export class UIManager {
             gameManager.clearHighlights();
         }
 
-        // Stop ALL currently playing sounds (including attack sounds)
-        this.scene.sound.stopAll();
-
         // Hide any existing tooltips
         this.hideSpellTooltip();
         this.hideStatTooltip();
+    }
+
+    private disableAllGameInteractionsAndStopSounds(): void {
+        // First disable all game interactions
+        this.disableAllGameInteractions();
+
+        // Stop ALL currently playing sounds (including attack sounds) - only for defeat screen
+        this.scene.sound.stopAll();
     }
 
     private showDefeatScreen(onRestart: () => void): void {
@@ -1026,7 +1031,7 @@ export class UIManager {
         console.log("[UIManager] Game progress reset due to defeat");
 
         // Disable all game interactions and tooltips
-        this.disableAllGameInteractions();
+        this.disableAllGameInteractionsAndStopSounds();
 
         // Get screen dimensions
         const centerX = this.scene.scale.width / 2;
