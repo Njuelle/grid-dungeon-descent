@@ -1006,6 +1006,9 @@ export class UIManager {
             gameManager.clearHighlights();
         }
 
+        // Stop ALL currently playing sounds (including attack sounds)
+        this.scene.sound.stopAll();
+
         // Hide any existing tooltips
         this.hideSpellTooltip();
         this.hideStatTooltip();
