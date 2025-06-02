@@ -392,6 +392,9 @@ export abstract class Unit {
                     "[Unit] Thorns: Dealing 1 damage to melee attacker"
                 );
 
+                // Store if attacker was alive before thorns damage
+                const attackerWasAlive = attacker.isAlive();
+
                 // Deal 1 damage back to attacker
                 attacker.takeDamage(1, "physical");
 
@@ -426,6 +429,29 @@ export abstract class Unit {
                         // Notify GameManager about animation end
                         if (gameManager && gameManager.endDamageAnimation) {
                             gameManager.endDamageAnimation();
+                        }
+
+                        // Check if thorns damage killed the attacker
+                        if (attackerWasAlive && !attacker.isAlive()) {
+                            console.log(
+                                "[Unit] Thorns damage killed the attacker!"
+                            );
+
+                            // Notify GameManager to remove the dead attacker and check victory
+                            if (
+                                gameManager &&
+                                gameManager.removeUnit &&
+                                gameManager.checkVictory
+                            ) {
+                                // Use a small delay to ensure the animation completes
+                                this.scene.time.delayedCall(100, () => {
+                                    console.log(
+                                        "[Unit] Removing attacker killed by thorns"
+                                    );
+                                    gameManager.removeUnit(attacker);
+                                    gameManager.checkVictory();
+                                });
+                            }
                         }
                     },
                 });

@@ -1116,7 +1116,7 @@ export class GameManager {
         }
     }
 
-    private removeUnit(unit: Unit): void {
+    public removeUnit(unit: Unit): void {
         unit.destroy();
         this.units = this.units.filter((u) => u !== unit);
     }
@@ -2137,7 +2137,7 @@ export class GameManager {
         this.startTurn();
     }
 
-    private checkVictory(): void {
+    public checkVictory(): void {
         // Prevent multiple game over triggers
         if (this.gameOver) {
             return;
