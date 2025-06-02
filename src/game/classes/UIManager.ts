@@ -1001,6 +1001,10 @@ export class UIManager {
         }
         this.bonusSelectionActive = true;
 
+        // Reset all game progress immediately on defeat
+        GameProgress.getInstance().reset();
+        console.log("[UIManager] Game progress reset due to defeat");
+
         // Disable all game interactions and tooltips
         this.disableAllGameInteractions();
 
@@ -1129,10 +1133,7 @@ export class UIManager {
             () => {
                 this.bonusSelectionActive = false; // Reset flag
 
-                // Reset all game progress on defeat
-                GameProgress.getInstance().reset();
-                console.log("[UIManager] Game progress reset due to defeat");
-
+                // Game progress already reset at the start of showDefeatScreen
                 onRestart();
             }
         );
