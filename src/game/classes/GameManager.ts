@@ -25,6 +25,8 @@ export class GameManager {
     private isFirstTurn: boolean = true;
     private gameOver: boolean = false;
     private hoverPreviewEnabled: boolean = true;
+    private activeDamageAnimations: number = 0;
+    private pendingVictoryCheck: boolean = false;
 
     constructor(scene: Scene, grid: Grid) {
         this.scene = scene;
@@ -2141,6 +2143,15 @@ export class GameManager {
             return;
         }
 
+        // If there are active damage animations, delay the victory check
+        if (this.activeDamageAnimations > 0) {
+            console.log(
+                `[GameManager] Victory check delayed - ${this.activeDamageAnimations} damage animations still playing`
+            );
+            this.pendingVictoryCheck = true;
+            return;
+        }
+
         const playerUnits = this.units.filter((unit) => unit.team === "player");
         const enemyUnits = this.units.filter((unit) => unit.team === "enemy");
 
@@ -2162,6 +2173,32 @@ export class GameManager {
             // Stop all walking sounds immediately
             this.stopAllWalkingSounds();
             if (this.onGameOver) this.onGameOver(true);
+        }
+    }
+
+    public startDamageAnimation(): void {
+        this.activeDamageAnimations++;
+        console.log(
+            `[GameManager] Damage animation started - ${this.activeDamageAnimations} active`
+        );
+    }
+
+    public endDamageAnimation(): void {
+        this.activeDamageAnimations = Math.max(
+            0,
+            this.activeDamageAnimations - 1
+        );
+        console.log(
+            `[GameManager] Damage animation ended - ${this.activeDamageAnimations} remaining`
+        );
+
+        // If there are no more animations and we have a pending victory check, trigger it
+        if (this.activeDamageAnimations === 0 && this.pendingVictoryCheck) {
+            console.log(
+                "[GameManager] All damage animations complete - triggering delayed victory check"
+            );
+            this.pendingVictoryCheck = false;
+            this.checkVictory();
         }
     }
 

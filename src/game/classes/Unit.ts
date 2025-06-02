@@ -269,12 +269,24 @@ export abstract class Unit {
                     })
                     .setOrigin(0.5);
 
+                // Notify GameManager about animation start
+                const gameManager = (this.scene as any).gameManager;
+                if (gameManager && gameManager.startDamageAnimation) {
+                    gameManager.startDamageAnimation();
+                }
+
                 this.scene.tweens.add({
                     targets: shieldText,
                     y: shieldText.y - 30,
                     alpha: 0,
                     duration: 1000,
-                    onComplete: () => shieldText.destroy(),
+                    onComplete: () => {
+                        shieldText.destroy();
+                        // Notify GameManager about animation end
+                        if (gameManager && gameManager.endDamageAnimation) {
+                            gameManager.endDamageAnimation();
+                        }
+                    },
                 });
 
                 return; // No damage taken
@@ -383,6 +395,12 @@ export abstract class Unit {
                 // Deal 1 damage back to attacker
                 attacker.takeDamage(1, "physical");
 
+                // Get GameManager reference
+                const gameManager = (this.scene as any).gameManager;
+                if (gameManager && gameManager.startDamageAnimation) {
+                    gameManager.startDamageAnimation();
+                }
+
                 // Visual feedback on attacker
                 const thornsText = this.scene.add
                     .text(
@@ -403,9 +421,21 @@ export abstract class Unit {
                     y: thornsText.y - 20,
                     alpha: 0,
                     duration: 800,
-                    onComplete: () => thornsText.destroy(),
+                    onComplete: () => {
+                        thornsText.destroy();
+                        // Notify GameManager about animation end
+                        if (gameManager && gameManager.endDamageAnimation) {
+                            gameManager.endDamageAnimation();
+                        }
+                    },
                 });
             }
+        }
+
+        // Get GameManager reference for main damage animation
+        const gameManager = (this.scene as any).gameManager;
+        if (gameManager && gameManager.startDamageAnimation) {
+            gameManager.startDamageAnimation();
         }
 
         // Visual feedback - show damage number
@@ -423,7 +453,13 @@ export abstract class Unit {
             y: damageText.y - 30,
             alpha: 0,
             duration: 1000,
-            onComplete: () => damageText.destroy(),
+            onComplete: () => {
+                damageText.destroy();
+                // Notify GameManager about animation end
+                if (gameManager && gameManager.endDamageAnimation) {
+                    gameManager.endDamageAnimation();
+                }
+            },
         });
 
         // Store current interactive state
@@ -454,6 +490,12 @@ export abstract class Unit {
         const actualHeal = this.stats.health - oldHealth;
 
         if (actualHeal > 0) {
+            // Get GameManager reference for healing animation
+            const gameManager = (this.scene as any).gameManager;
+            if (gameManager && gameManager.startDamageAnimation) {
+                gameManager.startDamageAnimation();
+            }
+
             // Visual feedback - show healing number
             const healText = this.scene.add
                 .text(this.sprite.x, this.sprite.y - 40, `+${actualHeal}`, {
@@ -469,7 +511,13 @@ export abstract class Unit {
                 y: healText.y - 30,
                 alpha: 0,
                 duration: 1000,
-                onComplete: () => healText.destroy(),
+                onComplete: () => {
+                    healText.destroy();
+                    // Notify GameManager about animation end
+                    if (gameManager && gameManager.endDamageAnimation) {
+                        gameManager.endDamageAnimation();
+                    }
+                },
             });
 
             this.updateHealthBar();
