@@ -119,6 +119,9 @@ export abstract class Unit {
     }
 
     public moveTo(gridX: number, gridY: number, onComplete?: () => void): void {
+        // Mark that unit has moved this turn
+        this.hasMovedThisTurn = true;
+
         this.gridX = gridX;
         this.gridY = gridY;
 

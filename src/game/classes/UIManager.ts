@@ -609,11 +609,33 @@ export class UIManager {
             );
             apText.setText(`${player.actionPoints}/${player.maxActionPoints}`);
 
-            // Update stat values
+            // Update stat values with bonuses
             forceText.setText(player.force.toString());
             dexText.setText(player.dexterity.toString());
             intText.setText(player.intelligence.toString());
-            armorText.setText(player.armor.toString());
+
+            // Calculate effective armor including bonuses
+            let effectiveArmor = player.armor;
+            let hasArmorBonus = false;
+
+            // Add Fortified Position bonus if applicable
+            if (!player.hasMovedThisTurn) {
+                const progress = GameProgress.getInstance();
+                const appliedBonuses = progress.getAppliedBonuses();
+                if (appliedBonuses.includes("fortified_position")) {
+                    effectiveArmor += 3;
+                    hasArmorBonus = true;
+                }
+            }
+
+            // Display effective armor (use green color when bonus is active)
+            armorText.setText(effectiveArmor.toString());
+            if (hasArmorBonus) {
+                armorText.setColor("#00ff00"); // Green to show bonus
+            } else {
+                armorText.setColor("#ffffff"); // Normal white
+            }
+
             mrText.setText(player.magicResistance.toString());
         } else {
             // Clear everything if no player
