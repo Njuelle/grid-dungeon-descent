@@ -1651,23 +1651,47 @@ export class UIManager {
         closeBtn.on("pointerdown", () => {
             this.closeBonusHistoryModal();
         });
-        closeBtn.on("pointerover", () => {
-            closeBtn.setBackgroundColor("#cc6666");
-            this.scene.input.setDefaultCursor("pointer");
-        });
-        closeBtn.on("pointerout", () => {
-            closeBtn.setBackgroundColor("#aa4444");
-            this.scene.input.setDefaultCursor("default");
-        });
+        closeBtn.on(
+            "pointerover",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                closeBtn.setBackgroundColor("#cc6666");
+                this.scene.input.setDefaultCursor("pointer");
+                if (event) event.stopPropagation();
+            }
+        );
+        closeBtn.on(
+            "pointerout",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                closeBtn.setBackgroundColor("#aa4444");
+                this.scene.input.setDefaultCursor("default");
+                if (event) event.stopPropagation();
+            }
+        );
+        closeBtn.on(
+            "pointermove",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                this.scene.input.setDefaultCursor("pointer");
+                if (event) event.stopPropagation();
+            }
+        );
 
-        // Add all elements to modal (except masked content)
-        this.bonusHistoryModal.add([
-            overlay,
-            modalBg,
-            title,
-            winsText,
-            closeBtn,
-        ]);
+        // Add all elements to modal (except masked content and close button)
+        this.bonusHistoryModal.add([overlay, modalBg, title, winsText]);
 
         // Add list container separately (it has its own mask)
         this.bonusHistoryModal.add(listContainer);
@@ -1705,13 +1729,17 @@ export class UIManager {
                 localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
-                // Only consume the event if not over interactive elements
-                const isOverButton =
-                    pointer.y >
-                    this.scene.scale.height / 2 + modalHeight / 2 - 80; // Close button area
-                if (!isOverButton) {
-                    event.stopPropagation(); // Prevent hover effects on game tiles
-                    this.scene.input.setDefaultCursor("default"); // Keep default cursor over modal
+                event.stopPropagation(); // Prevent hover effects on game tiles
+
+                // Check if pointer is over close button area
+                const closeBtnBounds = closeBtn.getBounds();
+                const isOverCloseBtn = closeBtnBounds.contains(
+                    pointer.x,
+                    pointer.y
+                );
+
+                if (!isOverCloseBtn) {
+                    this.scene.input.setDefaultCursor("default"); // Only set default cursor if not over close button
                 }
             }
         );
@@ -1739,6 +1767,9 @@ export class UIManager {
                 event.stopPropagation();
             }
         );
+
+        // Add close button AFTER setting up overlay events so it's on top
+        this.bonusHistoryModal.add(closeBtn);
 
         // Clean up mask when modal is destroyed
         this.bonusHistoryModal.on("destroy", () => {
@@ -1949,16 +1980,46 @@ export class UIManager {
         closeBtn.on("pointerdown", () => {
             this.closeBonusHistoryModal(); // Reusing the same method
         });
-        closeBtn.on("pointerover", () => {
-            closeBtn.setBackgroundColor("#cc6666");
-            this.scene.input.setDefaultCursor("pointer");
-        });
-        closeBtn.on("pointerout", () => {
-            closeBtn.setBackgroundColor("#aa4444");
-            this.scene.input.setDefaultCursor("default");
-        });
+        closeBtn.on(
+            "pointerover",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                closeBtn.setBackgroundColor("#cc6666");
+                this.scene.input.setDefaultCursor("pointer");
+                if (event) event.stopPropagation();
+            }
+        );
+        closeBtn.on(
+            "pointerout",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                closeBtn.setBackgroundColor("#aa4444");
+                this.scene.input.setDefaultCursor("default");
+                if (event) event.stopPropagation();
+            }
+        );
+        closeBtn.on(
+            "pointermove",
+            (
+                pointer: Phaser.Input.Pointer,
+                localX: number,
+                localY: number,
+                event: Phaser.Types.Input.EventData
+            ) => {
+                this.scene.input.setDefaultCursor("pointer");
+                if (event) event.stopPropagation();
+            }
+        );
 
-        // Add all elements to modal
+        // Add all elements to modal (except close button)
         this.bonusHistoryModal.add([
             overlay,
             modalBg,
@@ -1975,7 +2036,6 @@ export class UIManager {
             actionTitle,
             movementStat,
             actionStat,
-            closeBtn,
         ]);
 
         // Make overlay interactive to close on click
@@ -2009,12 +2069,17 @@ export class UIManager {
                 localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
-                const isOverButton =
-                    pointer.y >
-                    this.scene.scale.height / 2 + modalHeight / 2 - 80;
-                if (!isOverButton) {
-                    event.stopPropagation();
-                    this.scene.input.setDefaultCursor("default");
+                event.stopPropagation();
+
+                // Check if pointer is over close button area
+                const closeBtnBounds = closeBtn.getBounds();
+                const isOverCloseBtn = closeBtnBounds.contains(
+                    pointer.x,
+                    pointer.y
+                );
+
+                if (!isOverCloseBtn) {
+                    this.scene.input.setDefaultCursor("default"); // Only set default cursor if not over close button
                 }
             }
         );
@@ -2042,6 +2107,9 @@ export class UIManager {
                 event.stopPropagation();
             }
         );
+
+        // Add close button AFTER setting up overlay events so it's on top
+        this.bonusHistoryModal.add(closeBtn);
     }
 
     public updateLevelDisplay(): void {
