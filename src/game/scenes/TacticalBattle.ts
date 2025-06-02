@@ -13,7 +13,7 @@ import {
     Ogre,
     Troll,
 } from "../classes/enemies";
-import { Magician } from "../classes/Magician";
+import { Magician } from "../classes/enemies/Magician";
 import { DifficultyScaling } from "../classes/DifficultyScaling";
 import { GameProgress } from "../classes/GameProgress";
 

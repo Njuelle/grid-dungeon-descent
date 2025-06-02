@@ -1,6 +1,6 @@
 import { Scene } from "phaser";
-import { Enemy } from "./Enemy";
-import { UnitStats } from "./Unit";
+import { Enemy } from "../Enemy";
+import { UnitStats } from "../Unit";
 
 export class Magician extends Enemy {
     // enemyType is set in the Enemy constructor if not passed, or can be overridden here if needed

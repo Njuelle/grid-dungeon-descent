@@ -2,7 +2,7 @@ import { Scene } from "phaser";
 import { Unit } from "./Unit";
 import { Player } from "./Player";
 import { Enemy } from "./Enemy";
-import { Magician } from "./Magician";
+import { Magician } from "./enemies/Magician";
 import { Necromancer } from "./enemies/Necromancer";
 import { Grid } from "./Grid";
 import { UIManager } from "./UIManager";
