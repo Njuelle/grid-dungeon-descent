@@ -24,6 +24,7 @@ export class GameManager {
     private uiManager?: UIManager;
     private isFirstTurn: boolean = true;
     private gameOver: boolean = false;
+    private hoverPreviewEnabled: boolean = true;
 
     constructor(scene: Scene, grid: Grid) {
         this.scene = scene;
@@ -41,26 +42,49 @@ export class GameManager {
 
     private setupHoverPreview(): void {
         this.scene.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
+            // Return early if hover preview is disabled
+            if (!this.hoverPreviewEnabled) {
+                return;
+            }
+
             // Clear previous path preview
             this.pathPreview.clear();
 
-            // Only show preview if a unit is selected
-            if (!this.selectedUnit || this.selectedUnit.hasActed) return;
-
-            // Only show movement preview for player units
-            if (!(this.selectedUnit instanceof Player)) return;
-
-            const player = this.selectedUnit as Player;
+            // Check if mouse is over UI area (bottom 100px of screen) - don't change cursor
+            const uiAreaHeight = 100;
+            const isOverUI =
+                pointer.y >= this.scene.scale.height - uiAreaHeight;
 
             const gridPos = this.grid.worldToGrid(pointer.x, pointer.y);
-            if (!gridPos) return;
+
+            // Default cursor when not over grid or no unit selected, but only if not over UI
+            if (!gridPos || !this.selectedUnit || this.selectedUnit.hasActed) {
+                if (!isOverUI) {
+                    this.scene.input.setDefaultCursor("default");
+                }
+                return;
+            }
+
+            // Only show movement preview for player units
+            if (!(this.selectedUnit instanceof Player)) {
+                if (!isOverUI) {
+                    this.scene.input.setDefaultCursor("default");
+                }
+                return;
+            }
+
+            const player = this.selectedUnit as Player;
 
             // Don't show path to current position
             if (
                 gridPos.x === this.selectedUnit.gridX &&
                 gridPos.y === this.selectedUnit.gridY
-            )
+            ) {
+                if (!isOverUI) {
+                    this.scene.input.setDefaultCursor("default");
+                }
                 return;
+            }
 
             // Check if hovering over an enemy
             const targetUnit = this.getUnitAt(gridPos.x, gridPos.y);
@@ -117,8 +141,14 @@ export class GameManager {
                         this.uiManager.setActionText(
                             `Not enough AP for ${spell.name}! (Need ${spell.apCost}, have ${player.actionPoints})`
                         );
+                        if (!isOverUI) {
+                            this.scene.input.setDefaultCursor("default");
+                        }
                     } else if (distance <= player.attackRange && hasLOS) {
                         this.uiManager.setActionText(actionText);
+                        if (!isOverUI) {
+                            this.scene.input.setDefaultCursor("pointer"); // Can attack
+                        }
                         // Preview AoE area on hover
                         if (spell.aoeShape && spell.aoeRadius) {
                             this.pathPreview.clear(); // Clear previous path/AoE previews
@@ -159,10 +189,16 @@ export class GameManager {
                         }
                     } else if (distance <= player.attackRange) {
                         this.uiManager.setActionText(blockingReason);
+                        if (!isOverUI) {
+                            this.scene.input.setDefaultCursor("default"); // Cannot attack
+                        }
                     } else {
                         this.uiManager.setActionText(
                             `Out of range for ${spell.name}!`
                         );
+                        if (!isOverUI) {
+                            this.scene.input.setDefaultCursor("default"); // Cannot attack
+                        }
                     }
                 }
                 return; // Return here to prevent movement path preview
@@ -189,15 +225,27 @@ export class GameManager {
                         `No AP for attacks! (${spell.name} needs ${spell.apCost} AP)`
                     );
                 }
+                if (!isOverUI) {
+                    this.scene.input.setDefaultCursor("default");
+                }
                 return;
             }
 
             // Don't show path if no movement points
-            if (!player.movementPoints || player.movementPoints === 0) return;
+            if (!player.movementPoints || player.movementPoints === 0) {
+                if (!isOverUI) {
+                    this.scene.input.setDefaultCursor("default");
+                }
+                return;
+            }
 
             // Don't show path to friendly units
-            if (targetUnit && targetUnit.team === this.selectedUnit.team)
+            if (targetUnit && targetUnit.team === this.selectedUnit.team) {
+                if (!isOverUI) {
+                    this.scene.input.setDefaultCursor("default");
+                }
                 return;
+            }
 
             // Find path to the hovered tile
             const path = this.grid.findPath(
@@ -209,6 +257,16 @@ export class GameManager {
             );
 
             if (path && path.length > 0) {
+                const cost = path.length;
+                const canMove = player.canMove(cost);
+
+                // Set cursor based on whether movement is possible, but only if not over UI
+                if (!isOverUI) {
+                    this.scene.input.setDefaultCursor(
+                        canMove ? "pointer" : "default"
+                    );
+                }
+
                 // Draw path preview with better visibility
                 this.pathPreview.lineStyle(4, 0xffff00, 0.8);
 
@@ -250,13 +308,16 @@ export class GameManager {
 
                 // Show movement cost
                 if (this.uiManager && !targetUnit) {
-                    const cost = path.length;
-                    const canMove = player.canMove(cost);
                     this.uiManager.setActionText(
                         canMove
                             ? `Movement cost: ${cost} MP`
                             : `Cannot move: Need ${cost} MP, have ${player.movementPoints}`
                     );
+                }
+            } else {
+                // No valid path, but only set cursor if not over UI
+                if (!isOverUI) {
+                    this.scene.input.setDefaultCursor("default");
                 }
             }
         });
@@ -537,6 +598,17 @@ export class GameManager {
         this.moveHighlights.clear();
         this.attackHighlights.clear();
         this.pathPreview.clear();
+
+        // Check if mouse is over UI area before resetting cursor
+        const uiAreaHeight = 100;
+        const pointer = this.scene.input.activePointer;
+        const isOverUI =
+            pointer && pointer.y >= this.scene.scale.height - uiAreaHeight;
+
+        // Reset cursor when clearing highlights, but only if not over UI
+        if (!isOverUI) {
+            this.scene.input.setDefaultCursor("default");
+        }
     }
 
     public handleTileClick(gridX: number, gridY: number): void {
@@ -2291,6 +2363,15 @@ export class GameManager {
         }
 
         return true;
+    }
+
+    public disableHoverPreview(): void {
+        this.hoverPreviewEnabled = false;
+        this.scene.input.setDefaultCursor("default");
+    }
+
+    public enableHoverPreview(): void {
+        this.hoverPreviewEnabled = true;
     }
 }
 

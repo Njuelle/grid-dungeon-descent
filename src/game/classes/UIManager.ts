@@ -151,12 +151,14 @@ export class UIManager {
         this.endTurnButton.on("pointerdown", () => {
             if (this.onEndTurn) this.onEndTurn();
         });
-        this.endTurnButton.on("pointerover", () =>
-            this.endTurnButton.setBackgroundColor("#cc6666")
-        );
-        this.endTurnButton.on("pointerout", () =>
-            this.endTurnButton.setBackgroundColor("#aa4444")
-        );
+        this.endTurnButton.on("pointerover", () => {
+            this.endTurnButton.setBackgroundColor("#cc6666");
+            this.scene.input.setDefaultCursor("pointer");
+        });
+        this.endTurnButton.on("pointerout", () => {
+            this.endTurnButton.setBackgroundColor("#aa4444");
+            this.scene.input.setDefaultCursor("default");
+        });
 
         // Bonus History button - positioned at far right
         this.bonusHistoryButton = this.scene.add
@@ -173,12 +175,14 @@ export class UIManager {
         this.bonusHistoryButton.on("pointerdown", () => {
             this.showBonusHistoryModal();
         });
-        this.bonusHistoryButton.on("pointerover", () =>
-            this.bonusHistoryButton.setBackgroundColor("#6666cc")
-        );
-        this.bonusHistoryButton.on("pointerout", () =>
-            this.bonusHistoryButton.setBackgroundColor("#4444aa")
-        );
+        this.bonusHistoryButton.on("pointerover", () => {
+            this.bonusHistoryButton.setBackgroundColor("#6666cc");
+            this.scene.input.setDefaultCursor("pointer");
+        });
+        this.bonusHistoryButton.on("pointerout", () => {
+            this.bonusHistoryButton.setBackgroundColor("#4444aa");
+            this.scene.input.setDefaultCursor("default");
+        });
 
         // Create player stats display
         this.createPlayerStatsDisplay(barY);
@@ -482,6 +486,7 @@ export class UIManager {
             );
         });
         mrHitArea.on("pointerout", () => {
+            this.scene.input.setDefaultCursor("default");
             this.hideStatTooltip();
         });
 
@@ -676,6 +681,9 @@ export class UIManager {
         container.on("pointerover", () => {
             if (this.currentPlayer && this.currentPlayer.canCastSpell(spell)) {
                 iconSprite.setTint(0xccccff);
+                this.scene.input.setDefaultCursor("pointer");
+            } else {
+                this.scene.input.setDefaultCursor("default");
             }
 
             // Show spell tooltip
@@ -686,6 +694,7 @@ export class UIManager {
             if (container.getData("spell") !== this.selectedSpell) {
                 iconSprite.clearTint();
             }
+            this.scene.input.setDefaultCursor("default");
 
             this.hideSpellTooltip();
         });
@@ -968,6 +977,9 @@ export class UIManager {
         if ((this.scene as any).gameManager) {
             const gameManager = (this.scene as any).gameManager;
             gameManager.stopAllWalkingSounds();
+
+            // Disable hover preview system to prevent cursor interference
+            gameManager.disableHoverPreview();
 
             // Disable all unit interactions and tooltips
             const units = gameManager.getUnits();
@@ -1281,6 +1293,7 @@ export class UIManager {
 
             container.setScale(1.01);
             buttonText.setColor("#ffffff"); // Brighter text on hover
+            this.scene.input.setDefaultCursor("pointer");
         });
 
         container.on("pointerout", () => {
@@ -1314,6 +1327,7 @@ export class UIManager {
 
             container.setScale(1);
             buttonText.setColor("#f5deb3");
+            this.scene.input.setDefaultCursor("default");
         });
 
         container.on("pointerdown", () => {
@@ -1602,10 +1616,14 @@ export class UIManager {
         closeBtn.on("pointerdown", () => {
             this.closeBonusHistoryModal();
         });
-        closeBtn.on("pointerover", () =>
-            closeBtn.setBackgroundColor("#cc6666")
-        );
-        closeBtn.on("pointerout", () => closeBtn.setBackgroundColor("#aa4444"));
+        closeBtn.on("pointerover", () => {
+            closeBtn.setBackgroundColor("#cc6666");
+            this.scene.input.setDefaultCursor("pointer");
+        });
+        closeBtn.on("pointerout", () => {
+            closeBtn.setBackgroundColor("#aa4444");
+            this.scene.input.setDefaultCursor("default");
+        });
 
         // Add all elements to modal (except masked content)
         this.bonusHistoryModal.add([
@@ -1842,10 +1860,14 @@ export class UIManager {
         closeBtn.on("pointerdown", () => {
             this.closeBonusHistoryModal(); // Reusing the same method
         });
-        closeBtn.on("pointerover", () =>
-            closeBtn.setBackgroundColor("#cc6666")
-        );
-        closeBtn.on("pointerout", () => closeBtn.setBackgroundColor("#aa4444"));
+        closeBtn.on("pointerover", () => {
+            closeBtn.setBackgroundColor("#cc6666");
+            this.scene.input.setDefaultCursor("pointer");
+        });
+        closeBtn.on("pointerout", () => {
+            closeBtn.setBackgroundColor("#aa4444");
+            this.scene.input.setDefaultCursor("default");
+        });
 
         // Add all elements to modal
         this.bonusHistoryModal.add([
@@ -2133,12 +2155,14 @@ export class UIManager {
         historyButton.on("pointerdown", () => {
             this.showBonusHistoryModal();
         });
-        historyButton.on("pointerover", () =>
-            historyButton.setBackgroundColor("#6666cc")
-        );
-        historyButton.on("pointerout", () =>
-            historyButton.setBackgroundColor("#4444aa")
-        );
+        historyButton.on("pointerover", () => {
+            historyButton.setBackgroundColor("#6666cc");
+            this.scene.input.setDefaultCursor("pointer");
+        });
+        historyButton.on("pointerout", () => {
+            historyButton.setBackgroundColor("#4444aa");
+            this.scene.input.setDefaultCursor("default");
+        });
 
         // Add player stats button next to bonus history
         const playerStatsButton = this.scene.add
@@ -2156,12 +2180,14 @@ export class UIManager {
         playerStatsButton.on("pointerdown", () => {
             this.showPlayerStatsModal();
         });
-        playerStatsButton.on("pointerover", () =>
-            playerStatsButton.setBackgroundColor("#66cc66")
-        );
-        playerStatsButton.on("pointerout", () =>
-            playerStatsButton.setBackgroundColor("#44aa44")
-        );
+        playerStatsButton.on("pointerover", () => {
+            playerStatsButton.setBackgroundColor("#66cc66");
+            this.scene.input.setDefaultCursor("pointer");
+        });
+        playerStatsButton.on("pointerout", () => {
+            playerStatsButton.setBackgroundColor("#44aa44");
+            this.scene.input.setDefaultCursor("default");
+        });
 
         // Get 3 random bonuses
         const bonuses = getRandomBonuses(3, progress.getAppliedBonuses());

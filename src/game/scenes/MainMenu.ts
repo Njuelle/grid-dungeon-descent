@@ -334,6 +334,7 @@ export class MainMenu extends Scene {
 
             container.setScale(1.01);
             buttonText.setColor("#ffffff"); // Brighter text on hover
+            this.input.setDefaultCursor("pointer");
         });
 
         container.on("pointerout", () => {
@@ -367,6 +368,7 @@ export class MainMenu extends Scene {
 
             container.setScale(1);
             buttonText.setColor("#f5deb3");
+            this.input.setDefaultCursor("default");
         });
 
         container.on("pointerdown", () => {
@@ -517,14 +519,21 @@ export class MainMenu extends Scene {
         elements: GameObjects.GameObject[]
     ): void {
         elements.forEach((element, index) => {
-            element.setAlpha(0);
-            element.setY(element.y + 30);
-            element.setScale(0.9);
+            if ("setAlpha" in element) {
+                (element as any).setAlpha(0);
+            }
+            if ("y" in element && "setY" in element) {
+                const originalY = (element as any).y;
+                (element as any).setY(originalY + 30);
+            }
+            if ("setScale" in element) {
+                (element as any).setScale(0.9);
+            }
 
             this.tweens.add({
                 targets: element,
                 alpha: 1,
-                y: element.y - 30,
+                y: "y" in element ? (element as any).y - 30 : 0,
                 scale: 1,
                 duration: 1000,
                 delay: index * 300,
@@ -573,6 +582,7 @@ export class MainMenu extends Scene {
         // Settings options
         const progress = GameProgress.getInstance();
         const wins = progress.getWins();
+        const bonuses = progress.getAppliedBonuses().length;
 
         // Game info with medieval language
         const gameInfo = this.add
@@ -744,16 +754,20 @@ export class MainMenu extends Scene {
         // Add custom hover behavior that respects the initial scale
         yesButton.on("pointerover", () => {
             yesButton.setScale(buttonScale * 1.05);
+            this.input.setDefaultCursor("pointer");
         });
         yesButton.on("pointerout", () => {
             yesButton.setScale(buttonScale);
+            this.input.setDefaultCursor("default");
         });
 
         noButton.on("pointerover", () => {
             noButton.setScale(buttonScale * 1.05);
+            this.input.setDefaultCursor("pointer");
         });
         noButton.on("pointerout", () => {
             noButton.setScale(buttonScale);
+            this.input.setDefaultCursor("default");
         });
 
         confirmModal.add([
@@ -913,9 +927,11 @@ export class MainMenu extends Scene {
         // Add custom hover behavior for cancel button
         cancelBtn.on("pointerover", () => {
             cancelBtn.setScale(buttonScale * 1.05);
+            this.input.setDefaultCursor("pointer");
         });
         cancelBtn.on("pointerout", () => {
             cancelBtn.setScale(buttonScale);
+            this.input.setDefaultCursor("default");
         });
         cancelBtn.on("pointerdown", () => {
             cancelBtn.setScale(buttonScale * 0.97);
@@ -928,9 +944,11 @@ export class MainMenu extends Scene {
         // Add custom hover behavior for confirm button
         confirmBtn.on("pointerover", () => {
             confirmBtn.setScale(buttonScale * 1.05);
+            this.input.setDefaultCursor("pointer");
         });
         confirmBtn.on("pointerout", () => {
             confirmBtn.setScale(buttonScale);
+            this.input.setDefaultCursor("default");
         });
         confirmBtn.on("pointerdown", () => {
             confirmBtn.setScale(buttonScale * 0.97);
