@@ -37,18 +37,18 @@ export class DifficultyScaling {
         // Progressive scaling with slower ramp-up and extended progression
         let scaleFactor = wins;
 
-        // Different scaling rates for different aspects
+        // Different scaling rates for different aspects - REDUCED FOR BETTER BALANCE
         const healthScale =
-            wins <= 5 ? 0.08 : wins <= 10 ? 0.12 : wins <= 15 ? 0.1 : 0.08;
+            wins <= 5 ? 0.06 : wins <= 10 ? 0.08 : wins <= 15 ? 0.07 : 0.06; // Was: 0.08, 0.12, 0.10, 0.08
         const damageScale =
-            wins <= 5 ? 0.06 : wins <= 10 ? 0.08 : wins <= 15 ? 0.07 : 0.06;
+            wins <= 5 ? 0.05 : wins <= 10 ? 0.06 : wins <= 15 ? 0.055 : 0.05; // Was: 0.06, 0.08, 0.07, 0.06
 
         return {
             enemyHealthMultiplier: 1.0 + scaleFactor * healthScale,
             enemyDamageMultiplier: 1.0 + scaleFactor * damageScale,
-            enemyArmorBonus: Math.floor(scaleFactor / 4), // +1 armor every 4 wins
-            enemyCount: Math.min(3 + Math.floor(scaleFactor / 3), 10), // +1 enemy every 3 wins, max 10
-            enemyMoveRangeBonus: Math.floor(scaleFactor / 5), // +1 move range every 5 wins
+            enemyArmorBonus: Math.floor(scaleFactor / 5), // +1 armor every 5 wins (was 4)
+            enemyCount: Math.min(3 + Math.floor(scaleFactor / 3), 8), // Max 8 enemies (was 10)
+            enemyMoveRangeBonus: Math.floor(scaleFactor / 6), // +1 move range every 6 wins (was 5)
         };
     }
 
@@ -142,23 +142,23 @@ export class DifficultyScaling {
                 troll: 1,
             };
         } else if (wins <= 9) {
-            // Hard - introduce necromancers
+            // Hard - introduce necromancers BUT KEEP SOME WARRIORS
             return {
-                warrior: 0,
+                warrior: 1, // Keep 1 warrior for balance (was 0)
                 archer: 1,
                 tank: 1,
                 magician: 1,
                 gobelin: 2,
                 necromancer: 1,
                 ogre: 1,
-                troll: 1,
+                troll: 0, // Reduced troll count (was 1)
             };
         } else if (wins <= 12) {
-            // Very Hard - more specialized units
+            // Very Hard - more specialized units BUT KEEP SOME WEAKER ONES
             return {
-                warrior: 0,
+                warrior: 1, // Keep 1 warrior (was 0)
                 archer: 1,
-                tank: 2,
+                tank: 1, // Reduced from 2
                 magician: 2,
                 gobelin: 2,
                 necromancer: 1,
@@ -168,12 +168,12 @@ export class DifficultyScaling {
         } else if (wins <= 15) {
             // Extreme - heavy magic composition
             return {
-                warrior: 0,
+                warrior: 1, // Keep 1 warrior (was 0)
                 archer: 1,
                 tank: 1,
                 magician: 2,
-                gobelin: 3,
-                necromancer: 2,
+                gobelin: 2, // Reduced from 3
+                necromancer: 1, // Reduced from 2
                 ogre: 1,
                 troll: 1,
             };
@@ -184,10 +184,10 @@ export class DifficultyScaling {
                 archer: 1,
                 tank: 2,
                 magician: 2,
-                gobelin: 3,
+                gobelin: 2, // Reduced from 3
                 necromancer: 2,
-                ogre: 2,
-                troll: 2,
+                ogre: 1, // Reduced from 2
+                troll: 1, // Reduced from 2
             };
         } else if (wins <= 21) {
             // Inferno - overwhelming force
@@ -195,23 +195,23 @@ export class DifficultyScaling {
                 warrior: 0,
                 archer: 1,
                 tank: 2,
-                magician: 3,
-                gobelin: 4,
-                necromancer: 3,
+                magician: 2, // Reduced from 3
+                gobelin: 3, // Reduced from 4
+                necromancer: 2, // Reduced from 3
                 ogre: 2,
-                troll: 2,
+                troll: 1, // Reduced from 2
             };
         } else if (wins <= 25) {
             // Apocalypse - maximum variety
             return {
                 warrior: 0,
                 archer: 2,
-                tank: 3,
+                tank: 2, // Reduced from 3
                 magician: 3,
-                gobelin: 4,
-                necromancer: 3,
-                ogre: 3,
-                troll: 3,
+                gobelin: 3, // Reduced from 4
+                necromancer: 2, // Reduced from 3
+                ogre: 2, // Reduced from 3
+                troll: 2, // Reduced from 3
             };
         } else {
             // Legendary - endgame composition
@@ -219,11 +219,11 @@ export class DifficultyScaling {
                 warrior: 0,
                 archer: 2,
                 tank: 3,
-                magician: 4,
-                gobelin: 5,
-                necromancer: 4,
-                ogre: 3,
-                troll: 3,
+                magician: 3, // Reduced from 4
+                gobelin: 4, // Reduced from 5
+                necromancer: 3, // Reduced from 4
+                ogre: 2, // Reduced from 3
+                troll: 2, // Reduced from 3
             };
         }
     }
