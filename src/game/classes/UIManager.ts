@@ -2372,7 +2372,7 @@ export class UIManager {
             progress.getAppliedBonuses().includes("gamblers_luck") &&
             !this.rerollUsedThisVictory
         ) {
-            const rerollButtonY = this.scene.scale.height / 2 + 250;
+            const rerollButtonY = this.scene.scale.height / 2 + 270;
 
             // Create reroll button with medieval style
             rerollButton = this.createMedievalButton(
