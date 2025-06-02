@@ -113,6 +113,8 @@ export class Player extends Unit {
             stats.force = Math.max(3, stats.force);
             stats.dexterity = Math.max(3, stats.dexterity);
             stats.intelligence = Math.max(3, stats.intelligence || 0);
+            stats.armor = Math.max(3, stats.armor);
+            stats.magicResistance = Math.max(3, stats.magicResistance || 0);
             console.log("[Player] Perfect Balance: All combat stats minimum 3");
         }
 
