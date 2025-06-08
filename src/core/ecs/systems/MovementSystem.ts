@@ -4,7 +4,7 @@
  * Manages movement validation, pathfinding, and movement state
  */
 
-import { System } from "../Entity";
+import { System, Entity } from "../Entity";
 import {
     PositionComponent,
     MovementComponent,
@@ -289,3 +289,4 @@ export class MovementSystem extends System {
         return movement?.hasMovedThisTurn || false;
     }
 }
+

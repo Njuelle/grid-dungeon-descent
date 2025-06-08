@@ -5,7 +5,8 @@
  * Each component represents a specific aspect of an entity.
  */
 
-import { Spell, UnitStats } from "../../data/types";
+import { Spell } from "../../game/classes/Spell";
+import { UnitStats } from "../../game/classes/Unit";
 
 // Base component interface
 export interface Component {
@@ -260,3 +261,4 @@ export const createTeamComponent = (
     team,
     isActive,
 });
+

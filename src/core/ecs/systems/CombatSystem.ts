@@ -4,7 +4,7 @@
  * Manages attack validation, damage calculation, and combat state
  */
 
-import { System } from "../Entity";
+import { System, Entity } from "../Entity";
 import {
     PositionComponent,
     CombatComponent,
@@ -14,7 +14,7 @@ import {
     TeamComponent,
 } from "../Component";
 import { eventBus, GameEvent } from "../../events/EventBus";
-import { Spell } from "../../../data/types";
+import { Spell } from "../../../game/classes/Spell";
 import { RenderSystem } from "./RenderSystem";
 
 export interface AttackResult {
@@ -188,8 +188,8 @@ export class CombatSystem extends System {
      * Calculate damage for an attack
      */
     private calculateDamage(
-        attacker: any,
-        target: any,
+        attacker: Entity,
+        target: Entity,
         spell?: Spell,
         distance?: number
     ): { damage: number; damageType: "physical" | "magic" } {
@@ -231,9 +231,11 @@ export class CombatSystem extends System {
 
         // Apply damage modifiers
         let damageModifier = 1;
-        Object.values(attackerCombat.damageModifiers).forEach((modifier) => {
-            damageModifier *= modifier;
-        });
+        Object.values(attackerCombat.damageModifiers).forEach(
+            (modifier: number) => {
+                damageModifier *= modifier;
+            }
+        );
 
         // Calculate final damage with randomness (0.8x to 1.2x)
         const rawDamage = (baseDamage + statBonus) * damageModifier;
@@ -247,8 +249,8 @@ export class CombatSystem extends System {
      * Calculate bonus damage modifiers
      */
     private calculateBonusModifiers(
-        attacker: any,
-        target: any,
+        attacker: Entity,
+        target: Entity,
         spell?: Spell,
         distance?: number,
         bonus?: BonusComponent
@@ -287,7 +289,8 @@ export class CombatSystem extends System {
         if (bonus.appliedBonuses.includes("guerrilla_tactics") && distance) {
             const attackRange =
                 spell?.range ||
-                attacker.getComponent<CombatComponent>("combat")?.attackRange;
+                attacker.getComponent<CombatComponent>("combat")?.attackRange ||
+                1;
             if (distance === attackRange) {
                 bonusDamage += 2;
             }
@@ -418,3 +421,4 @@ export class CombatSystem extends System {
         combat.actionPoints = combat.maxActionPoints;
     }
 }
+

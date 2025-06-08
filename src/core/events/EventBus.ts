@@ -211,7 +211,22 @@ export class EventBus {
     }
 }
 
+/**
+ * Standard game events
+ */
+export enum GameEvent {
+    // Combat events
+    COMBAT_DAMAGE_DEALT = "combat:damage_dealt",
+    COMBAT_ENTITY_KILLED = "combat:entity_killed",
+    COMBAT_DAMAGE_TAKEN = "combat:damage_taken",
+
+    // Movement events
+    PLAYER_MOVED = "player:moved",
+    PLAYER_ACTION = "player:action",
+}
+
 // Create a default instance
 export const eventBus = new EventBus({
     debug: process.env.NODE_ENV === "development",
 });
+

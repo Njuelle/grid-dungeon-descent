@@ -8,7 +8,6 @@ import { System } from "../Entity";
 import {
     PositionComponent,
     RenderComponent,
-    StatsComponent,
     TeamComponent,
     UIComponent,
 } from "../Component";
