@@ -7,6 +7,7 @@ import {
     ALL_ARTIFACTS,
 } from "../classes/Artifact";
 import { PLAYER_CLASSES } from "../classes/PlayerClass";
+import { GAME_CONSTANTS } from "../../data/enums";
 
 export class ArtifactSelection extends Scene {
     private selectedArtifact: Artifact | null = null;
@@ -73,10 +74,13 @@ export class ArtifactSelection extends Scene {
             .setOrigin(0.5)
             .setDepth(100);
 
-        // Get player's class and show 2 random artifacts
+        // Get player's class and show random artifacts
         const progress = GameProgress.getInstance();
         const playerClassId = progress.getSelectedClass();
-        const artifacts = getRandomArtifacts(playerClassId, 2);
+        const artifacts = getRandomArtifacts(
+            playerClassId,
+            GAME_CONSTANTS.ARTIFACT_SELECTION_COUNT
+        );
 
         console.log("[ArtifactSelection] Showing artifacts:", artifacts);
 
@@ -546,7 +550,10 @@ export class ArtifactSelection extends Scene {
 
         // Get new artifact options
         const playerClassId = progress.getSelectedClass();
-        const newArtifacts = getRandomArtifacts(playerClassId, 2);
+        const newArtifacts = getRandomArtifacts(
+            playerClassId,
+            GAME_CONSTANTS.ARTIFACT_SELECTION_COUNT
+        );
 
         console.log("[ArtifactSelection] Current artifacts:", currentArtifacts);
         console.log("[ArtifactSelection] New artifact options:", newArtifacts);

@@ -1,6 +1,7 @@
 import { Bonus } from "./Bonus";
 import { Artifact } from "./Artifact";
 import { Spell } from "./Spell";
+import { GAME_CONSTANTS } from "../../data/enums";
 
 export class GameProgress {
     private static instance: GameProgress;
@@ -89,11 +90,13 @@ export class GameProgress {
     }
 
     public shouldShowArtifactSelection(): boolean {
-        // Check if next win (current wins + 1) would be a multiple of 5
+        // Check if next win (current wins + 1) would be a multiple of ARTIFACT_SELECTION_INTERVAL
         const nextWins = this.wins + 1;
-        const shouldShow = nextWins > 0 && nextWins % 5 === 0;
+        const shouldShow =
+            nextWins > 0 &&
+            nextWins % GAME_CONSTANTS.ARTIFACT_SELECTION_INTERVAL === 0;
         console.log(
-            `[GameProgress] shouldShowArtifactSelection: current wins=${this.wins}, next wins=${nextWins}, shouldShow=${shouldShow}`
+            `[GameProgress] shouldShowArtifactSelection: current wins=${this.wins}, next wins=${nextWins}, interval=${GAME_CONSTANTS.ARTIFACT_SELECTION_INTERVAL}, shouldShow=${shouldShow}`
         );
         return shouldShow;
     }

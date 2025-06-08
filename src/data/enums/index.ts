@@ -173,7 +173,8 @@ export const GAME_CONSTANTS = {
     MAX_DAMAGE_VARIANCE: 0.2, // 20%
 
     // Progression
-    ARTIFACT_SELECTION_INTERVAL: 5, // Every 5 wins
+    ARTIFACT_SELECTION_INTERVAL: 3, // Every 3 wins
+    ARTIFACT_SELECTION_COUNT: 2, // Number of artifacts to show in selection
     MAX_LEVEL: 100,
 
     // UI
@@ -248,3 +249,4 @@ export const Z_DEPTHS = {
     MODAL: 200,
     DEBUG: 1000,
 } as const;
+
