@@ -109,9 +109,8 @@ export class MainMenu extends Scene {
                     // Show confirmation modal
                     this.showNewExpeditionConfirmation();
                 } else {
-                    // No progress, start fresh directly
-                    GameProgress.getInstance().reset();
-                    this.scene.start("TacticalBattle");
+                    // No progress, go to class selection
+                    this.scene.start("ClassSelection");
                 }
             }
         );
@@ -956,7 +955,7 @@ export class MainMenu extends Scene {
                 modalContainer.destroy();
                 overlay.destroy();
                 GameProgress.getInstance().reset();
-                this.scene.start("TacticalBattle");
+                this.scene.start("ClassSelection");
             });
         });
 

@@ -3,6 +3,8 @@ import { Unit, UnitStats } from "./Unit";
 import { Spell, PLAYER_SPELLS } from "./Spell";
 import { Bonus, AVAILABLE_BONUSES } from "./Bonus";
 import { GameProgress } from "./GameProgress";
+import { PLAYER_CLASSES, PlayerClass } from "./PlayerClass";
+import { ALL_ARTIFACTS } from "./Artifact";
 
 export type AttackType = "melee" | "ranged" | "magic";
 
@@ -10,23 +12,42 @@ export class Player extends Unit {
     private currentSpell: Spell;
     private spells: Spell[] = [];
     private static unitCount = 0;
+    private playerClass: PlayerClass;
 
     constructor(scene: Scene, gridX: number, gridY: number) {
+        console.log("[Player] Constructor called");
+
+        // Get selected class from GameProgress
+        const progress = GameProgress.getInstance();
+        const selectedClassId = progress.getSelectedClass();
+        console.log("[Player] Selected class ID:", selectedClassId);
+
+        const playerClass =
+            PLAYER_CLASSES.find((c) => c.id === selectedClassId) ||
+            PLAYER_CLASSES[0];
+
+        console.log("[Player] Found player class:", playerClass.name);
+        console.log(
+            "[Player] Player class has",
+            playerClass.spells.length,
+            "spells"
+        );
+
         const baseStats: UnitStats = {
-            health: 10,
-            maxHealth: 10,
-            moveRange: 4,
+            health: playerClass.baseStats.health,
+            maxHealth: playerClass.baseStats.health,
+            moveRange: playerClass.baseStats.moveRange,
             attackRange: 3, // Will be overridden by spell range
-            movementPoints: 4,
-            maxMovementPoints: 4,
-            actionPoints: 3,
-            maxActionPoints: 3,
+            movementPoints: playerClass.baseStats.movementPoints,
+            maxMovementPoints: playerClass.baseStats.movementPoints,
+            actionPoints: playerClass.baseStats.actionPoints,
+            maxActionPoints: playerClass.baseStats.actionPoints,
             // Combat stats
-            force: 3, // Good at melee
-            dexterity: 2, // Decent at ranged
-            intelligence: 3, // Good at magic
-            armor: 1, // Light armor
-            magicResistance: 1, // Base magic resistance
+            force: playerClass.baseStats.force,
+            dexterity: playerClass.baseStats.dexterity,
+            intelligence: playerClass.baseStats.intelligence,
+            armor: playerClass.baseStats.armor,
+            magicResistance: playerClass.baseStats.magicResistance,
         };
 
         // Apply bonuses before calling super
@@ -34,12 +55,25 @@ export class Player extends Unit {
 
         super(scene, gridX, gridY, "player", stats);
 
+        // Store player class
+        this.playerClass = playerClass;
+
         // Initialize spells with bonuses applied
+        console.log("[Player] Initializing spells...");
         this.initializeSpells();
+        console.log("[Player] Spells initialized, count:", this.spells.length);
 
         // Set default spell
-        this.currentSpell = this.spells[0];
-        this.updateAttackRange();
+        if (this.spells.length > 0) {
+            this.currentSpell = this.spells[0];
+            console.log(
+                "[Player] Default spell set to:",
+                this.currentSpell.name
+            );
+            this.updateAttackRange();
+        } else {
+            console.error("[Player] No spells found! Cannot set default spell");
+        }
     }
 
     private static applyBonusesToStats(baseStats: UnitStats): UnitStats {
@@ -131,11 +165,110 @@ export class Player extends Unit {
     }
 
     private initializeSpells(): void {
-        // Deep copy spells
-        this.spells = PLAYER_SPELLS.map((spell) => ({ ...spell }));
+        console.log(
+            "[Player] initializeSpells - player class spells:",
+            this.playerClass.spells
+        );
 
-        // Apply spell bonuses
+        // Get equipped spells from GameProgress
         const progress = GameProgress.getInstance();
+
+        // Build available spells list (class spells + artifact spells)
+        const availableSpells: Spell[] = [...this.playerClass.spells];
+
+        // Add spells from acquired artifacts
+        const acquiredArtifacts = progress.getAcquiredArtifacts();
+        console.log("[Player] Acquired artifacts:", acquiredArtifacts);
+        console.log(
+            "[Player] Available artifacts in game:",
+            ALL_ARTIFACTS.map((a) => a.id)
+        );
+        acquiredArtifacts.forEach((artifactId) => {
+            const artifact = ALL_ARTIFACTS.find((a) => a.id === artifactId);
+            if (artifact) {
+                console.log(
+                    "[Player] Adding artifact spell:",
+                    artifact.spell.name,
+                    "from artifact:",
+                    artifact.name
+                );
+                availableSpells.push(artifact.spell);
+            } else {
+                console.error(
+                    "[Player] Could not find artifact with ID:",
+                    artifactId
+                );
+            }
+        });
+        console.log(
+            "[Player] Total available spells after adding artifacts:",
+            availableSpells.length
+        );
+
+        const equippedSpellIds = progress.getEquippedSpells();
+
+        if (equippedSpellIds.length > 0) {
+            // Load equipped spells
+            console.log("[Player] Loading equipped spells:", equippedSpellIds);
+            console.log(
+                "[Player] Available spell IDs:",
+                availableSpells.map((s) => s.id)
+            );
+
+            // Map equipped spell IDs to actual spells
+            const mappedSpells = equippedSpellIds.map((id) => {
+                const found = availableSpells.find((s) => s.id === id);
+                console.log(
+                    `[Player] Looking for spell ID "${id}": ${
+                        found ? "FOUND" : "NOT FOUND"
+                    }`
+                );
+                if (found) {
+                    console.log(`[Player] Found spell: ${found.name}`);
+                }
+                return found;
+            });
+
+            this.spells = mappedSpells.filter(
+                (spell) => spell !== undefined
+            ) as Spell[];
+
+            console.log(
+                "[Player] Final loaded spells:",
+                this.spells.map((s) => `${s.name} (${s.id})`)
+            );
+        } else {
+            // Default to first 2 class spells + all artifact spells (up to 5 total)
+            console.log(
+                "[Player] No equipped spells found, using default class spells + artifact spells"
+            );
+
+            const classSpells = this.playerClass.spells.slice(0, 2);
+            const artifactSpells = availableSpells.filter(
+                (spell) =>
+                    !this.playerClass.spells.some(
+                        (classSpell) => classSpell.id === spell.id
+                    )
+            );
+
+            // Combine class spells + artifact spells (up to 5 total)
+            const allSpells = [...classSpells, ...artifactSpells].slice(0, 5);
+            this.spells = allSpells.map((spell) => ({ ...spell }));
+
+            console.log(
+                "[Player] Using spells:",
+                this.spells.map((s) => s.name)
+            );
+
+            // Auto-save this as the equipped spells for future games
+            const spellIds = this.spells.map((s) => s.id);
+            progress.setEquippedSpells(spellIds);
+            console.log("[Player] Auto-saved equipped spells:", spellIds);
+        }
+
+        // Note: UI will show empty slots for remaining spell slots (up to 5 total)
+
+        // Apply spell bonuses (reuse progress variable declared above)
         const appliedBonuses = progress.getAppliedBonuses();
 
         for (const bonusId of appliedBonuses) {
@@ -275,8 +408,25 @@ export class Player extends Unit {
     }
 
     protected createSprite(): void {
-        // Use the hero warrior sprite
-        this.sprite = this.scene.add.sprite(0, 0, "hero_warrior");
+        // Use the appropriate class sprite based on selected class
+        // If playerClass is not set yet (during construction), get it from GameProgress
+        let spriteName = "hero_warrior"; // Default fallback
+
+        if (this.playerClass) {
+            spriteName = this.playerClass.icon || "hero_warrior";
+        } else {
+            // Fallback: get sprite name from selected class in GameProgress
+            const progress = GameProgress.getInstance();
+            const selectedClassId = progress.getSelectedClass();
+            const playerClass = PLAYER_CLASSES.find(
+                (c) => c.id === selectedClassId
+            );
+            if (playerClass) {
+                spriteName = playerClass.icon || "hero_warrior";
+            }
+        }
+
+        this.sprite = this.scene.add.sprite(0, 0, spriteName);
         this.sprite.setInteractive();
         this.sprite.setData("unit", this);
         this.sprite.setDepth(2); // Above floors (0) and walls (0.5)

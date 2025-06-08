@@ -654,80 +654,110 @@ export class UIManager {
     private createSpellButton(
         x: number,
         y: number,
-        spell: Spell,
+        spell: Spell | null,
         index: number
     ): Phaser.GameObjects.Container {
         const container = this.scene.add.container(x, y);
         container.setDepth(50);
 
-        // Icon - much larger size, no background
-        const iconSprite = this.scene.add.image(0, 0, spell.icon);
-        iconSprite.setScale(1.2); // Reduced from 1.5
-        iconSprite.setDisplaySize(48, 48); // Reduced from 60x60
+        if (spell) {
+            // Icon - much larger size, no background
+            const iconSprite = this.scene.add.image(0, 0, spell.icon);
+            iconSprite.setScale(1.2); // Reduced from 1.5
+            iconSprite.setDisplaySize(48, 48); // Reduced from 60x60
 
-        // AP cost - positioned at top-right corner of icon
-        const apCostText = this.scene.add
-            .text(20, -20, `${spell.apCost}`, {
-                fontSize: "14px",
-                color: "#ffff00",
-                backgroundColor: "#000000",
-                padding: { x: 2, y: 1 },
-                stroke: "#000000",
-                strokeThickness: 2,
-            })
-            .setOrigin(0.5);
+            // AP cost - positioned at top-right corner of icon
+            const apCostText = this.scene.add
+                .text(20, -20, `${spell.apCost}`, {
+                    fontSize: "14px",
+                    color: "#ffff00",
+                    backgroundColor: "#000000",
+                    padding: { x: 2, y: 1 },
+                    stroke: "#000000",
+                    strokeThickness: 2,
+                })
+                .setOrigin(0.5);
 
-        // Selection border (initially hidden)
-        const selectionBorder = this.scene.add.graphics();
-        selectionBorder.setVisible(false);
+            // Selection border (initially hidden)
+            const selectionBorder = this.scene.add.graphics();
+            selectionBorder.setVisible(false);
 
-        container.add([selectionBorder, iconSprite, apCostText]);
-        container.setData("iconSprite", iconSprite);
-        container.setData("spell", spell);
-        container.setData("apCostText", apCostText);
-        container.setData("selectionBorder", selectionBorder);
-        container.setInteractive(
-            new Phaser.Geom.Rectangle(-24, -24, 48, 48),
-            Phaser.Geom.Rectangle.Contains
-        );
+            container.add([selectionBorder, iconSprite, apCostText]);
+            container.setData("iconSprite", iconSprite);
+            container.setData("spell", spell);
+            container.setData("apCostText", apCostText);
+            container.setData("selectionBorder", selectionBorder);
+            container.setInteractive(
+                new Phaser.Geom.Rectangle(-24, -24, 48, 48),
+                Phaser.Geom.Rectangle.Contains
+            );
 
-        container.on("pointerdown", () => {
-            if (this.currentPlayer && this.currentPlayer.canCastSpell(spell)) {
-                this.selectSpell(spell);
-                if (this.onSpellSelected) {
-                    this.onSpellSelected(spell);
+            container.on("pointerdown", () => {
+                if (
+                    this.currentPlayer &&
+                    this.currentPlayer.canCastSpell(spell)
+                ) {
+                    this.selectSpell(spell);
+                    if (this.onSpellSelected) {
+                        this.onSpellSelected(spell);
+                    }
                 }
-            }
-        });
+            });
 
-        container.on("pointerover", () => {
-            if (this.currentPlayer && this.currentPlayer.canCastSpell(spell)) {
-                iconSprite.setTint(0xccccff);
-                this.scene.input.setDefaultCursor("pointer");
-            } else {
+            container.on("pointerover", () => {
+                if (
+                    this.currentPlayer &&
+                    this.currentPlayer.canCastSpell(spell)
+                ) {
+                    iconSprite.setTint(0xccccff);
+                    this.scene.input.setDefaultCursor("pointer");
+                } else {
+                    this.scene.input.setDefaultCursor("default");
+                }
+
+                // Show spell tooltip
+                this.showSpellTooltip(spell, x, y - 50);
+            });
+
+            container.on("pointerout", () => {
+                if (container.getData("spell") !== this.selectedSpell) {
+                    iconSprite.clearTint();
+                }
                 this.scene.input.setDefaultCursor("default");
-            }
 
-            // Show spell tooltip
-            this.showSpellTooltip(spell, x, y - 50);
-        });
+                this.hideSpellTooltip();
+            });
+        } else {
+            // Empty spell slot
+            const emptySlot = this.scene.add.graphics();
+            emptySlot.lineStyle(2, 0x666666, 0.8);
+            emptySlot.strokeRoundedRect(-24, -24, 48, 48, 8);
+            emptySlot.fillStyle(0x222222, 0.3);
+            emptySlot.fillRoundedRect(-24, -24, 48, 48, 8);
 
-        container.on("pointerout", () => {
-            if (container.getData("spell") !== this.selectedSpell) {
-                iconSprite.clearTint();
-            }
-            this.scene.input.setDefaultCursor("default");
+            // Plus icon for empty slot
+            const plusIcon = this.scene.add
+                .text(0, 0, "+", {
+                    fontSize: "24px",
+                    color: "#666666",
+                    fontStyle: "bold",
+                })
+                .setOrigin(0.5);
 
-            this.hideSpellTooltip();
-        });
+            container.add([emptySlot, plusIcon]);
+            container.setData("iconSprite", null);
+            container.setData("spell", null);
+            container.setData("apCostText", null);
+            container.setData("selectionBorder", null);
+        }
 
         return container;
     }
 
     private spellTooltip?: Phaser.GameObjects.Container;
 
-    private showSpellTooltip(spell: Spell, x: number, y: number): void {
-        if (this.spellTooltip) return;
+    private showSpellTooltip(spell: Spell | null, x: number, y: number): void {
+        if (this.spellTooltip || !spell) return;
 
         // Build range text
         let rangeText = `Range: ${spell.range}`;
@@ -842,34 +872,38 @@ export class UIManager {
         const startX = 100;
         const spacing = 80; // Reduced from 120
 
-        spells.forEach((spell, index) => {
+        // Create 5 spell slots total (3 class spells + 2 empty slots)
+        for (let i = 0; i < 5; i++) {
+            const spell = spells[i];
             const button = this.createSpellButton(
-                startX + index * spacing,
+                startX + i * spacing,
                 buttonY,
                 spell,
-                index
+                i
             );
             this.spellButtons.push(button);
 
-            // Update button state based on AP availability
-            const iconSprite = button.getData(
-                "iconSprite"
-            ) as Phaser.GameObjects.Image;
-            const apCostText = button.getData(
-                "apCostText"
-            ) as Phaser.GameObjects.Text;
+            if (spell) {
+                // Update button state based on AP availability
+                const iconSprite = button.getData(
+                    "iconSprite"
+                ) as Phaser.GameObjects.Image;
+                const apCostText = button.getData(
+                    "apCostText"
+                ) as Phaser.GameObjects.Text;
 
-            if (!player.canCastSpell(spell)) {
-                // Disabled state
-                iconSprite.setTint(0x666666);
-                iconSprite.setAlpha(0.5);
-                apCostText.setColor("#ff4444");
-            } else {
-                iconSprite.clearTint();
-                iconSprite.setAlpha(1);
-                apCostText.setColor("#ffff00");
+                if (!player.canCastSpell(spell)) {
+                    // Disabled state
+                    iconSprite.setTint(0x666666);
+                    iconSprite.setAlpha(0.5);
+                    apCostText.setColor("#ff4444");
+                } else {
+                    iconSprite.clearTint();
+                    iconSprite.setAlpha(1);
+                    apCostText.setColor("#ffff00");
+                }
             }
-        });
+        }
 
         // Select the current spell
         if (player.getCurrentSpell()) {
@@ -888,10 +922,15 @@ export class UIManager {
             const iconSprite = button.getData(
                 "iconSprite"
             ) as Phaser.GameObjects.Image;
-            const buttonSpell = button.getData("spell") as Spell;
+            const buttonSpell = button.getData("spell") as Spell | null;
             const selectionBorder = button.getData(
                 "selectionBorder"
             ) as Phaser.GameObjects.Graphics;
+
+            // Skip empty slots
+            if (!buttonSpell || !iconSprite || !selectionBorder) {
+                return;
+            }
 
             if (buttonSpell === spell) {
                 // Selected state - green border and larger
@@ -990,9 +1029,27 @@ export class UIManager {
     }
 
     public showGameOver(victory: boolean, onRestart: () => void): void {
+        console.log(`[UIManager] showGameOver called with victory=${victory}`);
+
         if (victory) {
-            // Show bonus selection
-            this.showBonusSelection(onRestart);
+            // Check if we should show artifact selection (every 5 wins)
+            const progress = GameProgress.getInstance();
+            console.log(`[UIManager] Current wins: ${progress.getWins()}`);
+
+            if (progress.shouldShowArtifactSelection()) {
+                console.log(`[UIManager] Showing artifact selection`);
+                // Increment wins before showing artifact selection
+                progress.incrementWins();
+                console.log(
+                    `[UIManager] Wins after increment: ${progress.getWins()}`
+                );
+                // Go directly to artifact selection scene
+                this.scene.scene.start("ArtifactSelection");
+            } else {
+                console.log(`[UIManager] Showing bonus selection`);
+                // Show bonus selection (wins will be incremented there)
+                this.showBonusSelection(onRestart);
+            }
         } else {
             // Show regular game over
             this.showDefeatScreen(onRestart);

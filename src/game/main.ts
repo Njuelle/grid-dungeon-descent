@@ -5,6 +5,8 @@ import { MainMenu } from "./scenes/MainMenu";
 import { AUTO, Game } from "phaser";
 import { Preloader } from "./scenes/Preloader";
 import { TacticalBattle } from "./scenes/TacticalBattle";
+import { ClassSelection } from "./scenes/ClassSelection";
+import { ArtifactSelection } from "./scenes/ArtifactSelection";
 
 // Find out more information about the Game Config at:
 // https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
@@ -24,7 +26,16 @@ const config: Phaser.Types.Core.GameConfig = {
             height: 600,
         },
     },
-    scene: [Boot, Preloader, MainMenu, MainGame, GameOver, TacticalBattle],
+    scene: [
+        Boot,
+        Preloader,
+        MainMenu,
+        ClassSelection,
+        ArtifactSelection,
+        MainGame,
+        GameOver,
+        TacticalBattle,
+    ],
 };
 
 const StartGame = (parent: string) => {
