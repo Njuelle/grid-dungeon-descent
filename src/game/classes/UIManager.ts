@@ -2458,8 +2458,20 @@ export class UIManager {
             this.scene.input.setDefaultCursor("default");
         });
 
-        // Get 3 random bonuses
-        const bonuses = getRandomBonuses(3, progress.getAppliedBonuses());
+        // Get 3 random bonuses with player context for better filtering
+        const playerSpellIds = this.currentPlayer
+            ? this.currentPlayer.getSpells().map((s) => s.id)
+            : [];
+        const playerClass = progress.getSelectedClass() as
+            | "warrior"
+            | "ranger"
+            | "mage";
+        const bonuses = getRandomBonuses(
+            3,
+            progress.getAppliedBonuses(),
+            playerSpellIds,
+            playerClass
+        );
         const bonusContainers: Phaser.GameObjects.Container[] = [];
 
         // Create bonus cards
@@ -2647,10 +2659,12 @@ export class UIManager {
                         rerollButton = undefined;
                     }
 
-                    // Get new bonuses
+                    // Get new bonuses with player context for better filtering
                     const newBonuses = getRandomBonuses(
                         3,
-                        progress.getAppliedBonuses()
+                        progress.getAppliedBonuses(),
+                        playerSpellIds,
+                        playerClass
                     );
 
                     // Recreate bonus cards

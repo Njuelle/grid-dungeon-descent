@@ -274,12 +274,31 @@ export class Player extends Unit {
         for (const bonusId of appliedBonuses) {
             const bonus = AVAILABLE_BONUSES.find((b) => b.id === bonusId);
             if (bonus && bonus.type === "spell" && bonus.target) {
-                const spell = this.spells.find((s) => s.id === bonus.target);
-                if (spell) {
+                // Handle spell ID mapping for backwards compatibility
+                let targetSpell: Spell | undefined;
+
+                // First try direct match (for advanced spells)
+                targetSpell = this.spells.find((s) => s.id === bonus.target);
+
+                // If not found, try mapping system for basic spells
+                if (!targetSpell) {
+                    const mappedIds = this.getSpellMappingIds(bonus.target);
+                    for (const mappedId of mappedIds) {
+                        targetSpell = this.spells.find(
+                            (s) => s.id === mappedId
+                        );
+                        if (targetSpell) break;
+                    }
+                }
+
+                if (targetSpell) {
                     bonus.effects.forEach((effect) => {
                         // Check conditions before applying effect
                         if (effect.condition && effect.condition.requiresAoe) {
-                            if (!spell.aoeShape || !spell.aoeRadius) {
+                            if (
+                                !targetSpell!.aoeShape ||
+                                !targetSpell!.aoeRadius
+                            ) {
                                 return; // Skip effect if spell doesn't have AoE
                             }
                         }
@@ -291,52 +310,64 @@ export class Player extends Unit {
                             switch (effect.spellProperty) {
                                 case "damage":
                                     if (typeof effect.spellValue === "number") {
-                                        spell.damage = Math.max(
+                                        targetSpell!.damage = Math.max(
                                             0,
-                                            spell.damage + effect.spellValue
+                                            targetSpell!.damage +
+                                                effect.spellValue
                                         );
                                     }
                                     break;
                                 case "range":
                                     if (typeof effect.spellValue === "number") {
-                                        spell.range = Math.max(
+                                        targetSpell!.range = Math.max(
                                             1,
-                                            spell.range + effect.spellValue
+                                            targetSpell!.range +
+                                                effect.spellValue
                                         );
                                         // Ensure minRange is not greater than range
                                         if (
-                                            spell.minRange &&
-                                            spell.minRange > spell.range
+                                            targetSpell!.minRange &&
+                                            targetSpell!.minRange >
+                                                targetSpell!.range
                                         ) {
-                                            spell.minRange = spell.range;
+                                            targetSpell!.minRange =
+                                                targetSpell!.range;
                                         }
                                     }
                                     break;
                                 case "apCost":
                                     if (typeof effect.spellValue === "number") {
-                                        const oldCost = spell.apCost;
-                                        spell.apCost = Math.max(
+                                        const oldCost = targetSpell!.apCost;
+                                        targetSpell!.apCost = Math.max(
                                             0,
-                                            spell.apCost + effect.spellValue
+                                            targetSpell!.apCost +
+                                                effect.spellValue
                                         );
                                         console.log(
-                                            `[Player] Bonus "${bonus.name}" modified ${spell.name} AP cost: ${oldCost} -> ${spell.apCost}`
+                                            `[Player] Bonus "${
+                                                bonus.name
+                                            }" modified ${
+                                                targetSpell!.name
+                                            } AP cost: ${oldCost} -> ${
+                                                targetSpell!.apCost
+                                            }`
                                         );
                                     }
                                     break;
                                 case "aoeShape":
                                     if (typeof effect.spellValue === "string") {
-                                        spell.aoeShape = effect.spellValue as
-                                            | "circle"
-                                            | "line"
-                                            | "cone";
+                                        targetSpell!.aoeShape =
+                                            effect.spellValue as
+                                                | "circle"
+                                                | "line"
+                                                | "cone";
                                     }
                                     break;
                                 case "aoeRadius":
                                     if (typeof effect.spellValue === "number") {
-                                        spell.aoeRadius = Math.max(
+                                        targetSpell!.aoeRadius = Math.max(
                                             1,
-                                            (spell.aoeRadius || 0) +
+                                            (targetSpell!.aoeRadius || 0) +
                                                 effect.spellValue
                                         );
                                     }
@@ -463,6 +494,37 @@ export class Player extends Unit {
 
     public getSpells(): Spell[] {
         return this.spells;
+    }
+
+    /**
+     * Get mapped spell IDs for bonus targeting
+     * Handles the mapping between bonus target IDs and actual player spell IDs
+     */
+    private getSpellMappingIds(bonusTarget: string): string[] {
+        const mapping: Record<string, string[]> = {
+            // Melee spells
+            slash: ["warrior_basic_attack"],
+            power_strike: ["warrior_power_attack"],
+
+            // Ranged spells
+            arrow_shot: ["ranger_basic_attack"],
+            bone_piercer: ["ranger_power_attack"],
+
+            // Magic spells
+            magic_missile: ["mage_basic_attack"],
+            fireball: ["mage_power_attack"],
+
+            // Advanced spells that might be acquired later
+            whirlwind: ["whirlwind"],
+            shield_bash: ["shield_bash"],
+            precise_shot: ["precise_shot"],
+            explosive_arrow: ["explosive_arrow"],
+            ice_shard: ["ice_shard"],
+            chain_lightning: ["chain_lightning"],
+            heal: ["heal"],
+        };
+
+        return mapping[bonusTarget] || [bonusTarget];
     }
 
     public getCurrentSpell(): Spell {

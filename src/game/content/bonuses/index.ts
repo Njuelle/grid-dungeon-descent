@@ -82,11 +82,100 @@ export function getBonusById(bonusId: string): Bonus | undefined {
 }
 
 /**
+ * Mapping of bonus target spell IDs to actual player spell IDs
+ * This handles the mismatch between SpellBonuses target names and actual spell IDs
+ */
+const SPELL_ID_MAPPING: Record<string, string[]> = {
+    // Melee spells
+    slash: ["warrior_basic_attack"],
+    power_strike: ["warrior_power_attack"],
+
+    // Ranged spells
+    arrow_shot: ["ranger_basic_attack"],
+    bone_piercer: ["ranger_power_attack"],
+
+    // Magic spells
+    magic_missile: ["mage_basic_attack"],
+    fireball: ["mage_power_attack"],
+
+    // Advanced spells that might be acquired later
+    whirlwind: ["whirlwind"],
+    shield_bash: ["shield_bash"],
+    precise_shot: ["precise_shot"],
+    explosive_arrow: ["explosive_arrow"],
+    ice_shard: ["ice_shard"],
+    chain_lightning: ["chain_lightning"],
+    heal: ["heal"],
+};
+
+/**
+ * Get spell bonuses that the player can actually use
+ * Only returns bonuses for spells the player currently has
+ */
+export function getValidSpellBonusesForPlayer(
+    playerSpellIds: string[]
+): Bonus[] {
+    return SPELL_BONUSES.filter((bonus) => {
+        // Skip universal bonuses (they don't target specific spells)
+        if (!bonus.target) {
+            return true;
+        }
+
+        // Check if player has any spell that this bonus targets
+        const targetSpellIds = SPELL_ID_MAPPING[bonus.target] || [bonus.target];
+        return targetSpellIds.some((spellId) =>
+            playerSpellIds.includes(spellId)
+        );
+    });
+}
+
+/**
+ * Get bonuses appropriate for a specific class
+ */
+export function getBonusesForClass(
+    classId: "warrior" | "ranger" | "mage",
+    playerSpellIds: string[]
+): Bonus[] {
+    // Get all stat bonuses (they work for everyone)
+    const statBonuses = STAT_BONUSES;
+
+    // Get universal bonuses
+    const universalBonuses = SPELL_BONUSES.filter(
+        (bonus) =>
+            !bonus.target || // Universal spell bonuses
+            bonus.type === "stat" // Universal effects
+    );
+
+    // Get valid spell bonuses for this player's spells
+    const validSpellBonuses = getValidSpellBonusesForPlayer(playerSpellIds);
+
+    // Get special bonuses (no class restriction for now)
+    const specialBonuses = SPECIAL_BONUSES;
+
+    // Combine all valid bonuses
+    const allValidBonuses = [
+        ...statBonuses,
+        ...universalBonuses,
+        ...validSpellBonuses,
+        ...specialBonuses,
+    ];
+
+    // Remove duplicates
+    return allValidBonuses.filter(
+        (bonus, index, self) =>
+            index === self.findIndex((b) => b.id === bonus.id)
+    );
+}
+
+/**
  * Get random bonuses with smart filtering to avoid conflicts
+ * Now includes proper spell filtering
  */
 export function getRandomBonuses(
     count: number,
-    exclude: string[] = []
+    exclude: string[] = [],
+    playerSpellIds: string[] = [],
+    playerClass?: "warrior" | "ranger" | "mage"
 ): Bonus[] {
     // Filter out bonuses with incomplete implementations (empty effects or only placeholder comments)
     const incompleteBonus: string[] = [
@@ -101,8 +190,17 @@ export function getRandomBonuses(
         "phoenix_blessing", // Requires death/revival system
     ];
 
-    // First, get all bonuses that pass the various filters
-    const allValidBonuses = AVAILABLE_BONUSES.filter(
+    // Get bonuses appropriate for the player's class and spells
+    let allValidBonuses: Bonus[];
+    if (playerClass && playerSpellIds.length > 0) {
+        allValidBonuses = getBonusesForClass(playerClass, playerSpellIds);
+    } else {
+        // Fallback to all bonuses if no class/spell info provided
+        allValidBonuses = AVAILABLE_BONUSES;
+    }
+
+    // Apply additional filters
+    const filteredBonuses = allValidBonuses.filter(
         (b) =>
             !incompleteBonus.includes(b.id) &&
             b.effects.length > 0 && // Ensure it has actual effects
@@ -112,20 +210,20 @@ export function getRandomBonuses(
     );
 
     // Separate bonuses into those already picked and those not
-    const alreadyPicked = allValidBonuses.filter((b) => exclude.includes(b.id));
-    const notPicked = allValidBonuses.filter((b) => !exclude.includes(b.id));
+    const alreadyPicked = filteredBonuses.filter((b) => exclude.includes(b.id));
+    const notPicked = filteredBonuses.filter((b) => !exclude.includes(b.id));
 
     // For already picked bonuses, only include stat bonuses (not spell bonuses)
     // and reduce their probability of appearing
     const reducedProbabilityBonuses = alreadyPicked
         .filter((b) => b.type === "stat") // Only allow stat bonuses to be picked multiple times
-        .filter(() => Math.random() < 0.4); // 40% chance of appearing again
+        .filter(() => Math.random() < 0.4);
 
-    // Combine available bonuses
-    const availableBonuses = [...notPicked, ...reducedProbabilityBonuses];
+    // Combine available bonuses with reduced probability ones
+    const finalBonusPool = [...notPicked, ...reducedProbabilityBonuses];
 
-    // Shuffle and return the requested count
-    const shuffled = [...availableBonuses].sort(() => Math.random() - 0.5);
+    // Shuffle and select
+    const shuffled = finalBonusPool.sort(() => Math.random() - 0.5);
     return shuffled.slice(0, Math.min(count, shuffled.length));
 }
 
@@ -145,3 +243,4 @@ function isAoeBonusIrrelevant(bonus: Bonus, exclude: string[]): boolean {
     // Logic to check AoE relevance (copied from original)
     return false; // Simplified for now
 }
+
