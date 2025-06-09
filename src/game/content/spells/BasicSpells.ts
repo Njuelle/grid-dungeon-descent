@@ -80,77 +80,10 @@ export const BASIC_SPELLS: Spell[] = [
         type: "magic",
     },
 
-    // ===== CLASS-SPECIFIC BASIC SPELLS =====
-
-    // Warrior class basics
-    {
-        id: "warrior_basic_attack",
-        name: "Sword Strike",
-        icon: "icon_slash",
-        apCost: 1,
-        range: 1,
-        damage: 3,
-        description: "Basic melee attack with sword",
-        type: "melee",
-    },
-    {
-        id: "warrior_power_attack",
-        name: "Heavy Blow",
-        icon: "icon_power_strike",
-        apCost: 2,
-        range: 1,
-        damage: 6,
-        description: "Powerful melee strike",
-        type: "melee",
-    },
-
-    // Ranger class basics
-    {
-        id: "ranger_basic_attack",
-        name: "Arrow Shot",
-        icon: "icon_arrow_shot",
-        apCost: 1,
-        range: 3,
-        minRange: 2,
-        damage: 2,
-        description: "Basic ranged attack with bow",
-        type: "ranged",
-    },
-    {
-        id: "ranger_power_attack",
-        name: "Piercing Shot",
-        icon: "icon_bone_piercer",
-        apCost: 2,
-        range: 4,
-        minRange: 2,
-        damage: 4,
-        description: "Powerful ranged attack that pierces through armor",
-        type: "ranged",
-    },
-
-    // Mage class basics
-    {
-        id: "mage_basic_attack",
-        name: "Magic Missile",
-        icon: "icon_magic_missile",
-        apCost: 1,
-        range: 3,
-        minRange: 1,
-        damage: 2,
-        description: "Basic magical projectile",
-        type: "magic",
-    },
-    {
-        id: "mage_power_attack",
-        name: "Fireball",
-        icon: "icon_fire_ball",
-        apCost: 3,
-        range: 3,
-        minRange: 2,
-        damage: 5,
-        description: "Explosive magical attack",
-        type: "magic",
-        aoeShape: "circle",
-        aoeRadius: 1,
-    },
+    // ===== NOTE =====
+    // Class-specific spells are now defined in their dedicated files:
+    // - WarriorSpells.ts for warrior spells
+    // - RangerSpells.ts for ranger spells
+    // - MageSpells.ts for mage spells
 ];
+

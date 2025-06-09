@@ -5,6 +5,7 @@ import {
     Artifact,
     getRandomArtifacts,
     ALL_ARTIFACTS,
+    getArtifactSpell,
 } from "../classes/Artifact";
 import { PLAYER_CLASSES } from "../classes/PlayerClass";
 import { GAME_CONSTANTS } from "../../data/enums";
@@ -151,6 +152,15 @@ export class ArtifactSelection extends Scene {
         const cardWidth = 320;
         const cardHeight = 280;
 
+        // Get the spell associated with this artifact
+        const spell = getArtifactSpell(artifact);
+        if (!spell) {
+            console.error(
+                `[ArtifactSelection] Spell not found for artifact: ${artifact.id} -> ${artifact.spellId}`
+            );
+            return container; // Return empty container if spell not found
+        }
+
         // Card background
         const bg = this.add.graphics();
         bg.fillStyle(0x3e2723, 0.9);
@@ -172,7 +182,7 @@ export class ArtifactSelection extends Scene {
 
         // Artifact icon (larger)
         const artifactIcon = this.add
-            .image(0, -80, artifact.spell.icon)
+            .image(0, -80, spell.icon)
             .setOrigin(0.5)
             .setScale(2.0);
 
@@ -189,7 +199,7 @@ export class ArtifactSelection extends Scene {
 
         // Spell name
         const spellInfo = this.add
-            .text(0, 20, `Grants: ${artifact.spell.name}`, {
+            .text(0, 20, `Grants: ${spell.name}`, {
                 fontFamily: "serif",
                 fontSize: "16px",
                 color: "#f5deb3",
@@ -203,7 +213,7 @@ export class ArtifactSelection extends Scene {
             .text(
                 0,
                 50,
-                `${artifact.spell.description}\nAP: ${artifact.spell.apCost} | Range: ${artifact.spell.range} | Damage: ${artifact.spell.damage}`,
+                `${spell.description}\nAP: ${spell.apCost} | Range: ${spell.range} | Damage: ${spell.damage}`,
                 {
                     fontFamily: "serif",
                     fontSize: "14px",
@@ -503,7 +513,7 @@ export class ArtifactSelection extends Scene {
                         ALL_ARTIFACTS.find((a) => a.id === artifactId)
                     )
                     .filter((artifact) => artifact !== undefined)
-                    .map((artifact) => artifact!.spell.id);
+                    .map((artifact) => artifact!.spellId);
 
                 // Combine class spells + artifact spells (up to 5 total)
                 const newEquipped = [
@@ -645,10 +655,11 @@ export class ArtifactSelection extends Scene {
             fontStyle: "bold",
         });
 
+        const spell = getArtifactSpell(artifact);
         const spellInfo = this.add.text(
             -cardWidth / 2 + 10,
             0,
-            `Spell: ${artifact.spell.name}`,
+            `Spell: ${spell?.name || "Unknown"}`,
             {
                 fontFamily: "serif",
                 fontSize: "14px",
@@ -657,7 +668,7 @@ export class ArtifactSelection extends Scene {
         );
 
         const spellIcon = this.add
-            .image(cardWidth / 2 - 30, 0, artifact.spell.icon)
+            .image(cardWidth / 2 - 30, 0, spell?.icon || "icon_placeholder")
             .setScale(0.8);
 
         container.add([bg, name, spellInfo, spellIcon]);
@@ -757,10 +768,11 @@ export class ArtifactSelection extends Scene {
             fontStyle: "bold",
         });
 
+        const spell = getArtifactSpell(artifact);
         const spellInfo = this.add.text(
             -cardWidth / 2 + 10,
             0,
-            `Spell: ${artifact.spell.name}`,
+            `Spell: ${spell?.name || "Unknown"}`,
             {
                 fontFamily: "serif",
                 fontSize: "14px",
@@ -769,7 +781,7 @@ export class ArtifactSelection extends Scene {
         );
 
         const spellIcon = this.add
-            .image(cardWidth / 2 - 30, 0, artifact.spell.icon)
+            .image(cardWidth / 2 - 30, 0, spell?.icon || "icon_placeholder")
             .setScale(0.8);
 
         container.add([bg, name, spellInfo, spellIcon]);
@@ -1049,7 +1061,7 @@ export class ArtifactSelection extends Scene {
         const artifactSpellIds = updatedArtifacts
             .map((artifactId) => ALL_ARTIFACTS.find((a) => a.id === artifactId))
             .filter((artifact) => artifact !== undefined)
-            .map((artifact) => artifact!.spell.id);
+            .map((artifact) => artifact!.spellId);
 
         // Combine class spells + artifact spells (up to 5 total)
         const updatedEquipped = [...classSpellIds, ...artifactSpellIds].slice(

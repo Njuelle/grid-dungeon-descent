@@ -12,7 +12,7 @@ import {
 } from "../core/systems/SpellSystem";
 import { EntityId, SpellModifier, UnitStats, Service } from "../data/types";
 import { Result } from "../utils/Result";
-import { SpellType, SPELL_ID_PATTERNS } from "../data/enums";
+import { SpellType } from "../data/enums";
 import { success, failure, eventBus, GameEvent } from "../core";
 
 export interface SpellServiceConfig {
@@ -63,7 +63,7 @@ export class SpellService implements Service {
         baseStats: { damage: number; apCost: number; range: number },
         options: Partial<SpellDefinition> = {}
     ): Result<SpellDefinition, string> {
-        const id = options.id || SPELL_ID_PATTERNS.CLASS_BASIC(name);
+        const id = options.id || `${name.toLowerCase().replace(/\s+/g, "_")}`;
         const definition: SpellDefinition = {
             id,
             name,
@@ -417,94 +417,9 @@ export class SpellService implements Service {
     }
 
     private async registerDefaultSpells(): Promise<void> {
-        // Warrior spells
-        this.createSpellDefinition(
-            "Sword Strike",
-            SpellType.MELEE,
-            { damage: 3, apCost: 1, range: 1 },
-            {
-                id: "warrior_basic_attack",
-                description: "Basic melee attack with sword",
-                icon: "icon_slash",
-                tags: ["class_warrior", "basic"],
-            }
-        );
-
-        this.createSpellDefinition(
-            "Heavy Blow",
-            SpellType.MELEE,
-            { damage: 6, apCost: 2, range: 1 },
-            {
-                id: "warrior_power_attack",
-                description: "Powerful melee strike",
-                icon: "icon_power_strike",
-                tags: ["class_warrior", "power"],
-            }
-        );
-
-        // Ranger spells
-        this.createSpellDefinition(
-            "Arrow Shot",
-            SpellType.RANGED,
-            { damage: 2, apCost: 1, range: 3 },
-            {
-                id: "ranger_basic_attack",
-                description: "Basic ranged attack with bow",
-                icon: "icon_arrow_shot",
-                baseStats: { damage: 2, apCost: 1, range: 3, minRange: 2 },
-                tags: ["class_ranger", "basic"],
-            }
-        );
-
-        this.createSpellDefinition(
-            "Piercing Shot",
-            SpellType.RANGED,
-            { damage: 4, apCost: 2, range: 4 },
-            {
-                id: "ranger_power_attack",
-                description:
-                    "Powerful ranged attack that pierces through armor",
-                icon: "icon_bone_piercer",
-                baseStats: { damage: 4, apCost: 2, range: 4, minRange: 2 },
-                tags: ["class_ranger", "power"],
-            }
-        );
-
-        // Mage spells
-        this.createSpellDefinition(
-            "Magic Missile",
-            SpellType.MAGIC,
-            { damage: 2, apCost: 1, range: 3 },
-            {
-                id: "mage_basic_attack",
-                description: "Basic magical projectile",
-                icon: "icon_magic_missile",
-                baseStats: { damage: 2, apCost: 1, range: 3, minRange: 1 },
-                tags: ["class_mage", "basic"],
-            }
-        );
-
-        this.createSpellDefinition(
-            "Fireball",
-            SpellType.MAGIC,
-            { damage: 5, apCost: 3, range: 3 },
-            {
-                id: "mage_power_attack",
-                description: "Explosive magical attack",
-                icon: "icon_fire_ball",
-                baseStats: {
-                    damage: 5,
-                    apCost: 3,
-                    range: 3,
-                    minRange: 2,
-                    aoeShape: "circle",
-                    aoeRadius: 1,
-                },
-                tags: ["class_mage", "power", "aoe"],
-            }
-        );
-
-        console.log("[SpellService] Registered default spells");
+        // Spell definitions are now managed by the centralized spell content system
+        // See src/game/content/spells/ for all spell definitions
+        console.log("[SpellService] Using centralized spell definitions");
     }
 
     private setupCleanupListeners(): void {

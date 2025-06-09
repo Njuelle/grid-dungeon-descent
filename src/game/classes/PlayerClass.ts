@@ -1,4 +1,7 @@
 import { Spell } from "./Spell";
+import { WARRIOR_SPELLS } from "../content/spells/WarriorSpells";
+import { RANGER_SPELLS } from "../content/spells/RangerSpells";
+import { MAGE_SPELLS } from "../content/spells/MageSpells";
 
 export interface PlayerClass {
     id: string;
@@ -19,81 +22,29 @@ export interface PlayerClass {
     spells: Spell[];
 }
 
-// Define the base spells for each class
-const WARRIOR_SPELLS: Spell[] = [
-    {
-        id: "warrior_basic_attack",
-        name: "Sword Strike",
-        icon: "icon_slash",
-        apCost: 1,
-        range: 1,
-        damage: 3,
-        description: "Basic melee attack with sword",
-        type: "melee",
-    },
-    {
-        id: "warrior_power_attack",
-        name: "Heavy Blow",
-        icon: "icon_power_strike",
-        apCost: 2,
-        range: 1,
-        damage: 6,
-        description: "Powerful melee strike",
-        type: "melee",
-    },
-];
+// Get the basic spells for each class from their dedicated files
+const getWarriorBasicSpells = (): Spell[] => {
+    return WARRIOR_SPELLS.filter(
+        (spell) =>
+            spell.id === "warrior_basic_attack" ||
+            spell.id === "warrior_power_attack"
+    );
+};
 
-const RANGER_SPELLS: Spell[] = [
-    {
-        id: "ranger_basic_attack",
-        name: "Arrow Shot",
-        icon: "icon_arrow_shot",
-        apCost: 1,
-        range: 3,
-        minRange: 2,
-        damage: 2,
-        description: "Basic ranged attack with bow",
-        type: "ranged",
-    },
-    {
-        id: "ranger_power_attack",
-        name: "Piercing Shot",
-        icon: "icon_bone_piercer",
-        apCost: 2,
-        range: 4,
-        minRange: 2,
-        damage: 4,
-        description: "Powerful ranged attack that pierces through armor",
-        type: "ranged",
-    },
-];
+const getRangerBasicSpells = (): Spell[] => {
+    return RANGER_SPELLS.filter(
+        (spell) =>
+            spell.id === "ranger_basic_attack" ||
+            spell.id === "ranger_power_attack"
+    );
+};
 
-const MAGE_SPELLS: Spell[] = [
-    {
-        id: "mage_basic_attack",
-        name: "Magic Missile",
-        icon: "icon_magic_missile",
-        apCost: 1,
-        range: 3,
-        minRange: 1,
-        damage: 2,
-        description: "Basic magical projectile",
-        type: "magic",
-    },
-    {
-        id: "mage_power_attack",
-        name: "Fireball",
-        icon: "icon_fire_ball",
-        apCost: 3,
-        range: 3,
-        minRange: 2,
-        damage: 5,
-        description: "Explosive magical attack",
-        type: "magic",
-        aoeShape: "circle",
-        aoeRadius: 1,
-    },
-];
+const getMageBasicSpells = (): Spell[] => {
+    return MAGE_SPELLS.filter(
+        (spell) =>
+            spell.id === "mage_basic_attack" || spell.id === "mage_power_attack"
+    );
+};
 
 export const PLAYER_CLASSES: PlayerClass[] = [
     {
@@ -113,7 +64,7 @@ export const PLAYER_CLASSES: PlayerClass[] = [
             movementPoints: 4,
             actionPoints: 3,
         },
-        spells: WARRIOR_SPELLS,
+        spells: getWarriorBasicSpells(),
     },
     {
         id: "ranger",
@@ -132,7 +83,7 @@ export const PLAYER_CLASSES: PlayerClass[] = [
             movementPoints: 5,
             actionPoints: 3,
         },
-        spells: RANGER_SPELLS,
+        spells: getRangerBasicSpells(),
     },
     {
         id: "mage",
@@ -151,6 +102,7 @@ export const PLAYER_CLASSES: PlayerClass[] = [
             movementPoints: 3,
             actionPoints: 4,
         },
-        spells: MAGE_SPELLS,
+        spells: getMageBasicSpells(),
     },
 ];
+

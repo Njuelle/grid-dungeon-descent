@@ -7,7 +7,8 @@
  * - MageArtifacts: Magic and spellcasting focused
  */
 
-import { Artifact } from "../../classes/Artifact";
+import { Artifact, getArtifactSpell } from "../../classes/Artifact";
+import { getSpellById } from "../spells";
 import { WARRIOR_ARTIFACTS } from "./WarriorArtifacts";
 import { RANGER_ARTIFACTS } from "./RangerArtifacts";
 import { MAGE_ARTIFACTS } from "./MageArtifacts";
@@ -94,9 +95,10 @@ export function getArtifactById(artifactId: string): Artifact | undefined {
 export function getArtifactsBySpellType(
     spellType: "melee" | "ranged" | "magic"
 ): Artifact[] {
-    return ALL_ARTIFACTS.filter(
-        (artifact) => artifact.spell.type === spellType
-    );
+    return ALL_ARTIFACTS.filter((artifact) => {
+        const spell = getSpellById(artifact.spellId);
+        return spell?.type === spellType;
+    });
 }
 
 /**
@@ -105,24 +107,23 @@ export function getArtifactsBySpellType(
 export function getArtifactsByEffect(
     effectType: "damage" | "healing" | "utility" | "aoe"
 ): Artifact[] {
-    switch (effectType) {
-        case "damage":
-            return ALL_ARTIFACTS.filter(
-                (artifact) => artifact.spell.damage > 0
-            );
-        case "healing":
-            return ALL_ARTIFACTS.filter(
-                (artifact) => artifact.spell.damage < 0
-            );
-        case "utility":
-            return ALL_ARTIFACTS.filter(
-                (artifact) => artifact.spell.damage === 0
-            );
-        case "aoe":
-            return ALL_ARTIFACTS.filter((artifact) => artifact.spell.aoeShape);
-        default:
-            return [];
-    }
+    return ALL_ARTIFACTS.filter((artifact) => {
+        const spell = getSpellById(artifact.spellId);
+        if (!spell) return false;
+
+        switch (effectType) {
+            case "damage":
+                return spell.damage > 0;
+            case "healing":
+                return spell.damage < 0;
+            case "utility":
+                return spell.damage === 0;
+            case "aoe":
+                return !!spell.aoeShape;
+            default:
+                return false;
+        }
+    });
 }
 
 /**
@@ -174,3 +175,29 @@ export function getWeightedRandomArtifacts(
 
     return selected;
 }
+
+/**
+ * Validate that all artifacts have valid spell references
+ */
+export function validateArtifacts(): {
+    valid: boolean;
+    invalidArtifacts: { artifactId: string; spellId: string }[];
+} {
+    const invalidArtifacts: { artifactId: string; spellId: string }[] = [];
+
+    ALL_ARTIFACTS.forEach((artifact) => {
+        const spell = getSpellById(artifact.spellId);
+        if (!spell) {
+            invalidArtifacts.push({
+                artifactId: artifact.id,
+                spellId: artifact.spellId,
+            });
+        }
+    });
+
+    return {
+        valid: invalidArtifacts.length === 0,
+        invalidArtifacts,
+    };
+}
+

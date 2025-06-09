@@ -26,6 +26,7 @@ export interface Bonus {
         spellProperty?:
             | "damage"
             | "range"
+            | "minRange"
             | "apCost"
             | "aoeShape"
             | "aoeRadius";

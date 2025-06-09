@@ -4,7 +4,7 @@ import { Spell, PLAYER_SPELLS } from "./Spell";
 import { Bonus, AVAILABLE_BONUSES } from "./Bonus";
 import { GameProgress } from "./GameProgress";
 import { PLAYER_CLASSES, PlayerClass } from "./PlayerClass";
-import { ALL_ARTIFACTS } from "./Artifact";
+import { ALL_ARTIFACTS, getArtifactSpell } from "./Artifact";
 
 export type AttackType = "melee" | "ranged" | "magic";
 
@@ -186,13 +186,23 @@ export class Player extends Unit {
         acquiredArtifacts.forEach((artifactId) => {
             const artifact = ALL_ARTIFACTS.find((a) => a.id === artifactId);
             if (artifact) {
-                console.log(
-                    "[Player] Adding artifact spell:",
-                    artifact.spell.name,
-                    "from artifact:",
-                    artifact.name
-                );
-                availableSpells.push(artifact.spell);
+                const artifactSpell = getArtifactSpell(artifact);
+                if (artifactSpell) {
+                    console.log(
+                        "[Player] Adding artifact spell:",
+                        artifactSpell.name,
+                        "from artifact:",
+                        artifact.name
+                    );
+                    availableSpells.push(artifactSpell);
+                } else {
+                    console.error(
+                        "[Player] Could not find spell for artifact:",
+                        artifact.name,
+                        "spell ID:",
+                        artifact.spellId
+                    );
+                }
             } else {
                 console.error(
                     "[Player] Could not find artifact with ID:",
@@ -277,19 +287,8 @@ export class Player extends Unit {
                 // Handle spell ID mapping for backwards compatibility
                 let targetSpell: Spell | undefined;
 
-                // First try direct match (for advanced spells)
+                // Direct match by spell ID
                 targetSpell = this.spells.find((s) => s.id === bonus.target);
-
-                // If not found, try mapping system for basic spells
-                if (!targetSpell) {
-                    const mappedIds = this.getSpellMappingIds(bonus.target);
-                    for (const mappedId of mappedIds) {
-                        targetSpell = this.spells.find(
-                            (s) => s.id === mappedId
-                        );
-                        if (targetSpell) break;
-                    }
-                }
 
                 if (targetSpell) {
                     bonus.effects.forEach((effect) => {
@@ -339,7 +338,7 @@ export class Player extends Unit {
                                     if (typeof effect.spellValue === "number") {
                                         const oldCost = targetSpell!.apCost;
                                         targetSpell!.apCost = Math.max(
-                                            0,
+                                            1,
                                             targetSpell!.apCost +
                                                 effect.spellValue
                                         );
@@ -494,37 +493,6 @@ export class Player extends Unit {
 
     public getSpells(): Spell[] {
         return this.spells;
-    }
-
-    /**
-     * Get mapped spell IDs for bonus targeting
-     * Handles the mapping between bonus target IDs and actual player spell IDs
-     */
-    private getSpellMappingIds(bonusTarget: string): string[] {
-        const mapping: Record<string, string[]> = {
-            // Melee spells
-            slash: ["warrior_basic_attack"],
-            power_strike: ["warrior_power_attack"],
-
-            // Ranged spells
-            arrow_shot: ["ranger_basic_attack"],
-            bone_piercer: ["ranger_power_attack"],
-
-            // Magic spells
-            magic_missile: ["mage_basic_attack"],
-            fireball: ["mage_power_attack"],
-
-            // Advanced spells that might be acquired later
-            whirlwind: ["whirlwind"],
-            shield_bash: ["shield_bash"],
-            precise_shot: ["precise_shot"],
-            explosive_arrow: ["explosive_arrow"],
-            ice_shard: ["ice_shard"],
-            chain_lightning: ["chain_lightning"],
-            heal: ["heal"],
-        };
-
-        return mapping[bonusTarget] || [bonusTarget];
     }
 
     public getCurrentSpell(): Spell {

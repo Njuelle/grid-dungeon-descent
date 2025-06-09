@@ -82,33 +82,6 @@ export function getBonusById(bonusId: string): Bonus | undefined {
 }
 
 /**
- * Mapping of bonus target spell IDs to actual player spell IDs
- * This handles the mismatch between SpellBonuses target names and actual spell IDs
- */
-const SPELL_ID_MAPPING: Record<string, string[]> = {
-    // Melee spells
-    slash: ["warrior_basic_attack"],
-    power_strike: ["warrior_power_attack"],
-
-    // Ranged spells
-    arrow_shot: ["ranger_basic_attack"],
-    bone_piercer: ["ranger_power_attack"],
-
-    // Magic spells
-    magic_missile: ["mage_basic_attack"],
-    fireball: ["mage_power_attack"],
-
-    // Advanced spells that might be acquired later
-    whirlwind: ["whirlwind"],
-    shield_bash: ["shield_bash"],
-    precise_shot: ["precise_shot"],
-    explosive_arrow: ["explosive_arrow"],
-    ice_shard: ["ice_shard"],
-    chain_lightning: ["chain_lightning"],
-    heal: ["heal"],
-};
-
-/**
  * Get spell bonuses that the player can actually use
  * Only returns bonuses for spells the player currently has
  */
@@ -121,11 +94,8 @@ export function getValidSpellBonusesForPlayer(
             return true;
         }
 
-        // Check if player has any spell that this bonus targets
-        const targetSpellIds = SPELL_ID_MAPPING[bonus.target] || [bonus.target];
-        return targetSpellIds.some((spellId) =>
-            playerSpellIds.includes(spellId)
-        );
+        // Check if player has the spell that this bonus targets
+        return playerSpellIds.includes(bonus.target);
     });
 }
 

@@ -193,16 +193,6 @@ export const GAME_CONSTANTS = {
     SAVE_VERSION: "1.0.0",
 } as const;
 
-// Spell ID Generation Patterns
-export const SPELL_ID_PATTERNS = {
-    CLASS_BASIC: (className: string) => `${className}_basic_attack`,
-    CLASS_POWER: (className: string) => `${className}_power_attack`,
-    ARTIFACT: (artifactName: string) =>
-        `artifact_${artifactName.toLowerCase().replace(/\s+/g, "_")}`,
-    BONUS: (bonusName: string) =>
-        `bonus_${bonusName.toLowerCase().replace(/\s+/g, "_")}`,
-} as const;
-
 // Color Constants
 export const COLORS = {
     // UI Colors

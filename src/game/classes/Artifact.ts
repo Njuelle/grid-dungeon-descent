@@ -1,10 +1,11 @@
 /**
- * Artifact System - Backward Compatibility Layer
+ * Artifact System - Simplified and Clean
  *
- * This file maintains backward compatibility with existing code while
- * using the new organized artifact content structure.
+ * Artifacts now simply reference spells by ID instead of embedding full spell objects.
+ * This creates a cleaner separation between artifacts and spells.
  */
 
+import { getSpellById, ALL_SPELLS } from "../content/spells";
 import { Spell } from "./Spell";
 
 export interface Artifact {
@@ -13,20 +14,28 @@ export interface Artifact {
     description: string;
     icon: string;
     classId: string; // Which class this artifact is for
-    spell: Spell; // The spell this artifact grants
+    spellId: string; // Reference to the spell this artifact grants
     rarity: "common" | "rare" | "epic" | "legendary";
 }
 
-// Import from organized content structure
-import {
-    ALL_ARTIFACTS as ORGANIZED_ARTIFACTS,
-    getArtifactsForClass as getOrganizedArtifactsForClass,
-    getRandomArtifacts as getOrganizedRandomArtifacts,
+/**
+ * Get the spell associated with an artifact
+ */
+export function getArtifactSpell(artifact: Artifact): Spell | undefined {
+    return getSpellById(artifact.spellId);
+}
+
+/**
+ * Check if an artifact's spell is valid
+ */
+export function isValidArtifact(artifact: Artifact): boolean {
+    return getSpellById(artifact.spellId) !== undefined;
+}
+
+// Re-export from organized content
+export {
+    getRandomArtifacts,
+    ALL_ARTIFACTS,
+    getArtifactsForClass,
 } from "../content/artifacts";
 
-// Maintain backward compatibility
-export const ALL_ARTIFACTS: Artifact[] = ORGANIZED_ARTIFACTS;
-
-// Re-export organized functions
-export const getArtifactsForClass = getOrganizedArtifactsForClass;
-export const getRandomArtifacts = getOrganizedRandomArtifacts;

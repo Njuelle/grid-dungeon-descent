@@ -1,6 +1,7 @@
 /**
- * Spell Bonuses - Modifications to spell properties and effects
- * These bonuses modify existing spells by changing their damage, range, AP cost, AoE, etc.
+ * Spell Bonuses - Combat spell enhancements
+ * These bonuses modify existing spells to make them more powerful,
+ * change their behavior, or add special effects.
  */
 
 import { Bonus } from "../../classes/Bonus";
@@ -8,80 +9,76 @@ import { Bonus } from "../../classes/Bonus";
 export const SPELL_BONUSES: Bonus[] = [
     // ===== MELEE SPELL BONUSES =====
 
-    // Slash Modifications
+    // Warrior Basic Attack (Sword Strike) Modifications
     {
-        id: "slash_damage",
-        name: "Sharper Blade",
-        description: "Slash: +2 damage",
+        id: "warrior_basic_attack_range",
+        name: "Sword Lunge",
+        description: "Sword Strike: +1 range",
         icon: "icon_slash",
         type: "spell",
-        target: "slash",
+        target: "warrior_basic_attack",
+        effects: [{ spellProperty: "range", spellValue: 1 }],
+    },
+    {
+        id: "warrior_basic_attack_damage",
+        name: "Sharp Blade",
+        description: "Sword Strike: +2 damage",
+        icon: "icon_slash",
+        type: "spell",
+        target: "warrior_basic_attack",
         effects: [{ spellProperty: "damage", spellValue: 2 }],
     },
     {
-        id: "slash_cheapen",
-        name: "Swift Slash",
-        description: "Slash: -2 Damage, +1 Range",
+        id: "warrior_basic_attack_aoe",
+        name: "Cleaving Strike",
+        description: "Sword Strike: Hits all adjacent enemies",
         icon: "icon_slash",
         type: "spell",
-        target: "slash",
-        effects: [
-            { spellProperty: "damage", spellValue: -2 },
-            { spellProperty: "range", spellValue: 1 },
-        ],
-    },
-    {
-        id: "slash_whirlwind",
-        name: "Whirlwind Slash",
-        description: "Slash: Circle AoE (Radius 1), -1 Damage",
-        icon: "icon_slash",
-        type: "spell",
-        target: "slash",
+        target: "warrior_basic_attack",
         effects: [
             { spellProperty: "aoeShape", spellValue: "circle" },
             { spellProperty: "aoeRadius", spellValue: 1 },
-            { spellProperty: "damage", spellValue: -1 },
         ],
     },
     {
-        id: "slash_lifesteal",
-        name: "Bloodthirsty Blade",
-        description: "Slash: Heal 1 HP per enemy hit",
+        id: "warrior_basic_attack_cheap",
+        name: "Fluid Combat",
+        description: "Sword Strike: -1 AP cost (minimum 1)",
         icon: "icon_slash",
         type: "spell",
-        target: "slash",
-        effects: [{ spellProperty: "damage", spellValue: 0 }], // Marker effect
+        target: "warrior_basic_attack",
+        effects: [{ spellProperty: "apCost", spellValue: -1 }],
     },
 
-    // Power Strike Modifications
+    // Warrior Power Attack (Heavy Blow) Modifications
     {
-        id: "power_strike_damage",
-        name: "Crushing Blow",
-        description: "Power Strike: +2 damage",
+        id: "warrior_power_attack_damage",
+        name: "Devastating Blow",
+        description: "Heavy Blow: +3 damage",
         icon: "icon_power_strike",
         type: "spell",
-        target: "power_strike",
-        effects: [{ spellProperty: "damage", spellValue: 2 }],
+        target: "warrior_power_attack",
+        effects: [{ spellProperty: "damage", spellValue: 3 }],
     },
     {
-        id: "power_strike_risky",
-        name: "Risky Power Strike",
-        description: "Power Strike: +4 Damage, +1 AP Cost",
+        id: "warrior_power_attack_risky",
+        name: "Risky Heavy Blow",
+        description: "Heavy Blow: +4 Damage, +1 AP Cost",
         icon: "icon_power_strike",
         type: "spell",
-        target: "power_strike",
+        target: "warrior_power_attack",
         effects: [
             { spellProperty: "damage", spellValue: 4 },
             { spellProperty: "apCost", spellValue: 1 },
         ],
     },
     {
-        id: "power_strike_cone",
+        id: "warrior_power_attack_cone",
         name: "Sweeping Strike",
-        description: "Power Strike: Cone AoE (Radius 2), -1 Damage",
+        description: "Heavy Blow: Cone AoE (Radius 2), -1 Damage",
         icon: "icon_power_strike",
         type: "spell",
-        target: "power_strike",
+        target: "warrior_power_attack",
         effects: [
             { spellProperty: "aoeShape", spellValue: "cone" },
             { spellProperty: "aoeRadius", spellValue: 2 },
@@ -91,32 +88,32 @@ export const SPELL_BONUSES: Bonus[] = [
     {
         id: "execute",
         name: "Execute",
-        description: "Power Strike: Instant kill enemies below 20% HP",
+        description: "Heavy Blow: Instant kill enemies below 20% HP",
         icon: "icon_power_strike",
         type: "spell",
-        target: "power_strike",
+        target: "warrior_power_attack",
         effects: [{ spellProperty: "damage", spellValue: 0 }], // Marker effect
     },
 
     // ===== RANGED SPELL BONUSES =====
 
-    // Arrow Shot Modifications
+    // Ranger Basic Attack (Arrow Shot) Modifications
     {
-        id: "arrow_shot_range",
+        id: "ranger_basic_attack_range",
         name: "Eagle Eye",
         description: "Arrow Shot: +1 range",
         icon: "icon_arrow_shot",
         type: "spell",
-        target: "arrow_shot",
+        target: "ranger_basic_attack",
         effects: [{ spellProperty: "range", spellValue: 1 }],
     },
     {
-        id: "arrow_shot_piercing",
+        id: "ranger_basic_attack_piercing",
         name: "Piercing Arrow",
         description: "Arrow Shot: Line AoE (Length 2), -1 Damage",
         icon: "icon_arrow_shot",
         type: "spell",
-        target: "arrow_shot",
+        target: "ranger_basic_attack",
         effects: [
             { spellProperty: "aoeShape", spellValue: "line" },
             { spellProperty: "aoeRadius", spellValue: 2 },
@@ -124,69 +121,44 @@ export const SPELL_BONUSES: Bonus[] = [
         ],
     },
     {
-        id: "arrow_shot_triple",
-        name: "Triple Shot",
-        description: "Arrow Shot: Add cone AoE",
+        id: "ranger_basic_attack_cheap",
+        name: "Swift Shot",
+        description: "Arrow Shot: -1 AP cost (minimum 1)",
         icon: "icon_arrow_shot",
         type: "spell",
-        target: "arrow_shot",
-        effects: [
-            { spellProperty: "aoeShape", spellValue: "cone" },
-            { spellProperty: "aoeRadius", spellValue: 3 },
-        ],
+        target: "ranger_basic_attack",
+        effects: [{ spellProperty: "apCost", spellValue: -1 }],
     },
     {
-        id: "arrow_storm",
-        name: "Arrow Storm",
-        description: "Arrow Shot: Fire at all enemies in range, +2 AP cost",
+        id: "ranger_basic_attack_multi",
+        name: "Double Shot",
+        description: "Arrow Shot: Fire 2 arrows, +1 AP cost",
         icon: "icon_arrow_shot",
         type: "spell",
-        target: "arrow_shot",
+        target: "ranger_basic_attack",
         effects: [
-            { spellProperty: "apCost", spellValue: 2 },
-            { spellProperty: "damage", spellValue: -1 },
+            { spellProperty: "damage", spellValue: 1 },
+            { spellProperty: "apCost", spellValue: 1 },
         ],
     },
 
-    // Bone Piercer Modifications
+    // Ranger Power Attack (Piercing Shot) Modifications
     {
-        id: "bone_piercer_damage",
-        name: "Serrated Bone",
-        description: "Bone Piercer: +2 damage",
+        id: "ranger_power_attack_damage",
+        name: "Bone Crusher",
+        description: "Piercing Shot: +2 damage",
         icon: "icon_bone_piercer",
         type: "spell",
-        target: "bone_piercer",
+        target: "ranger_power_attack",
         effects: [{ spellProperty: "damage", spellValue: 2 }],
     },
     {
-        id: "bone_piercer_damage_alt",
-        name: "Balanced Bone",
-        description: "Bone Piercer: +1 Damage, +1 Range",
+        id: "ranger_power_attack_explosive",
+        name: "Explosive Shot",
+        description: "Piercing Shot: Circle AoE (Radius 1), -1 Damage",
         icon: "icon_bone_piercer",
         type: "spell",
-        target: "bone_piercer",
-        effects: [
-            { spellProperty: "damage", spellValue: 1 },
-            { spellProperty: "range", spellValue: 1 },
-        ],
-    },
-    {
-        id: "bone_piercer_range",
-        name: "Bone Sharpshooter",
-        description: "Bone Piercer: +1 range",
-        icon: "icon_bone_piercer",
-        type: "spell",
-        target: "bone_piercer",
-        effects: [{ spellProperty: "range", spellValue: 1 }],
-    },
-    {
-        id: "bone_piercer_splash",
-        name: "Splintering Bone",
-        description:
-            "Bone Piercer: Gains a small circular AoE (Radius 1), -1 Damage",
-        icon: "icon_bone_piercer",
-        type: "spell",
-        target: "bone_piercer",
+        target: "ranger_power_attack",
         effects: [
             { spellProperty: "aoeShape", spellValue: "circle" },
             { spellProperty: "aoeRadius", spellValue: 1 },
@@ -194,213 +166,143 @@ export const SPELL_BONUSES: Bonus[] = [
         ],
     },
     {
-        id: "bone_piercer_efficient",
-        name: "Quick Piercer",
-        description: "Bone Piercer: -1 AP Cost",
+        id: "ranger_power_attack_long",
+        name: "Sniper Shot",
+        description: "Piercing Shot: +2 range, +1 minimum range",
         icon: "icon_bone_piercer",
         type: "spell",
-        target: "bone_piercer",
-        effects: [{ spellProperty: "apCost", spellValue: -1 }],
+        target: "ranger_power_attack",
+        effects: [
+            { spellProperty: "range", spellValue: 2 },
+            { spellProperty: "minRange", spellValue: 1 },
+        ],
     },
     {
-        id: "bone_prison",
-        name: "Bone Prison",
-        description: "Bone Piercer: Roots target for 1 turn, -2 damage",
+        id: "crippling_shot",
+        name: "Crippling Shot",
+        description: "Piercing Shot: Reduces enemy movement",
         icon: "icon_bone_piercer",
         type: "spell",
-        target: "bone_piercer",
-        effects: [{ spellProperty: "damage", spellValue: -2 }],
+        target: "ranger_power_attack",
+        effects: [{ spellProperty: "damage", spellValue: 0 }], // Marker effect
     },
 
     // ===== MAGIC SPELL BONUSES =====
 
-    // Magic Missile Modifications
+    // Mage Basic Attack (Magic Missile) Modifications
     {
-        id: "magic_missile_cost",
-        name: "Efficient Casting",
-        description: "Magic Missile: -1 AP cost",
+        id: "mage_basic_attack_damage",
+        name: "Empowered Missile",
+        description: "Magic Missile: +2 damage",
         icon: "icon_magic_missile",
         type: "spell",
-        target: "magic_missile",
-        effects: [{ spellProperty: "apCost", spellValue: -1 }],
+        target: "mage_basic_attack",
+        effects: [{ spellProperty: "damage", spellValue: 2 }],
     },
     {
-        id: "magic_missile_scatter",
-        name: "Scatter Missiles",
-        description: "Magic Missile: -1 Damage, -1 AP Cost",
+        id: "mage_basic_attack_multi",
+        name: "Magic Barrage",
+        description: "Magic Missile: Fire 3 missiles, +1 AP cost",
         icon: "icon_magic_missile",
         type: "spell",
-        target: "magic_missile",
+        target: "mage_basic_attack",
         effects: [
-            { spellProperty: "damage", spellValue: -1 },
-            { spellProperty: "apCost", spellValue: -1 },
+            { spellProperty: "damage", spellValue: 1 },
+            { spellProperty: "apCost", spellValue: 1 },
         ],
     },
     {
-        id: "magic_missile_range",
-        name: "Extended Missiles",
-        description: "Magic Missile: +2 Range",
+        id: "mage_basic_attack_seeking",
+        name: "Seeking Missile",
+        description: "Magic Missile: +2 range, ignores cover",
         icon: "icon_magic_missile",
         type: "spell",
-        target: "magic_missile",
+        target: "mage_basic_attack",
         effects: [{ spellProperty: "range", spellValue: 2 }],
     },
     {
-        id: "magic_missile_aoe",
-        name: "Scattering Missiles",
-        description: "Magic Missile: Small AoE (Radius 1), -1 Damage",
+        id: "mage_basic_attack_cheap",
+        name: "Efficient Casting",
+        description: "Magic Missile: -1 AP cost (minimum 1)",
         icon: "icon_magic_missile",
         type: "spell",
-        target: "magic_missile",
-        effects: [
-            { spellProperty: "aoeShape", spellValue: "circle" },
-            { spellProperty: "aoeRadius", spellValue: 1 },
-            { spellProperty: "damage", spellValue: -1 },
-        ],
-    },
-    {
-        id: "chain_lightning",
-        name: "Chain Lightning",
-        description: "Magic Missile: Jumps to nearest enemy within 2 tiles",
-        icon: "icon_magic_missile",
-        type: "spell",
-        target: "magic_missile",
-        effects: [{ spellProperty: "damage", spellValue: 0 }], // Marker effect
+        target: "mage_basic_attack",
+        effects: [{ spellProperty: "apCost", spellValue: -1 }],
     },
 
-    // Fireball Modifications
+    // Mage Power Attack (Fireball) Modifications
     {
-        id: "fireball_damage",
+        id: "mage_power_attack_damage",
         name: "Inferno",
         description: "Fireball: +3 damage",
         icon: "icon_fire_ball",
         type: "spell",
-        target: "fireball",
+        target: "mage_power_attack",
         effects: [{ spellProperty: "damage", spellValue: 3 }],
     },
     {
-        id: "fireball_range",
-        name: "Far Reach",
-        description: "Fireball: +1 range",
+        id: "mage_power_attack_big",
+        name: "Meteor",
+        description: "Fireball: +1 AoE radius, +1 AP cost",
         icon: "icon_fire_ball",
         type: "spell",
-        target: "fireball",
-        effects: [{ spellProperty: "range", spellValue: 1 }],
-    },
-    {
-        id: "fireball_unstable",
-        name: "Unstable Fireball",
-        description: "Fireball: +4 Damage, -1 Range",
-        icon: "icon_fire_ball",
-        type: "spell",
-        target: "fireball",
+        target: "mage_power_attack",
         effects: [
-            { spellProperty: "damage", spellValue: 4 },
-            { spellProperty: "range", spellValue: -1 },
-        ],
-    },
-    {
-        id: "fireball_aoe_circle",
-        name: "Explosive Fireball",
-        description: "Fireball: Gains a circular AoE (Radius 1), -1 Damage",
-        icon: "icon_fire_ball",
-        type: "spell",
-        target: "fireball",
-        effects: [
-            { spellProperty: "aoeShape", spellValue: "circle" },
             { spellProperty: "aoeRadius", spellValue: 1 },
-            { spellProperty: "damage", spellValue: -1 },
+            { spellProperty: "apCost", spellValue: 1 },
         ],
     },
     {
-        id: "fireball_line_aoe",
-        name: "Fire Line",
-        description: "Fireball: Becomes a line AoE (Length 3), -1 Damage",
+        id: "mage_power_attack_chain",
+        name: "Chain Fireball",
+        description: "Fireball: Line AoE, -1 damage",
         icon: "icon_fire_ball",
         type: "spell",
-        target: "fireball",
+        target: "mage_power_attack",
         effects: [
             { spellProperty: "aoeShape", spellValue: "line" },
-            { spellProperty: "aoeRadius", spellValue: 3 },
             { spellProperty: "damage", spellValue: -1 },
         ],
     },
     {
-        id: "fireball_bigger_aoe",
-        name: "Mega Fireball",
-        description: "Fireball: +1 AoE Radius",
+        id: "burning_fireball",
+        name: "Burning Fireball",
+        description: "Fireball: Applies burning effect",
         icon: "icon_fire_ball",
         type: "spell",
-        target: "fireball",
-        effects: [
-            {
-                spellProperty: "aoeRadius",
-                spellValue: 1,
-                condition: { requiresAoe: true },
-            },
-        ],
-    },
-    {
-        id: "efficient_aoe_fireball",
-        name: "Efficient AoE (Fireball)",
-        description: "Fireball: If AoE, -1 AP Cost",
-        icon: "icon_fire_ball",
-        type: "spell",
-        target: "fireball",
-        effects: [
-            {
-                spellProperty: "apCost",
-                spellValue: -1,
-                condition: { requiresAoe: true },
-            },
-        ],
-    },
-    {
-        id: "meteor_strike",
-        name: "Meteor Strike",
-        description: "Fireball: 1 turn delay, +5 damage, visible targeting",
-        icon: "icon_fire_ball",
-        type: "spell",
-        target: "fireball",
-        effects: [{ spellProperty: "damage", spellValue: 5 }],
+        target: "mage_power_attack",
+        effects: [{ spellProperty: "damage", spellValue: 0 }], // Marker effect
     },
 
-    // ===== UNIVERSAL SPELL BONUSES =====
+    // ===== ADVANCED SPELL BONUSES =====
+    // These target artifact spells that might be acquired
 
-    // These bonuses that affect multiple spell types or have global effects
     {
-        id: "glass_aoe",
-        name: "Explosive Glass",
-        description: "All AoE +1 radius, -2 Armor",
-        icon: "💥",
-        type: "stat",
-        effects: [
-            { stat: "armor", value: -2 },
-            { stat: "force", value: 0 }, // Marker for AoE bonus
-        ],
+        id: "whirlwind_extended",
+        name: "Extended Whirlwind",
+        description: "Whirlwind: +1 AoE radius",
+        icon: "icon_power_strike",
+        type: "spell",
+        target: "whirlwind",
+        effects: [{ spellProperty: "aoeRadius", spellValue: 1 }],
     },
     {
-        id: "spell_sniper",
-        name: "Spell Sniper",
-        description: "All ranged/magic spells: +1 Range",
-        icon: "🎯",
-        type: "stat",
-        effects: [{ stat: "dexterity", value: 0 }], // Marker effect
+        id: "precise_shot_crit",
+        name: "Critical Precision",
+        description: "Precise Shot: Always critical hit",
+        icon: "icon_arrow_shot",
+        type: "spell",
+        target: "precise_shot",
+        effects: [{ spellProperty: "damage", spellValue: 2 }],
     },
     {
-        id: "magic_mastery",
-        name: "Magic Mastery",
-        description: "All magic spells: -1 AP Cost (min 1)",
-        icon: "🎭",
-        type: "stat",
-        effects: [{ stat: "intelligence", value: 0 }], // Marker effect
-    },
-    {
-        id: "overload",
-        name: "Overload",
-        description: "+1 to all spell damage, spells cost 1 more AP",
-        icon: "⚡",
-        type: "stat",
-        effects: [{ stat: "intelligence", value: 0 }], // Marker effect
+        id: "heal_empowered",
+        name: "Greater Heal",
+        description: "Heal: +3 healing power",
+        icon: "icon_magic_missile",
+        type: "spell",
+        target: "heal",
+        effects: [{ spellProperty: "damage", spellValue: -3 }], // More negative = more healing
     },
 ];
+
