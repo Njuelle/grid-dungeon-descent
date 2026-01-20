@@ -853,14 +853,6 @@ export const AVAILABLE_BONUSES: Bonus[] = [
         effects: [{ stat: "movementPoints", value: 0 }], // Marker effect
     },
     {
-        id: "mana_burn",
-        name: "Mana Burn",
-        description: "Magic attacks reduce enemy AP by 1",
-        icon: "🔥",
-        type: "stat",
-        effects: [{ stat: "intelligence", value: 0 }], // Marker effect
-    },
-    {
         id: "thorns",
         name: "Thorns",
         description: "Melee attackers take 1 damage",
@@ -885,75 +877,12 @@ export const AVAILABLE_BONUSES: Bonus[] = [
         effects: [{ stat: "armor", value: 0 }], // Marker effect
     },
     {
-        id: "blood_magic",
-        name: "Blood Magic",
-        description: "Can cast spells using HP when out of AP (2 HP = 1 AP)",
-        icon: "🩸",
-        type: "stat",
-        effects: [{ stat: "health", value: 0 }], // Marker effect
-    },
-    {
         id: "guerrilla_tactics",
         name: "Guerrilla Tactics",
         description: "+2 damage when attacking from max range",
         icon: "🎯",
         type: "stat",
         effects: [{ stat: "dexterity", value: 0 }], // Marker effect
-    },
-    {
-        id: "intimidating_presence",
-        name: "Intimidating Presence",
-        description: "Adjacent enemies have -1 to all combat stats",
-        icon: "😈",
-        type: "stat",
-        effects: [{ stat: "force", value: 0 }], // Marker effect
-    },
-    {
-        id: "phoenix_blessing",
-        name: "Phoenix Blessing",
-        description: "Revive once per battle with 50% HP",
-        icon: "🔥",
-        type: "stat",
-        effects: [{ stat: "health", value: 0 }], // Marker effect
-    },
-    {
-        id: "arrow_storm",
-        name: "Arrow Storm",
-        description: "Arrow Shot: Fire at all enemies in range, +2 AP cost",
-        icon: "icon_arrow_shot",
-        type: "spell",
-        target: "arrow_shot",
-        effects: [
-            { spellProperty: "apCost", spellValue: 2 },
-            { spellProperty: "damage", spellValue: -1 },
-        ],
-    },
-    {
-        id: "chain_lightning",
-        name: "Chain Lightning",
-        description: "Magic Missile: Jumps to nearest enemy within 2 tiles",
-        icon: "icon_magic_missile",
-        type: "spell",
-        target: "magic_missile",
-        effects: [{ spellProperty: "damage", spellValue: 0 }], // Marker effect
-    },
-    {
-        id: "meteor_strike",
-        name: "Meteor Strike",
-        description: "Fireball: 1 turn delay, +5 damage, visible targeting",
-        icon: "icon_fire_ball",
-        type: "spell",
-        target: "fireball",
-        effects: [{ spellProperty: "damage", spellValue: 5 }],
-    },
-    {
-        id: "bone_prison",
-        name: "Bone Prison",
-        description: "Bone Piercer: Roots target for 1 turn, -2 damage",
-        icon: "icon_bone_piercer",
-        type: "spell",
-        target: "bone_piercer",
-        effects: [{ spellProperty: "damage", spellValue: -2 }],
     },
     {
         id: "execute",
@@ -1264,23 +1193,9 @@ export function getRandomBonuses(
     count: number,
     exclude: string[] = []
 ): Bonus[] {
-    // Filter out bonuses with incomplete implementations (empty effects or only placeholder comments)
-    const incompleteBonus: string[] = [
-        // Bonuses requiring complex systems not yet implemented
-        "chain_lightning", // Requires multi-target spell system
-        "arrow_storm", // Requires multi-target spell system
-        "meteor_strike", // Requires delayed damage system
-        "bone_prison", // Requires status effect/root system
-        "blood_magic", // Requires alternative resource system
-        "intimidating_presence", // Requires aura/proximity effect system
-        "mana_burn", // Requires enemy resource manipulation
-        "phoenix_blessing", // Requires death/revival system
-    ];
-
     // First, get all bonuses that pass the various filters
     const allValidBonuses = AVAILABLE_BONUSES.filter(
         (b) =>
-            !incompleteBonus.includes(b.id) &&
             b.effects.length > 0 && // Ensure it has actual effects
             !wouldReduceAPBelowMinimum(b, exclude) && // Exclude AP reduction bonuses that would break spells
             !requiresAoeButMissing(b, exclude) && // Exclude AoE requirement bonuses for spells without AoE
