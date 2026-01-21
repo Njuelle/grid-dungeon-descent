@@ -5,3 +5,5 @@
 
 export * from "./bonuses";
 export * from "./spells";
+export * from "./classes";
+export * from "./artifacts";

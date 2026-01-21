@@ -8,6 +8,7 @@ import { Grid } from "./Grid";
 import { UIManager } from "./UIManager";
 import { Spell } from "./Spell";
 import { GameProgress } from "./GameProgress";
+import { buffSystem } from "../systems/BuffSystem";
 
 export class GameManager {
     private scene: Scene;
@@ -440,6 +441,31 @@ export class GameManager {
             return;
         }
 
+        // Check if trying to cast a self-buff spell on the player
+        if (unit instanceof Player && this.selectedUnit instanceof Player) {
+            const player = this.selectedUnit as Player;
+            const spell = player.getCurrentSpell();
+            
+            // Check if this is a self-buff spell (targetSelf: true or range: 0 with buff effect)
+            if (spell.buffEffect && spell.buffEffect.targetSelf === true) {
+                console.log(`[GameManager] Self-buff spell detected: ${spell.name}`);
+                
+                // Check if player has enough AP
+                if (!player.canAttack()) {
+                    if (this.uiManager) {
+                        this.uiManager.setActionText(
+                            `Not enough AP for ${spell.name}! Need ${spell.apCost}, have ${player.actionPoints}`
+                        );
+                    }
+                    return;
+                }
+                
+                // Cast the self-buff spell
+                this.castSelfBuffSpell(player, spell);
+                return;
+            }
+        }
+
         // Allow re-selecting the same unit to refresh highlights
         if (unit === this.selectedUnit) {
             console.log("Re-selecting same unit");
@@ -619,10 +645,12 @@ export class GameManager {
         // First check if clicking on a unit
         const clickedUnit = this.getUnitAt(gridX, gridY);
 
-        // If clicking on a unit, handle it through onUnitClick
+        // If clicking on a unit, the unit's own click handler will process it
+        // Don't double-process here to avoid double casting spells
         if (clickedUnit) {
-            console.log("Clicked on a unit");
-            this.onUnitClick(clickedUnit);
+            console.log("Clicked on a unit - delegating to unit click handler");
+            // Only call onUnitClick if the unit doesn't have its own interactive handler
+            // Player and other units have their own handlers set up via enableClickHandler
             return;
         }
 
@@ -932,8 +960,20 @@ export class GameManager {
             primaryTarget.gridY
         );
 
-        // Pass target and distance to getAttackDamage
-        const damage = attacker.getAttackDamage(primaryTarget, distance);
+        // Calculate damage - but for pure debuff spells with 0 base damage, don't deal damage
+        let damage: number;
+        const isPureDebuffSpell = spell.damage === 0 && 
+            spell.buffEffect && 
+            spell.buffEffect.targetSelf === false;
+        
+        if (isPureDebuffSpell) {
+            // This is a pure debuff spell (like marks), no damage should be dealt
+            damage = 0;
+            console.log(`[GameManager] Pure debuff spell ${spell.name}, no damage`);
+        } else {
+            // Pass target and distance to getAttackDamage
+            damage = attacker.getAttackDamage(primaryTarget, distance);
+        }
 
         // Add attack animation for player
         this.playAttackAnimation(attacker, primaryTarget, () => {
@@ -941,12 +981,14 @@ export class GameManager {
             this.applyDamageToTarget(attacker, primaryTarget, spell, damage);
 
             // Check for double tap bonus (20% chance to attack twice with ranged)
+            // Skip for pure debuff spells (no damage to double)
             const progress = GameProgress.getInstance();
             const appliedBonuses = progress.getAppliedBonuses();
 
             if (
                 appliedBonuses.includes("double_tap") &&
                 spell.type === "ranged" &&
+                !isPureDebuffSpell &&
                 Math.random() < 0.2 &&
                 primaryTarget.isAlive()
             ) {
@@ -1075,6 +1117,125 @@ export class GameManager {
         });
     }
 
+    /**
+     * Cast a self-buff spell on the player.
+     */
+    private castSelfBuffSpell(player: Player, spell: Spell): void {
+        console.log(`[GameManager] Casting self-buff spell: ${spell.name}`);
+
+        // Prevent double casting
+        if ((player as any).isCasting) {
+            console.log("[GameManager] Spell already being cast, ignoring");
+            return;
+        }
+
+        (player as any).isCasting = true;
+
+        // Play a buff animation (simple glow effect)
+        this.playBuffAnimation(player, () => {
+            // Apply the buff effect
+            if (spell.buffEffect) {
+                const buffEffect = spell.buffEffect;
+
+                if (buffEffect.duration === 0 || buffEffect.type === "instant") {
+                    // Instant effect (heal, gain AP/MP)
+                    player.applyInstantEffect(buffEffect.stat || "health", buffEffect.value);
+                    console.log(`[GameManager] Applied instant effect: ${buffEffect.stat} +${buffEffect.value}`);
+
+                    if (this.uiManager) {
+                        const effectName = buffEffect.stat === "health" ? "healed" : 
+                                          buffEffect.stat === "movementPoints" ? "gained MP" :
+                                          buffEffect.stat === "actionPoints" ? "gained AP" : 
+                                          `boosted ${buffEffect.stat}`;
+                        this.uiManager.addCombatLogMessage(
+                            `${spell.name}: ${effectName} ${buffEffect.value > 0 ? "+" : ""}${buffEffect.value}!`
+                        );
+                    }
+                } else {
+                    // Temporary buff
+                    const result = buffSystem.applyBuffEffect(buffEffect as any, spell.id, player.getActiveBuffs());
+                    if (result.buff) {
+                        player.addBuff(result.buff);
+                        console.log(`[GameManager] Applied buff: ${result.buff.buffType} for ${result.buff.remainingTurns} turns`);
+
+                        if (this.uiManager) {
+                            this.uiManager.addCombatLogMessage(
+                                `${spell.name}: +${buffEffect.value} ${buffEffect.stat || buffEffect.type} for ${buffEffect.duration} turns!`
+                            );
+                        }
+                    }
+                }
+            }
+
+            // Consume AP
+            player.consumeActionPoint();
+            player.updateHasActed();
+
+            // Update UI
+            if (this.uiManager) {
+                this.uiManager.updatePointsDisplay(player);
+
+                if (!player.canAttack() && player.movementPoints === 0) {
+                    this.uiManager.setActionText("No points left! End your turn.");
+                } else if (!player.canAttack()) {
+                    this.uiManager.setActionText("No action points left! You can still move.");
+                }
+            }
+
+            // Clear casting flag
+            (player as any).isCasting = false;
+
+            // Refresh highlights
+            if (this.selectedUnit === player) {
+                this.clearHighlights();
+                this.highlightMoveRange(player);
+                this.highlightAttackRange(player);
+            }
+        });
+    }
+
+    /**
+     * Play a buff animation effect on a unit.
+     * Plays a sound and a brief visual effect.
+     */
+    private playBuffAnimation(unit: Unit, onComplete: () => void): void {
+        // Play magic attack sound for buff spells
+        try {
+            this.scene.sound.play("magic_attack", { volume: 0.3 });
+        } catch (e) {
+            console.log("[GameManager] Could not play buff sound");
+        }
+
+        // Create a brief glow effect on the unit
+        const sprite = unit.sprite;
+        if (sprite) {
+            // Store original scale
+            const originalScaleX = sprite.scaleX;
+            const originalScaleY = sprite.scaleY;
+            
+            // Flash the sprite with a blue/white tint
+            sprite.setTint(0x88ccff);
+            
+            // Create a scale pulse effect
+            this.scene.tweens.add({
+                targets: sprite,
+                scaleX: originalScaleX * 1.15,
+                scaleY: originalScaleY * 1.15,
+                duration: 150,
+                yoyo: true,
+                ease: 'Sine.easeInOut',
+                onComplete: () => {
+                    sprite.clearTint();
+                    sprite.setScale(originalScaleX, originalScaleY);
+                    onComplete();
+                }
+            });
+        } else {
+            // No sprite, just call onComplete
+            onComplete();
+        }
+    }
+
     private applyDamageToTarget(
         attacker: Player,
         target: Unit,
@@ -1105,47 +1266,101 @@ export class GameManager {
         const damageType = spell.type === "magic" ? "magic" : "physical";
         const resistance =
             damageType === "magic" ? target.magicResistance : target.armor;
-        const actualDamage = Math.max(1, damage - resistance);
         const targetName =
             target instanceof Enemy ? (target as Enemy).enemyType : "unit";
 
-        if (this.uiManager) {
-            const stat =
-                spell.type === "melee"
-                    ? attacker.force
-                    : spell.type === "magic"
-                    ? attacker.intelligence
-                    : attacker.dexterity;
-            const statName =
-                spell.type === "melee"
-                    ? "FOR"
-                    : spell.type === "magic"
-                    ? "INT"
-                    : "DEX";
+        // Only apply damage if damage > 0
+        if (damage > 0) {
+            // Check if enemy is marked (takes extra damage) - only for actual attacks
+            if (target instanceof Enemy && (target as Enemy).isMarked()) {
+                const markBonus = (target as Enemy).getMarkDamageBonus();
+                damage += markBonus;
+                console.log(`[GameManager] Mark bonus: +${markBonus} damage`);
+                
+                if (this.uiManager) {
+                    this.uiManager.addCombatLogMessage(
+                        `Marked target takes +${markBonus} extra damage!`
+                    );
+                }
+                
+                // Consume the mark after applying bonus damage
+                (target as Enemy).consumeMark();
+            }
 
-            const resistanceType =
-                damageType === "magic" ? "m.resist" : "armor";
-            this.uiManager.addCombatLogMessage(
-                `Player uses ${spell.name} (${stat} ${statName}): ${damage} dmg - ${resistance} ${resistanceType} = ${actualDamage} dmg to ${targetName}`
-            );
+            const actualDamage = Math.max(1, damage - resistance);
+            if (this.uiManager) {
+                const stat =
+                    spell.type === "melee"
+                        ? attacker.force
+                        : spell.type === "magic"
+                        ? attacker.intelligence
+                        : attacker.dexterity;
+                const statName =
+                    spell.type === "melee"
+                        ? "FOR"
+                        : spell.type === "magic"
+                        ? "INT"
+                        : "DEX";
+
+                const resistanceType =
+                    damageType === "magic" ? "m.resist" : "armor";
+                this.uiManager.addCombatLogMessage(
+                    `Player uses ${spell.name} (${stat} ${statName}): ${damage} dmg - ${resistance} ${resistanceType} = ${actualDamage} dmg to ${targetName}`
+                );
+            }
+
+            const wasAlive = target.isAlive();
+            target.takeDamage(damage, damageType, attacker);
+            if (target instanceof Unit) {
+                target.updateHealthBar();
+            }
+
+            // Apply healing bonuses after successful hit
+            this.applyHealingBonuses(attacker, target, spell);
+
+            // Check if target was killed by this attack
+            if (wasAlive && !target.isAlive()) {
+                // Apply kill bonuses only when the enemy is actually killed
+                this.applyKillBonuses(attacker, target, spell);
+
+                this.removeUnit(target);
+                this.checkVictory();
+            }
         }
 
-        const wasAlive = target.isAlive();
-        target.takeDamage(damage, damageType, attacker);
-        if (target instanceof Unit) {
-            target.updateHealthBar();
+        // Apply debuff effects to enemy if spell has buffEffect with targetSelf: false
+        if (spell.buffEffect && spell.buffEffect.targetSelf === false && target instanceof Enemy) {
+            this.applyDebuffToEnemy(target as Enemy, spell);
         }
+    }
 
-        // Apply healing bonuses after successful hit
-        this.applyHealingBonuses(attacker, target, spell);
+    /**
+     * Apply a debuff from a spell to an enemy.
+     */
+    private applyDebuffToEnemy(enemy: Enemy, spell: Spell): void {
+        if (!spell.buffEffect) return;
 
-        // Check if target was killed by this attack
-        if (wasAlive && !target.isAlive()) {
-            // Apply kill bonuses only when the enemy is actually killed
-            this.applyKillBonuses(attacker, target, spell);
+        const buffEffect = spell.buffEffect;
+        console.log(`[GameManager] Applying debuff ${buffEffect.type} to enemy`);
 
-            this.removeUnit(target);
-            this.checkVictory();
+        if (buffEffect.duration === 0 || buffEffect.type === "instant") {
+            // Instant effects on enemies (rare, but could happen)
+            console.log(`[GameManager] Instant debuff effect: ${buffEffect.stat} ${buffEffect.value}`);
+        } else {
+            // Create and apply the debuff
+            const result = buffSystem.applyBuffEffect(buffEffect as any, spell.id, enemy.getActiveBuffs());
+            if (result.buff) {
+                enemy.addBuff(result.buff);
+                
+                if (this.uiManager) {
+                    const effectDesc = buffEffect.type === "mark" 
+                        ? `marked (+${buffEffect.value} damage taken)`
+                        : `${buffEffect.stat} ${buffEffect.value > 0 ? "+" : ""}${buffEffect.value}`;
+                    this.uiManager.addCombatLogMessage(
+                        `${spell.name}: Enemy ${effectDesc} for ${buffEffect.duration} turns!`
+                    );
+                }
+            }
         }
     }
 
@@ -1182,6 +1397,28 @@ export class GameManager {
         if (this.currentTeam === "player") {
             const player = this.getPlayer();
             if (player) {
+                // Tick player buffs at start of player turn (not on first turn)
+                if (!this.isFirstTurn) {
+                    const tickEffects = player.tickBuffs();
+                    for (const effect of tickEffects) {
+                        console.log(`[GameManager] Player tick effect: ${effect.stat} ${effect.value}`);
+                        if (effect.stat === "health" && effect.value > 0) {
+                            player.heal(effect.value);
+                            if (this.uiManager) {
+                                this.uiManager.addCombatLogMessage(
+                                    `Regeneration: +${effect.value} HP`
+                                );
+                            }
+                        }
+                    }
+                    
+                    // Log remaining buffs
+                    const activeBuffs = player.getActiveBuffs();
+                    if (activeBuffs.length > 0) {
+                        console.log(`[GameManager] Player has ${activeBuffs.length} active buff(s)`);
+                    }
+                }
+
                 // Apply adrenaline rush on first turn
                 if (this.isFirstTurn) {
                     const progress = GameProgress.getInstance();
@@ -1204,6 +1441,11 @@ export class GameManager {
                     this.isFirstTurn = false;
                 }
 
+                // Update UI to show current buff states
+                if (this.uiManager) {
+                    this.uiManager.updatePointsDisplay(player);
+                }
+
                 this.selectUnit(player);
             }
         }
@@ -1217,6 +1459,18 @@ export class GameManager {
         console.log("[GameManager] Starting enemy turn");
 
         try {
+            // Tick enemy buffs at start of enemy turn
+            const allEnemies = this.units.filter((unit) => unit.team === "enemy");
+            for (const enemy of allEnemies) {
+                if (enemy instanceof Enemy) {
+                    const tickEffects = (enemy as Enemy).tickBuffs();
+                    // Apply any tick effects (like regeneration, if enemies had that)
+                    for (const effect of tickEffects) {
+                        console.log(`[GameManager] Enemy tick effect: ${effect.stat} ${effect.value}`);
+                    }
+                }
+            }
+
             const enemyUnits = this.units.filter(
                 (unit) => unit.team === "enemy" && !unit.hasActed
             );

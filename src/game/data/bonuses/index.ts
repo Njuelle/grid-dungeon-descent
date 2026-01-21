@@ -3,10 +3,11 @@
  * Provides typed access to all bonuses and utility functions for filtering.
  */
 
-import { BonusDefinition, BonusCategory } from "../../core/types";
-import { STAT_BONUSES } from "./stat-bonuses";
-import { SPELL_BONUSES } from "./spell-bonuses";
-import { PASSIVE_BONUSES } from "./passive-bonuses";
+import { BonusDefinition, BonusCategory, PlayerClass } from "../../core/types";
+import { COMMON_BONUSES } from "./common-bonuses";
+import { WARRIOR_BONUSES } from "./warrior-bonuses";
+import { RANGER_BONUSES } from "./ranger-bonuses";
+import { MAGICIAN_BONUSES } from "./magician-bonuses";
 
 // =============================================================================
 // Combined Registry
@@ -16,9 +17,10 @@ import { PASSIVE_BONUSES } from "./passive-bonuses";
  * All available bonuses in the game, combined from all categories.
  */
 export const ALL_BONUSES: BonusDefinition[] = [
-    ...STAT_BONUSES,
-    ...SPELL_BONUSES,
-    ...PASSIVE_BONUSES,
+    ...COMMON_BONUSES,
+    ...WARRIOR_BONUSES,
+    ...RANGER_BONUSES,
+    ...MAGICIAN_BONUSES,
 ];
 
 /**
@@ -28,8 +30,43 @@ export const BONUS_REGISTRY: Map<string, BonusDefinition> = new Map(
     ALL_BONUSES.map((bonus) => [bonus.id, bonus])
 );
 
+/**
+ * Class-specific bonus maps for quick access.
+ */
+const CLASS_BONUSES: Record<PlayerClass, BonusDefinition[]> = {
+    warrior: WARRIOR_BONUSES,
+    ranger: RANGER_BONUSES,
+    magician: MAGICIAN_BONUSES,
+};
+
 // =============================================================================
-// Lookup Functions
+// Class-Based Lookup Functions
+// =============================================================================
+
+/**
+ * Get all bonuses available to a specific class.
+ * Returns common bonuses + class-specific bonuses.
+ */
+export function getBonusesForClass(playerClass: PlayerClass): BonusDefinition[] {
+    return [...COMMON_BONUSES, ...CLASS_BONUSES[playerClass]];
+}
+
+/**
+ * Get only class-specific bonuses (excludes common).
+ */
+export function getClassSpecificBonuses(playerClass: PlayerClass): BonusDefinition[] {
+    return CLASS_BONUSES[playerClass];
+}
+
+/**
+ * Get only common bonuses (available to all classes).
+ */
+export function getCommonBonuses(): BonusDefinition[] {
+    return COMMON_BONUSES;
+}
+
+// =============================================================================
+// General Lookup Functions
 // =============================================================================
 
 /**
@@ -82,6 +119,7 @@ export function bonusExists(id: string): boolean {
 // Re-exports
 // =============================================================================
 
-export { STAT_BONUSES } from "./stat-bonuses";
-export { SPELL_BONUSES } from "./spell-bonuses";
-export { PASSIVE_BONUSES } from "./passive-bonuses";
+export { COMMON_BONUSES } from "./common-bonuses";
+export { WARRIOR_BONUSES } from "./warrior-bonuses";
+export { RANGER_BONUSES } from "./ranger-bonuses";
+export { MAGICIAN_BONUSES } from "./magician-bonuses";

@@ -1,8 +1,14 @@
 import { Scene } from "phaser";
 import { Unit, UnitStats } from "./Unit";
 import { Spell, PLAYER_SPELLS } from "./Spell";
-import { Bonus, AVAILABLE_BONUSES } from "./Bonus";
 import { GameProgress } from "./GameProgress";
+import { ActiveBuff, PlayerClass, SpellDefinition, BonusDefinition } from "../core/types";
+import { getClassById, WARRIOR_CLASS } from "../data/classes";
+import { getSpellsByIds } from "../data/spells";
+import { getBonusById } from "../data/bonuses";
+import { artifactSystem } from "../systems/ArtifactSystem";
+import { buffSystem } from "../systems/BuffSystem";
+import { bonusSystem } from "../systems/BonusSystem";
 
 export type AttackType = "melee" | "ranged" | "magic";
 
@@ -10,29 +16,33 @@ export class Player extends Unit {
     private currentSpell: Spell;
     private spells: Spell[] = [];
     private static unitCount = 0;
+    private playerClass: PlayerClass;
+    private activeBuffs: ActiveBuff[] = [];
+
+    // Static variable to pass class info to createSprite() before super() completes
+    private static pendingPlayerClass: PlayerClass | null = null;
 
     constructor(scene: Scene, gridX: number, gridY: number) {
-        const baseStats: UnitStats = {
-            health: 10,
-            maxHealth: 10,
-            moveRange: 4,
-            attackRange: 3, // Will be overridden by spell range
-            movementPoints: 4,
-            maxMovementPoints: 4,
-            actionPoints: 3,
-            maxActionPoints: 3,
-            // Combat stats
-            force: 3, // Good at melee
-            dexterity: 2, // Decent at ranged
-            intelligence: 3, // Good at magic
-            armor: 1, // Light armor
-            magicResistance: 1, // Base magic resistance
-        };
+        // Get class from GameProgress, default to warrior if not set
+        const progress = GameProgress.getInstance();
+        const selectedClass = progress.getClass() || "warrior";
+        const classDefinition = getClassById(selectedClass) || WARRIOR_CLASS;
+
+        // Get base stats from class definition
+        const baseStats: UnitStats = { ...classDefinition.baseStats };
 
         // Apply bonuses before calling super
         const stats = Player.applyBonusesToStats(baseStats);
 
+        // Store the selected class in static variable BEFORE super() call
+        // so createSprite() can access it (createSprite is called inside super())
+        Player.pendingPlayerClass = selectedClass;
+
         super(scene, gridX, gridY, "player", stats);
+
+        // Now set instance property and clear static
+        this.playerClass = selectedClass;
+        Player.pendingPlayerClass = null;
 
         // Initialize spells with bonuses applied
         this.initializeSpells();
@@ -43,51 +53,12 @@ export class Player extends Unit {
     }
 
     private static applyBonusesToStats(baseStats: UnitStats): UnitStats {
-        const stats = { ...baseStats };
         const progress = GameProgress.getInstance();
         const appliedBonuses = progress.getAppliedBonuses();
 
-        for (const bonusId of appliedBonuses) {
-            const bonus = AVAILABLE_BONUSES.find((b) => b.id === bonusId);
-            if (bonus && bonus.type === "stat") {
-                bonus.effects.forEach((effect) => {
-                    if (effect.stat && effect.value !== undefined) {
-                        switch (effect.stat) {
-                            case "health":
-                                stats.health += effect.value;
-                                stats.maxHealth += effect.value;
-                                break;
-                            case "force":
-                                stats.force += effect.value;
-                                break;
-                            case "dexterity":
-                                stats.dexterity += effect.value;
-                                break;
-                            case "intelligence":
-                                stats.intelligence =
-                                    (stats.intelligence || 0) + effect.value;
-                                break;
-                            case "armor":
-                                stats.armor += effect.value;
-                                break;
-                            case "magicResistance":
-                                stats.magicResistance =
-                                    (stats.magicResistance || 0) + effect.value;
-                                break;
-                            case "movementPoints":
-                                stats.moveRange += effect.value;
-                                stats.movementPoints! += effect.value;
-                                stats.maxMovementPoints! += effect.value;
-                                break;
-                            case "actionPoints":
-                                stats.actionPoints! += effect.value;
-                                stats.maxActionPoints! += effect.value;
-                                break;
-                        }
-                    }
-                });
-            }
-        }
+        // Use bonusSystem to apply stat bonuses
+        const stats = bonusSystem.applyStatBonuses(baseStats, appliedBonuses);
+
         // Ensure stats don't go below reasonable minimums (e.g., 1 health, 0 for others)
         stats.maxHealth = Math.max(1, stats.maxHealth);
         stats.health = Math.max(1, Math.min(stats.health, stats.maxHealth));
@@ -131,89 +102,29 @@ export class Player extends Unit {
     }
 
     private initializeSpells(): void {
-        // Deep copy spells
-        this.spells = PLAYER_SPELLS.map((spell) => ({ ...spell }));
-
-        // Apply spell bonuses
         const progress = GameProgress.getInstance();
         const appliedBonuses = progress.getAppliedBonuses();
 
-        for (const bonusId of appliedBonuses) {
-            const bonus = AVAILABLE_BONUSES.find((b) => b.id === bonusId);
-            if (bonus && bonus.type === "spell" && bonus.target) {
-                const spell = this.spells.find((s) => s.id === bonus.target);
-                if (spell) {
-                    bonus.effects.forEach((effect) => {
-                        // Check conditions before applying effect
-                        if (effect.condition && effect.condition.requiresAoe) {
-                            if (!spell.aoeShape || !spell.aoeRadius) {
-                                return; // Skip effect if spell doesn't have AoE
-                            }
-                        }
+        // Get class definition for starting spells
+        const classDefinition = getClassById(this.playerClass) || WARRIOR_CLASS;
 
-                        if (
-                            effect.spellProperty &&
-                            effect.spellValue !== undefined
-                        ) {
-                            switch (effect.spellProperty) {
-                                case "damage":
-                                    if (typeof effect.spellValue === "number") {
-                                        spell.damage = Math.max(
-                                            0,
-                                            spell.damage + effect.spellValue
-                                        );
-                                    }
-                                    break;
-                                case "range":
-                                    if (typeof effect.spellValue === "number") {
-                                        spell.range = Math.max(
-                                            1,
-                                            spell.range + effect.spellValue
-                                        );
-                                        // Ensure minRange is not greater than range
-                                        if (
-                                            spell.minRange &&
-                                            spell.minRange > spell.range
-                                        ) {
-                                            spell.minRange = spell.range;
-                                        }
-                                    }
-                                    break;
-                                case "apCost":
-                                    if (typeof effect.spellValue === "number") {
-                                        const oldCost = spell.apCost;
-                                        spell.apCost = Math.max(
-                                            0,
-                                            spell.apCost + effect.spellValue
-                                        );
-                                        console.log(
-                                            `[Player] Bonus "${bonus.name}" modified ${spell.name} AP cost: ${oldCost} -> ${spell.apCost}`
-                                        );
-                                    }
-                                    break;
-                                case "aoeShape":
-                                    if (typeof effect.spellValue === "string") {
-                                        spell.aoeShape = effect.spellValue as
-                                            | "circle"
-                                            | "line"
-                                            | "cone";
-                                    }
-                                    break;
-                                case "aoeRadius":
-                                    if (typeof effect.spellValue === "number") {
-                                        spell.aoeRadius = Math.max(
-                                            1,
-                                            (spell.aoeRadius || 0) +
-                                                effect.spellValue
-                                        );
-                                    }
-                                    break;
-                            }
-                        }
-                    });
-                }
-            }
-        }
+        // Get starting spells from class
+        const startingSpells = getSpellsByIds(classDefinition.startingSpellIds);
+
+        // Get artifact spells from equipped artifacts
+        const artifactSpells = artifactSystem.getSpellsFromArtifacts(
+            progress.getEquippedArtifacts()
+        );
+
+        // Combine and deep copy all spells
+        const allSpells = [...startingSpells, ...artifactSpells];
+        this.spells = allSpells.map((spell) => ({ ...spell }));
+
+        console.log(`[Player] Initialized ${this.spells.length} spells for ${this.playerClass}:`, 
+            this.spells.map(s => s.name).join(", "));
+
+        // Apply spell bonuses from bonuses system
+        this.spells = bonusSystem.applySpellBonuses(this.spells, appliedBonuses);
 
         // Apply special bonuses that affect multiple spells
         this.applySpecialBonuses(appliedBonuses);
@@ -275,8 +186,14 @@ export class Player extends Unit {
     }
 
     protected createSprite(): void {
-        // Use the hero warrior sprite
-        this.sprite = this.scene.add.sprite(0, 0, "hero_warrior");
+        // Use class-specific sprite
+        // Note: Use static pendingPlayerClass because this is called from super()
+        // before this.playerClass is set
+        const playerClass = Player.pendingPlayerClass || "warrior";
+        const classDefinition = getClassById(playerClass) || WARRIOR_CLASS;
+        const spriteKey = classDefinition.spriteKey;
+
+        this.sprite = this.scene.add.sprite(0, 0, spriteKey);
         this.sprite.setInteractive();
         this.sprite.setData("unit", this);
         this.sprite.setDepth(2); // Above floors (0) and walls (0.5)
@@ -295,6 +212,8 @@ export class Player extends Unit {
             .text(0, 0, "", { fontSize: "1px" })
             .setOrigin(0.5)
             .setDepth(3); // Above units
+
+        console.log(`[Player] Created sprite for class ${playerClass}: ${spriteKey}`);
     }
 
     public enableStatsTooltip(): void {
@@ -351,12 +270,20 @@ export class Player extends Unit {
     public getAttackDamage(target?: Unit, distance?: number): number {
         const baseDamage = this.currentSpell.damage;
         let statBonus = 0;
+
+        // Use effective stat (includes buff modifiers)
         if (this.currentSpell.type === "melee") {
-            statBonus = this.stats.force;
+            statBonus = this.getEffectiveStat("force");
         } else if (this.currentSpell.type === "ranged") {
-            statBonus = this.stats.dexterity;
+            statBonus = this.getEffectiveStat("dexterity");
         } else if (this.currentSpell.type === "magic") {
-            statBonus = this.stats.intelligence || 0; // Use intelligence for magic
+            statBonus = this.getEffectiveStat("intelligence");
+        }
+
+        // Apply buff damage boost
+        let buffDamageBoost = this.getBuffDamageBoost();
+        if (buffDamageBoost > 0) {
+            console.log(`[Player] Buff damage boost: +${buffDamageBoost}`);
         }
 
         // Apply power through pain bonus if present
@@ -415,7 +342,7 @@ export class Player extends Unit {
         }
 
         // Calculate base damage before randomness
-        let totalDamage = baseDamage + statBonus + overloadDamage;
+        let totalDamage = baseDamage + statBonus + overloadDamage + buffDamageBoost;
 
         // Add some randomness
         const randomFactor = 0.8 + Math.random() * 0.4; // 80% to 120%
@@ -610,6 +537,186 @@ export class Player extends Unit {
 
     public addForce(points: number): void {
         this.stats.force += points;
+    }
+
+    // =========================================================================
+    // Class Methods
+    // =========================================================================
+
+    public getPlayerClass(): PlayerClass {
+        return this.playerClass;
+    }
+
+    // =========================================================================
+    // Buff Methods
+    // =========================================================================
+
+    /**
+     * Get all active buffs on this player.
+     */
+    public getActiveBuffs(): ActiveBuff[] {
+        return [...this.activeBuffs];
+    }
+
+    /**
+     * Add a buff to this player.
+     */
+    public addBuff(buff: ActiveBuff): void {
+        this.activeBuffs = buffSystem.addBuff(this.activeBuffs, buff);
+        console.log(`[Player] Added buff: ${buff.buffType} (${buff.remainingTurns} turns)`);
+    }
+
+    /**
+     * Remove a specific buff.
+     */
+    public removeBuff(buffId: string): void {
+        this.activeBuffs = buffSystem.removeBuff(this.activeBuffs, buffId);
+    }
+
+    /**
+     * Tick buffs at turn start (called by TurnManager).
+     * Returns any tick effects that should be applied (like regeneration).
+     */
+    public tickBuffs(): { stat: string; value: number }[] {
+        const result = buffSystem.tickBuffs(this.activeBuffs);
+        this.activeBuffs = result.updatedBuffs;
+
+        // Log expired buffs
+        for (const expired of result.expiredBuffs) {
+            console.log(`[Player] Buff expired: ${expired.buffType}`);
+        }
+
+        return result.tickEffects;
+    }
+
+    /**
+     * Apply an instant buff effect (heal, gain AP/MP).
+     */
+    public applyInstantEffect(stat: string, value: number): void {
+        switch (stat) {
+            case "health":
+                this.heal(value);
+                break;
+            case "movementPoints":
+                this.addMovementPoints(value);
+                break;
+            case "actionPoints":
+                this.addActionPoints(value);
+                break;
+            case "force":
+                this.addForce(value);
+                break;
+            default:
+                console.warn(`[Player] Unknown instant effect stat: ${stat}`);
+        }
+    }
+
+    /**
+     * Heal the player.
+     */
+    public heal(amount: number): void {
+        const oldHealth = this.stats.health;
+        this.stats.health = Math.min(this.stats.maxHealth, this.stats.health + amount);
+        console.log(`[Player] Healed ${this.stats.health - oldHealth} HP (${oldHealth} -> ${this.stats.health})`);
+    }
+
+    /**
+     * Get stat modifier from active buffs.
+     */
+    public getBuffStatModifier(stat: string): number {
+        return buffSystem.getStatModifier(this.activeBuffs, stat as any);
+    }
+
+    /**
+     * Get damage boost from active buffs.
+     */
+    public getBuffDamageBoost(): number {
+        return buffSystem.getDamageBoost(this.activeBuffs);
+    }
+
+    /**
+     * Get effective stat value including buff modifiers.
+     */
+    public getEffectiveStat(stat: string): number {
+        let baseValue = 0;
+        switch (stat) {
+            case "force":
+                baseValue = this.stats.force;
+                break;
+            case "dexterity":
+                baseValue = this.stats.dexterity;
+                break;
+            case "intelligence":
+                baseValue = this.stats.intelligence || 0;
+                break;
+            case "armor":
+                baseValue = this.stats.armor;
+                break;
+            case "magicResistance":
+                baseValue = this.stats.magicResistance || 0;
+                break;
+            default:
+                return 0;
+        }
+        return baseValue + this.getBuffStatModifier(stat);
+    }
+
+    /**
+     * Check if player has a shield buff active.
+     */
+    public hasShield(): boolean {
+        return buffSystem.hasBuffType(this.activeBuffs, "shield");
+    }
+
+    /**
+     * Get shield value from active buffs.
+     */
+    public getShieldValue(): number {
+        return buffSystem.getShieldValue(this.activeBuffs);
+    }
+
+    /**
+     * Consume shield when taking damage.
+     */
+    public consumeShield(incomingDamage: number): number {
+        const result = buffSystem.consumeShield(this.activeBuffs, incomingDamage);
+        this.activeBuffs = result.updatedBuffs;
+        return result.remainingDamage;
+    }
+
+    /**
+     * Check if player is marked (takes extra damage).
+     */
+    public isMarked(): boolean {
+        return buffSystem.hasBuffType(this.activeBuffs, "mark");
+    }
+
+    /**
+     * Get mark damage bonus (extra damage taken).
+     */
+    public getMarkDamageBonus(): number {
+        return buffSystem.getMarkDamageBonus(this.activeBuffs);
+    }
+
+    /**
+     * Consume mark after being hit.
+     */
+    public consumeMark(): void {
+        this.activeBuffs = buffSystem.consumeMark(this.activeBuffs);
+    }
+
+    /**
+     * Clear all buffs (used when battle ends or player dies).
+     */
+    public clearAllBuffs(): void {
+        this.activeBuffs = [];
+    }
+
+    /**
+     * Get buff descriptions for UI.
+     */
+    public getBuffDescriptions(): string[] {
+        return buffSystem.getBuffDescriptions(this.activeBuffs);
     }
 }
 

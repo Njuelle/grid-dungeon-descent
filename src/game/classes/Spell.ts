@@ -1,3 +1,18 @@
+export type BuffType = "stat_boost" | "damage_boost" | "mark" | "shield" | "instant";
+export type SpellCategory = "attack" | "buff";
+
+export interface BuffEffect {
+    type: BuffType;
+    /** Stat to modify (for stat_boost type) */
+    stat?: string;
+    /** Value of the buff effect */
+    value: number;
+    /** Duration in turns (0 = instant effect like heal/gain AP) */
+    duration: number;
+    /** True for self-buffs, false for enemy debuffs/marks */
+    targetSelf?: boolean;
+}
+
 export interface Spell {
     id: string;
     name: string;
@@ -12,6 +27,10 @@ export interface Spell {
     duration?: number;
     aoeShape?: "circle" | "line" | "cone";
     aoeRadius?: number;
+    /** Category of spell: attack (default) or buff */
+    spellCategory?: SpellCategory;
+    /** Buff effect configuration (for buff spells) */
+    buffEffect?: BuffEffect;
 }
 
 export const PLAYER_SPELLS: Spell[] = [

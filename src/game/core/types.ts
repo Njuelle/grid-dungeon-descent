@@ -37,6 +37,51 @@ export type AoeShape = "circle" | "line" | "cone";
 export type Team = "player" | "enemy";
 
 // =============================================================================
+// Player Class Types
+// =============================================================================
+
+export type PlayerClass = "warrior" | "ranger" | "magician";
+
+export interface ClassDefinition {
+    id: PlayerClass;
+    name: string;
+    description: string;
+    spriteKey: string;
+    baseStats: UnitStats;
+    startingSpellIds: string[];
+}
+
+// =============================================================================
+// Artifact Types
+// =============================================================================
+
+export interface ArtifactDefinition {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    /** If defined, only this class can use this artifact */
+    classRestriction?: PlayerClass;
+    /** The spell ID this artifact grants */
+    grantedSpellId: string;
+}
+
+// =============================================================================
+// Buff Types
+// =============================================================================
+
+export type BuffType = "stat_boost" | "damage_boost" | "mark" | "shield" | "instant";
+
+export interface ActiveBuff {
+    id: string;
+    buffType: BuffType;
+    remainingTurns: number;
+    stat?: StatName;
+    value: number;
+    sourceSpellId: string;
+}
+
+// =============================================================================
 // Unit Stats
 // =============================================================================
 
@@ -69,6 +114,20 @@ export interface GridPosition {
 // Spell Types
 // =============================================================================
 
+export type SpellCategory = "attack" | "buff";
+
+export interface BuffEffect {
+    type: BuffType;
+    /** Stat to modify (for stat_boost type) */
+    stat?: StatName;
+    /** Value of the buff effect */
+    value: number;
+    /** Duration in turns (0 = instant effect like heal/gain AP) */
+    duration: number;
+    /** True for self-buffs, false for enemy debuffs/marks */
+    targetSelf?: boolean;
+}
+
 export interface SpellDefinition {
     id: string;
     name: string;
@@ -83,6 +142,10 @@ export interface SpellDefinition {
     duration?: number;
     aoeShape?: AoeShape;
     aoeRadius?: number;
+    /** Category of spell: attack (default) or buff */
+    spellCategory?: SpellCategory;
+    /** Buff effect configuration (for buff spells) */
+    buffEffect?: BuffEffect;
 }
 
 // =============================================================================
@@ -192,6 +255,8 @@ export interface UnitState {
     hasMovedThisTurn: boolean;
     currentSpellId?: string;
     enemyType?: string;
+    /** Active buffs on this unit */
+    activeBuffs?: ActiveBuff[];
 }
 
 export interface GameStateSnapshot {
@@ -202,4 +267,8 @@ export interface GameStateSnapshot {
     wins: number;
     isGameOver: boolean;
     isVictory: boolean;
+    /** Selected player class */
+    playerClass?: PlayerClass;
+    /** Equipped artifact IDs */
+    equippedArtifacts?: string[];
 }

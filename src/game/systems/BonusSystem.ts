@@ -17,6 +17,7 @@ import {
     TriggerCondition,
     StatName,
     AttackType,
+    PlayerClass,
 } from "../core/types";
 import {
     ALL_BONUSES,
@@ -24,6 +25,7 @@ import {
     getBonusById,
     getBonusesByCategory,
     getBonusesForSpell,
+    getBonusesForClass,
 } from "../data/bonuses";
 
 // =============================================================================
@@ -371,10 +373,18 @@ export class BonusSystem {
 
     /**
      * Get random bonuses for selection, excluding already applied ones appropriately.
+     * Only returns bonuses available to the specified player class.
      */
-    public getRandomBonuses(count: number, appliedBonusIds: string[]): BonusDefinition[] {
+    public getRandomBonuses(
+        count: number, 
+        appliedBonusIds: string[], 
+        playerClass: PlayerClass
+    ): BonusDefinition[] {
+        // Get bonuses available to this class (common + class-specific)
+        const classAvailableBonuses = getBonusesForClass(playerClass);
+
         // Filter valid bonuses
-        const validBonuses = ALL_BONUSES.filter((bonus) => {
+        const validBonuses = classAvailableBonuses.filter((bonus) => {
             // Check if already applied (non-stackable)
             if (!bonus.stackable && appliedBonusIds.includes(bonus.id)) {
                 return false;

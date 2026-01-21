@@ -9,3 +9,5 @@ export * from "./TurnManager";
 export * from "./CombatSystem";
 export * from "./MovementSystem";
 export * from "./AISystem";
+export * from "./ArtifactSystem";
+export * from "./BuffSystem";

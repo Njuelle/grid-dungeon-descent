@@ -1,9 +1,13 @@
 import { Scene } from "phaser";
 import { Player, AttackType } from "./Player";
 import { Spell } from "./Spell";
-import { Bonus, getRandomBonuses, AVAILABLE_BONUSES } from "./Bonus";
+import { BonusDefinition, PlayerClass } from "../core/types";
+import { getBonusById } from "../data/bonuses";
+import { bonusSystem } from "../systems/BonusSystem";
 import { GameProgress } from "./GameProgress";
 import { DifficultyScaling } from "./DifficultyScaling";
+import { ArtifactSelectionUI } from "../ui/ArtifactSelectionUI";
+import { ArtifactBagUI } from "../ui/ArtifactBagUI";
 
 export class UIManager {
     private scene: Scene;
@@ -28,11 +32,20 @@ export class UIManager {
     private bonusSelectionActive: boolean = false;
     private uiReady: boolean = false;
     private rerollUsedThisVictory: boolean = false;
+    private artifactSelectionUI?: ArtifactSelectionUI;
+    private artifactBagUI?: ArtifactBagUI;
 
     constructor(scene: Scene) {
         this.scene = scene;
         this.createUI();
         this.createBottomBar();
+
+        // Initialize artifact selection UI
+        this.artifactSelectionUI = new ArtifactSelectionUI(scene);
+
+        // Initialize artifact bag UI (shows equipped artifacts during battle)
+        this.artifactBagUI = new ArtifactBagUI(scene);
+        this.artifactBagUI.show();
 
         // Mark UI as ready
         this.uiReady = true;
@@ -518,6 +531,17 @@ export class UIManager {
             mrHitArea,
         ]);
 
+        // Buff indicator text (shown below the stats)
+        const buffText = this.scene.add
+            .text(0, 45, "", {
+                fontSize: "12px",
+                color: "#88ff88",
+                fontStyle: "italic",
+                align: "center",
+            })
+            .setOrigin(0.5);
+        this.playerStatsContainer.add(buffText);
+
         // Store references for updates
         this.playerStatsContainer.setData("healthBar", healthBar);
         this.playerStatsContainer.setData("healthText", healthText);
@@ -528,6 +552,7 @@ export class UIManager {
         this.playerStatsContainer.setData("intText", intText);
         this.playerStatsContainer.setData("armorText", armorText);
         this.playerStatsContainer.setData("mrText", mrText);
+        this.playerStatsContainer.setData("buffText", buffText);
 
         // Store references to the MP/AP texts for compatibility
         this.mpText = mpText;
@@ -563,6 +588,9 @@ export class UIManager {
         ) as Phaser.GameObjects.Text;
         const mrText = this.playerStatsContainer.getData(
             "mrText"
+        ) as Phaser.GameObjects.Text;
+        const buffText = this.playerStatsContainer.getData(
+            "buffText"
         ) as Phaser.GameObjects.Text;
 
         // Add null checks for all elements
@@ -609,14 +637,21 @@ export class UIManager {
             );
             apText.setText(`${player.actionPoints}/${player.maxActionPoints}`);
 
-            // Update stat values with bonuses
-            forceText.setText(player.force.toString());
-            dexText.setText(player.dexterity.toString());
-            intText.setText(player.intelligence.toString());
+            // Get buff modifiers for stat coloring
+            const forceBuffMod = player.getBuffStatModifier("force");
+            const dexBuffMod = player.getBuffStatModifier("dexterity");
+            const intBuffMod = player.getBuffStatModifier("intelligence");
+            const armorBuffMod = player.getBuffStatModifier("armor");
+            const mrBuffMod = player.getBuffStatModifier("magicResistance");
+
+            // Update stat values with buff coloring
+            this.updateStatWithBuff(forceText, player.getEffectiveStat("force"), forceBuffMod);
+            this.updateStatWithBuff(dexText, player.getEffectiveStat("dexterity"), dexBuffMod);
+            this.updateStatWithBuff(intText, player.getEffectiveStat("intelligence"), intBuffMod);
 
             // Calculate effective armor including bonuses
-            let effectiveArmor = player.armor;
-            let hasArmorBonus = false;
+            let effectiveArmor = player.getEffectiveStat("armor");
+            let armorBuffModTotal = armorBuffMod;
 
             // Add Fortified Position bonus if applicable
             if (!player.hasMovedThisTurn) {
@@ -624,19 +659,28 @@ export class UIManager {
                 const appliedBonuses = progress.getAppliedBonuses();
                 if (appliedBonuses.includes("fortified_position")) {
                     effectiveArmor += 3;
-                    hasArmorBonus = true;
+                    armorBuffModTotal += 3;
                 }
             }
 
-            // Display effective armor (use green color when bonus is active)
-            armorText.setText(effectiveArmor.toString());
-            if (hasArmorBonus) {
-                armorText.setColor("#00ff00"); // Green to show bonus
-            } else {
-                armorText.setColor("#ffffff"); // Normal white
-            }
+            // Display effective armor with buff coloring
+            this.updateStatWithBuff(armorText, effectiveArmor, armorBuffModTotal);
 
-            mrText.setText(player.magicResistance.toString());
+            // Magic resistance with buff coloring
+            this.updateStatWithBuff(mrText, player.getEffectiveStat("magicResistance"), mrBuffMod);
+
+            // Update buff display text
+            const activeBuffs = player.getActiveBuffs();
+            if (buffText) {
+                if (activeBuffs && activeBuffs.length > 0) {
+                    const buffDescriptions = this.formatBuffsForDisplay(activeBuffs);
+                    buffText.setText(buffDescriptions);
+                    buffText.setVisible(true);
+                } else {
+                    buffText.setText("");
+                    buffText.setVisible(false);
+                }
+            }
         } else {
             // Clear everything if no player
             healthBar.clear();
@@ -648,6 +692,78 @@ export class UIManager {
             intText.setText("");
             armorText.setText("");
             mrText.setText("");
+            if (buffText) {
+                buffText.setText("");
+                buffText.setVisible(false);
+            }
+        }
+    }
+
+    /**
+     * Updates a stat text with buff coloring.
+     * Green for positive buffs, red for negative buffs/debuffs.
+     */
+    private updateStatWithBuff(text: Phaser.GameObjects.Text, value: number, buffMod: number): void {
+        text.setText(value.toString());
+        
+        if (buffMod > 0) {
+            text.setColor("#00ff00"); // Green for positive buff
+        } else if (buffMod < 0) {
+            text.setColor("#ff4444"); // Red for negative buff/debuff
+        } else {
+            text.setColor("#ffffff"); // White for no buff
+        }
+    }
+
+    /**
+     * Formats active buffs for display.
+     */
+    private formatBuffsForDisplay(buffs: any[]): string {
+        if (!buffs || buffs.length === 0) return "";
+
+        const descriptions: string[] = [];
+        for (const buff of buffs) {
+            const sign = buff.value >= 0 ? "+" : "";
+            let desc = "";
+            
+            switch (buff.buffType) {
+                case "stat_boost":
+                    desc = `${sign}${buff.value} ${this.formatStatName(buff.stat)} (${buff.remainingTurns}t)`;
+                    break;
+                case "damage_boost":
+                    desc = `${sign}${buff.value} DMG (${buff.remainingTurns}t)`;
+                    break;
+                case "shield":
+                    desc = `Shield: ${buff.value} (${buff.remainingTurns}t)`;
+                    break;
+                case "mark":
+                    desc = `Marked: +${buff.value} dmg taken (${buff.remainingTurns}t)`;
+                    break;
+                default:
+                    desc = `Buff (${buff.remainingTurns}t)`;
+            }
+            descriptions.push(desc);
+        }
+        
+        return descriptions.join(" | ");
+    }
+
+    /**
+     * Formats a stat name for display.
+     */
+    private formatStatName(stat?: string): string {
+        if (!stat) return "???";
+        switch (stat) {
+            case "force": return "FOR";
+            case "dexterity": return "DEX";
+            case "intelligence": return "INT";
+            case "armor": return "ARM";
+            case "magicResistance": return "MR";
+            case "movementPoints": return "MP";
+            case "actionPoints": return "AP";
+            case "health": return "HP";
+            case "maxHealth": return "MaxHP";
+            default: return stat;
         }
     }
 
@@ -660,10 +776,22 @@ export class UIManager {
         const container = this.scene.add.container(x, y);
         container.setDepth(50);
 
-        // Icon - much larger size, no background
-        const iconSprite = this.scene.add.image(0, 0, spell.icon);
-        iconSprite.setScale(1.2); // Reduced from 1.5
-        iconSprite.setDisplaySize(48, 48); // Reduced from 60x60
+        // Icon - check if it's an image key or emoji
+        let iconDisplay: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
+        const isImageKey = spell.icon.startsWith("icon_");
+
+        if (isImageKey) {
+            // Use image for preloaded icons
+            iconDisplay = this.scene.add.image(0, 0, spell.icon);
+            iconDisplay.setDisplaySize(48, 48);
+        } else {
+            // Use text for emoji icons
+            iconDisplay = this.scene.add
+                .text(0, 0, spell.icon, {
+                    fontSize: "36px",
+                })
+                .setOrigin(0.5);
+        }
 
         // AP cost - positioned at top-right corner of icon
         const apCostText = this.scene.add
@@ -681,8 +809,9 @@ export class UIManager {
         const selectionBorder = this.scene.add.graphics();
         selectionBorder.setVisible(false);
 
-        container.add([selectionBorder, iconSprite, apCostText]);
-        container.setData("iconSprite", iconSprite);
+        container.add([selectionBorder, iconDisplay, apCostText]);
+        container.setData("iconDisplay", iconDisplay);
+        container.setData("isImageKey", isImageKey);
         container.setData("spell", spell);
         container.setData("apCostText", apCostText);
         container.setData("selectionBorder", selectionBorder);
@@ -702,7 +831,9 @@ export class UIManager {
 
         container.on("pointerover", () => {
             if (this.currentPlayer && this.currentPlayer.canCastSpell(spell)) {
-                iconSprite.setTint(0xccccff);
+                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                    iconDisplay.setTint(0xccccff);
+                }
                 this.scene.input.setDefaultCursor("pointer");
             } else {
                 this.scene.input.setDefaultCursor("default");
@@ -714,7 +845,9 @@ export class UIManager {
 
         container.on("pointerout", () => {
             if (container.getData("spell") !== this.selectedSpell) {
-                iconSprite.clearTint();
+                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                    iconDisplay.clearTint();
+                }
             }
             this.scene.input.setDefaultCursor("default");
 
@@ -840,7 +973,7 @@ export class UIManager {
         const spells = player.getSpells();
         const buttonY = this.scene.scale.height - 50; // Adjusted for larger bar
         const startX = 100;
-        const spacing = 80; // Reduced from 120
+        const spacing = 70; // Spacing between spell buttons
 
         spells.forEach((spell, index) => {
             const button = this.createSpellButton(
@@ -852,21 +985,26 @@ export class UIManager {
             this.spellButtons.push(button);
 
             // Update button state based on AP availability
-            const iconSprite = button.getData(
-                "iconSprite"
-            ) as Phaser.GameObjects.Image;
+            const iconDisplay = button.getData("iconDisplay") as
+                | Phaser.GameObjects.Image
+                | Phaser.GameObjects.Text;
+            const isImageKey = button.getData("isImageKey") as boolean;
             const apCostText = button.getData(
                 "apCostText"
             ) as Phaser.GameObjects.Text;
 
             if (!player.canCastSpell(spell)) {
                 // Disabled state
-                iconSprite.setTint(0x666666);
-                iconSprite.setAlpha(0.5);
+                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                    iconDisplay.setTint(0x666666);
+                }
+                iconDisplay.setAlpha(0.5);
                 apCostText.setColor("#ff4444");
             } else {
-                iconSprite.clearTint();
-                iconSprite.setAlpha(1);
+                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                    iconDisplay.clearTint();
+                }
+                iconDisplay.setAlpha(1);
                 apCostText.setColor("#ffff00");
             }
         });
@@ -885,9 +1023,10 @@ export class UIManager {
 
         // Update button visuals
         this.spellButtons.forEach((button) => {
-            const iconSprite = button.getData(
-                "iconSprite"
-            ) as Phaser.GameObjects.Image;
+            const iconDisplay = button.getData("iconDisplay") as
+                | Phaser.GameObjects.Image
+                | Phaser.GameObjects.Text;
+            const isImageKey = button.getData("isImageKey") as boolean;
             const buttonSpell = button.getData("spell") as Spell;
             const selectionBorder = button.getData(
                 "selectionBorder"
@@ -895,9 +1034,13 @@ export class UIManager {
 
             if (buttonSpell === spell) {
                 // Selected state - green border and larger
-                iconSprite.clearTint();
-                iconSprite.setScale(1.4); // Larger when selected
-                iconSprite.setDisplaySize(56, 56); // Larger display size
+                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                    iconDisplay.clearTint();
+                    iconDisplay.setDisplaySize(56, 56);
+                } else if (iconDisplay instanceof Phaser.GameObjects.Text) {
+                    iconDisplay.setFontSize(44); // Larger when selected
+                }
+                iconDisplay.setScale(1.1);
 
                 // Draw green border
                 selectionBorder.clear();
@@ -909,17 +1052,25 @@ export class UIManager {
                 !this.currentPlayer.canCastSpell(buttonSpell)
             ) {
                 // Disabled state
-                iconSprite.setTint(0x666666);
-                iconSprite.setAlpha(0.5);
-                iconSprite.setScale(1.2); // Reduced from 1.5
-                iconSprite.setDisplaySize(48, 48);
+                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                    iconDisplay.setTint(0x666666);
+                    iconDisplay.setDisplaySize(48, 48);
+                } else if (iconDisplay instanceof Phaser.GameObjects.Text) {
+                    iconDisplay.setFontSize(36);
+                }
+                iconDisplay.setAlpha(0.5);
+                iconDisplay.setScale(1);
                 selectionBorder.setVisible(false);
             } else {
                 // Normal state
-                iconSprite.clearTint();
-                iconSprite.setAlpha(1);
-                iconSprite.setScale(1.2); // Reduced from 1.5
-                iconSprite.setDisplaySize(48, 48);
+                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                    iconDisplay.clearTint();
+                    iconDisplay.setDisplaySize(48, 48);
+                } else if (iconDisplay instanceof Phaser.GameObjects.Text) {
+                    iconDisplay.setFontSize(36);
+                }
+                iconDisplay.setAlpha(1);
+                iconDisplay.setScale(1);
                 selectionBorder.setVisible(false);
             }
         });
@@ -991,8 +1142,17 @@ export class UIManager {
 
     public showGameOver(victory: boolean, onRestart: () => void): void {
         if (victory) {
-            // Show bonus selection
-            this.showBonusSelection(onRestart);
+            // Increment wins first to determine reward type
+            const progress = GameProgress.getInstance();
+            progress.incrementWins();
+
+            // Check if this is an artifact selection round (every 5 wins)
+            if (progress.shouldShowArtifactSelection()) {
+                this.showArtifactSelection(onRestart);
+            } else {
+                // Show bonus selection (wins already incremented)
+                this.showBonusSelection(onRestart, false);
+            }
         } else {
             // Show regular game over
             this.showDefeatScreen(onRestart);
@@ -1031,6 +1191,11 @@ export class UIManager {
         // Hide any existing tooltips
         this.hideSpellTooltip();
         this.hideStatTooltip();
+
+        // Hide artifact bag during overlays
+        if (this.artifactBagUI) {
+            this.artifactBagUI.hide();
+        }
     }
 
     private disableAllGameInteractionsAndStopSounds(): void {
@@ -1537,7 +1702,7 @@ export class UIManager {
             // Get bonus details
             const bonusDetails = bonuses
                 .map((bonusId) => {
-                    const bonus = this.getBonusById(bonusId);
+                    const bonus = this.getBonus(bonusId);
                     return bonus;
                 })
                 .filter(Boolean);
@@ -2147,9 +2312,8 @@ export class UIManager {
         }
     }
 
-    private getBonusById(bonusId: string): Bonus | null {
-        // Import AVAILABLE_BONUSES from Bonus.ts
-        return AVAILABLE_BONUSES.find((bonus) => bonus.id === bonusId) || null;
+    private getBonus(bonusId: string): BonusDefinition | undefined {
+        return getBonusById(bonusId);
     }
 
     private showStatTooltip(
@@ -2271,6 +2435,12 @@ export class UIManager {
         if (this.statTooltip) {
             this.statTooltip.destroy();
         }
+        if (this.artifactSelectionUI) {
+            this.artifactSelectionUI.destroy();
+        }
+        if (this.artifactBagUI) {
+            this.artifactBagUI.destroy();
+        }
 
         // Remove event listeners
         this.scene.events.off(
@@ -2286,7 +2456,7 @@ export class UIManager {
         this.bonusSelectionActive = false;
     }
 
-    private showBonusSelection(onRestart: () => void): void {
+    private showBonusSelection(onRestart: () => void, incrementWins: boolean = true): void {
         // Guard against duplicate calls
         if (this.bonusSelectionActive) {
             return;
@@ -2298,7 +2468,10 @@ export class UIManager {
         this.disableAllGameInteractions();
 
         const progress = GameProgress.getInstance();
-        progress.incrementWins();
+        // Only increment wins if requested (for backwards compatibility)
+        if (incrementWins) {
+            progress.incrementWins();
+        }
 
         // Full screen overlay with medieval background
         const overlay = this.scene.add.graphics();
@@ -2401,8 +2574,9 @@ export class UIManager {
             this.scene.input.setDefaultCursor("default");
         });
 
-        // Get 3 random bonuses
-        const bonuses = getRandomBonuses(3, progress.getAppliedBonuses());
+        // Get 3 random bonuses filtered by player class
+        const playerClass = progress.getClass() || "warrior";
+        const bonuses = bonusSystem.getRandomBonuses(3, progress.getAppliedBonuses(), playerClass);
         const bonusContainers: Phaser.GameObjects.Container[] = [];
 
         // Create bonus cards
@@ -2590,10 +2764,12 @@ export class UIManager {
                         rerollButton = undefined;
                     }
 
-                    // Get new bonuses
-                    const newBonuses = getRandomBonuses(
+                    // Get new bonuses filtered by player class
+                    const rerollPlayerClass = progress.getClass() || "warrior";
+                    const newBonuses = bonusSystem.getRandomBonuses(
                         3,
-                        progress.getAppliedBonuses()
+                        progress.getAppliedBonuses(),
+                        rerollPlayerClass
                     );
 
                     // Recreate bonus cards
@@ -2787,6 +2963,38 @@ export class UIManager {
             duration: 300,
             ease: "Power2.easeOut",
         });
+    }
+
+    private showArtifactSelection(onRestart: () => void): void {
+        // Guard against duplicate calls
+        if (this.bonusSelectionActive) {
+            return;
+        }
+        this.bonusSelectionActive = true;
+
+        // Disable all game interactions and tooltips
+        this.disableAllGameInteractions();
+
+        // Show artifact selection UI
+        if (this.artifactSelectionUI) {
+            this.artifactSelectionUI.show({
+                onArtifactSelected: () => {
+                    // Save progress after artifact selection
+                    GameProgress.getInstance().save();
+
+                    // Clean up and restart
+                    this.bonusSelectionActive = false;
+                    this.scene.input.setDefaultCursor("default");
+                    onRestart();
+                },
+                onSkip: () => {
+                    // No artifact available or skipped
+                    this.bonusSelectionActive = false;
+                    this.scene.input.setDefaultCursor("default");
+                    onRestart();
+                },
+            });
+        }
     }
 }
 

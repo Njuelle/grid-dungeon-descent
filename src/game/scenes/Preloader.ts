@@ -300,8 +300,10 @@ export class Preloader extends Scene {
         this.load.image("ogre_idle", "mobs/ogre/ogre_idle.png");
         this.load.image("troll_idle", "mobs/troll/troll_idle.png");
 
-        // Load player sprite
+        // Load player sprites for all classes
         this.load.image("hero_warrior", "heros/warrior/hero_warrior_idle.png");
+        this.load.image("hero_ranger", "heros/ranger/hero_ranger_idle.png");
+        this.load.image("hero_magician", "heros/magician/hero_magician_idle.png");
 
         // Load spell icons
         this.load.image("icon_slash", "icons/spells/icon_slash.png");

@@ -2,10 +2,13 @@ import { Scene } from "phaser";
 import { Unit, UnitStats } from "./Unit";
 import { DifficultyScaling } from "./DifficultyScaling";
 import { GameProgress } from "./GameProgress";
+import { ActiveBuff } from "../core/types";
+import { buffSystem } from "../systems/BuffSystem";
 
 export abstract class Enemy extends Unit {
     protected static unitCount = 0;
     public enemyType: string;
+    protected activeBuffs: ActiveBuff[] = [];
 
     constructor(
         scene: Scene,
@@ -110,10 +113,27 @@ export abstract class Enemy extends Unit {
         const player = gameManager?.getPlayer();
         const selectedSpell = player?.getCurrentSpell();
 
+        // Check if spell should show damage preview (not a pure debuff spell)
+        const shouldShowDamagePreview = selectedSpell && 
+            !(selectedSpell.damage === 0 && selectedSpell.spellCategory === "buff");
+
+        // Check if should show debuff spell effect (for non-damaging debuff spells)
+        const shouldShowDebuffPreview = selectedSpell && 
+            selectedSpell.buffEffect && 
+            !selectedSpell.buffEffect.targetSelf &&
+            !shouldShowDamagePreview;
+
+        // Check if enemy has active debuffs
+        const hasDebuffs = this.activeBuffs.length > 0;
+
         const x = this.sprite.x;
 
         // Calculate tooltip height based on content
-        const tooltipHeight = selectedSpell ? 170 : 130;
+        // Title: 22px + Health bar: 40px + Stats: 22px + padding: 28px = 132px base
+        let tooltipHeight = 132;
+        if (hasDebuffs) tooltipHeight += 40; // Debuff status row
+        if (shouldShowDamagePreview || shouldShowDebuffPreview) tooltipHeight += 42; // Spell preview
+        
         const tooltipOffset = 140;
 
         // Check if positioning above would cause cropping (with some margin)
@@ -129,87 +149,77 @@ export abstract class Enemy extends Unit {
         // Container for all tooltip elements
         const container = this.scene.add.container(x, y);
 
-        // Background - larger dimensions (increased width for 5 stats)
+        // Background - wider tooltip (360px)
         const bg = this.scene.add.graphics();
         bg.fillStyle(0x2a2a2a, 0.95);
 
-        // Adjust height if damage preview is shown
-        const bgHeight = selectedSpell ? 170 : 130;
-        const bgY = selectedSpell ? -85 : -65;
+        const bgHeight = tooltipHeight;
+        const bgY = -tooltipHeight / 2;
+        const tooltipWidth = 360;
+        const halfWidth = tooltipWidth / 2;
 
-        bg.fillRoundedRect(-160, bgY, 320, bgHeight, 16);
-        bg.lineStyle(4, 0xaa4444);
-        bg.strokeRoundedRect(-160, bgY, 320, bgHeight, 16);
+        bg.fillRoundedRect(-halfWidth, bgY, tooltipWidth, bgHeight, 16);
+        
+        // Change border color if marked
+        const borderColor = this.isMarked() ? 0xff6600 : 0xaa4444;
+        bg.lineStyle(4, borderColor);
+        bg.strokeRoundedRect(-halfWidth, bgY, tooltipWidth, bgHeight, 16);
 
-        // Title - enemy type with larger font
+        // Use fixed Y positions relative to bgY for consistent layout
+        let yPos = bgY + 15;
+
+        // Title - enemy type
         const titleText = this.scene.add
-            .text(0, selectedSpell ? -70 : -50, this.enemyType.toUpperCase(), {
-                fontSize: "20px",
-                color: "#ffaaaa",
+            .text(0, yPos, this.enemyType.toUpperCase(), {
+                fontSize: "18px",
+                color: this.isMarked() ? "#ff8844" : "#ffaaaa",
                 fontStyle: "bold",
             })
             .setOrigin(0.5);
-
-        // Health bar background - larger
-        const healthBarBg = this.scene.add.graphics();
-        healthBarBg.fillStyle(0x000000, 0.8);
-        healthBarBg.fillRoundedRect(
-            -100,
-            selectedSpell ? -45 : -25,
-            200,
-            24,
-            12
-        );
+        yPos += 22;
 
         // Health bar
+        const healthBarY = yPos;
+        const healthBarBg = this.scene.add.graphics();
+        healthBarBg.fillStyle(0x000000, 0.8);
+        healthBarBg.fillRoundedRect(-100, healthBarY, 200, 22, 11);
+
         const healthBar = this.scene.add.graphics();
         const healthPercent = this.health / this.maxHealth;
         const barWidth = 196 * healthPercent;
 
-        // Choose color based on health percentage
-        let healthColor = 0x00aa00; // Darker green (was 0x00ff00)
+        let healthColor = 0x00aa00;
         if (healthPercent <= 0.25) {
-            healthColor = 0xff0000; // Red
+            healthColor = 0xff0000;
         } else if (healthPercent <= 0.5) {
-            healthColor = 0xffaa00; // Orange
+            healthColor = 0xffaa00;
         }
 
         healthBar.fillStyle(healthColor, 0.9);
-        healthBar.fillRoundedRect(
-            -98,
-            selectedSpell ? -43 : -23,
-            barWidth,
-            20,
-            10
-        );
+        healthBar.fillRoundedRect(-98, healthBarY + 2, barWidth, 18, 9);
 
-        // Health text - larger font
         const healthText = this.scene.add
-            .text(
-                0,
-                selectedSpell ? -33 : -13,
-                `${this.health} / ${this.maxHealth}`,
-                {
-                    fontSize: "18px",
-                    color: "#ffffff",
-                    fontStyle: "bold",
-                }
-            )
+            .text(0, healthBarY + 11, `${this.health} / ${this.maxHealth}`, {
+                fontSize: "16px",
+                color: "#ffffff",
+                fontStyle: "bold",
+            })
             .setOrigin(0.5);
+        yPos += 40; // Added margin between health bar and stats
 
-        // Stats icons and values in a row - adjusted spacing for 5 stats
-        const statsY = selectedSpell ? 0 : 25;
+        // Stats row - use smaller font to prevent overlap
+        const statsY = yPos;
 
         // Force icon and value
         const forceIcon = this.scene.add
             .text(-125, statsY, "⚔️", {
-                fontSize: "22px",
+                fontSize: "18px",
             })
             .setOrigin(0.5);
 
         const forceText = this.scene.add
-            .text(-102, statsY, this.force.toString(), {
-                fontSize: "18px",
+            .text(-104, statsY, this.force.toString(), {
+                fontSize: "16px",
                 color: "#ff6666",
                 fontStyle: "bold",
             })
@@ -217,14 +227,14 @@ export abstract class Enemy extends Unit {
 
         // Dexterity icon and value
         const dexIcon = this.scene.add
-            .text(-65, statsY, "🏹", {
-                fontSize: "22px",
+            .text(-70, statsY, "🏹", {
+                fontSize: "18px",
             })
             .setOrigin(0.5);
 
         const dexText = this.scene.add
-            .text(-42, statsY, this.dexterity.toString(), {
-                fontSize: "18px",
+            .text(-49, statsY, this.dexterity.toString(), {
+                fontSize: "16px",
                 color: "#66ff66",
                 fontStyle: "bold",
             })
@@ -232,14 +242,14 @@ export abstract class Enemy extends Unit {
 
         // Intelligence icon and value
         const intIcon = this.scene.add
-            .text(-5, statsY, "🧠", {
-                fontSize: "22px",
+            .text(-15, statsY, "🧠", {
+                fontSize: "18px",
             })
             .setOrigin(0.5);
 
         const intText = this.scene.add
-            .text(18, statsY, this.intelligence.toString(), {
-                fontSize: "18px",
+            .text(6, statsY, this.intelligence.toString(), {
+                fontSize: "16px",
                 color: "#ff66ff",
                 fontStyle: "bold",
             })
@@ -247,14 +257,14 @@ export abstract class Enemy extends Unit {
 
         // Armor icon and value
         const armorIcon = this.scene.add
-            .text(55, statsY, "🛡️", {
-                fontSize: "22px",
+            .text(40, statsY, "🛡️", {
+                fontSize: "18px",
             })
             .setOrigin(0.5);
 
         const armorText = this.scene.add
-            .text(78, statsY, this.armor.toString(), {
-                fontSize: "18px",
+            .text(61, statsY, this.armor.toString(), {
+                fontSize: "16px",
                 color: "#6666ff",
                 fontStyle: "bold",
             })
@@ -262,14 +272,14 @@ export abstract class Enemy extends Unit {
 
         // Magic Resistance icon and value
         const mrIcon = this.scene.add
-            .text(115, statsY, "✨", {
-                fontSize: "22px",
+            .text(95, statsY, "✨", {
+                fontSize: "18px",
             })
             .setOrigin(0.5);
 
         const mrText = this.scene.add
-            .text(138, statsY, this.magicResistance.toString(), {
-                fontSize: "18px",
+            .text(116, statsY, this.magicResistance.toString(), {
+                fontSize: "16px",
                 color: "#cc99ff",
                 fontStyle: "bold",
             })
@@ -297,20 +307,43 @@ export abstract class Enemy extends Unit {
         // Store references to elements that may need updating
         container.setData("healthBar", healthBar);
         container.setData("healthText", healthText);
+        container.setData("healthBarY", healthBarY);
         container.setData("selectedSpell", selectedSpell);
 
-        // Add damage preview if player has spell selected
-        if (player && selectedSpell) {
+        // Move yPos well past stats row (stats icons are 22px tall emoji, centered, but render larger)
+        yPos = statsY + 22;
+
+        // Show active debuffs/marks on this enemy
+        if (hasDebuffs) {
+            const debuffSeparator = this.scene.add.graphics();
+            debuffSeparator.lineStyle(2, 0xff6600);
+            debuffSeparator.moveTo(-160, yPos);
+            debuffSeparator.lineTo(160, yPos);
+            debuffSeparator.strokePath();
+            container.add(debuffSeparator);
+
+            // Display debuff icons and text below separator
+            const debuffDescriptions = this.getBuffDescriptions();
+            const debuffText = this.scene.add
+                .text(-160, yPos + 20, "🎯 " + debuffDescriptions.join(", "), {
+                    fontSize: "12px",
+                    color: "#ff8844",
+                    fontStyle: "bold",
+                    wordWrap: { width: 320 },
+                })
+                .setOrigin(0, 0.5);
+            container.add(debuffText);
+            yPos += 40;
+        }
+
+        // Add damage preview if player has damaging spell selected
+        if (player && shouldShowDamagePreview) {
             // Calculate distance from player to this enemy
             const distance =
                 Math.abs(player.gridX - this.gridX) +
                 Math.abs(player.gridY - this.gridY);
 
-            // Use player's getAttackDamage method to get accurate damage including all bonuses
-            const actualDamage = player.getAttackDamage(this, distance);
-
-            // Calculate min and max damage (since getAttackDamage includes randomness, we need to estimate the range)
-            // We'll use a simpler approach - get the damage without randomness for display
+            // Calculate min and max damage
             const baseDamage = selectedSpell.damage;
             let statBonus = 0;
 
@@ -363,12 +396,18 @@ export abstract class Enemy extends Unit {
                 overloadDamage = 1;
             }
 
+            // Add mark bonus if enemy is marked
+            let markBonus = 0;
+            if (this.isMarked()) {
+                markBonus = this.getMarkDamageBonus();
+            }
+
             // Calculate min and max damage (0.8x to 1.2x)
             const rawDamageMin = Math.round(
-                (baseDamage + statBonus + overloadDamage) * 0.8
+                (baseDamage + statBonus + overloadDamage + markBonus) * 0.8
             );
             const rawDamageMax = Math.round(
-                (baseDamage + statBonus + overloadDamage) * 1.2
+                (baseDamage + statBonus + overloadDamage + markBonus) * 1.2
             );
 
             // Apply resistance
@@ -383,17 +422,17 @@ export abstract class Enemy extends Unit {
             // Damage preview separator
             const separator = this.scene.add.graphics();
             separator.lineStyle(2, 0x666666);
-            separator.moveTo(-140, statsY + 25);
-            separator.lineTo(140, statsY + 25);
+            separator.moveTo(-160, yPos);
+            separator.lineTo(160, yPos);
             separator.strokePath();
 
             // Spell name and damage preview
-            const spellPreviewY = statsY + 40;
+            const spellPreviewY = yPos + 15;
 
             // Spell name on the left
             const spellNameText = this.scene.add
-                .text(-140, spellPreviewY, selectedSpell.name, {
-                    fontSize: "15px",
+                .text(-160, spellPreviewY, selectedSpell.name, {
+                    fontSize: "14px",
                     color: "#ffff00",
                     fontStyle: "bold",
                 })
@@ -402,11 +441,11 @@ export abstract class Enemy extends Unit {
             // Damage range text on the right
             const damageRangeText = this.scene.add
                 .text(
-                    80,
+                    100,
                     spellPreviewY,
                     `${actualDamageMin}-${actualDamageMax} dmg`,
                     {
-                        fontSize: "18px",
+                        fontSize: "16px",
                         color: "#ff4444",
                         fontStyle: "bold",
                     }
@@ -416,8 +455,8 @@ export abstract class Enemy extends Unit {
             // If damage is reduced, show the reduction
             if (resistance > 0) {
                 const reductionText = this.scene.add
-                    .text(130, spellPreviewY, `-${resistance}`, {
-                        fontSize: "14px",
+                    .text(150, spellPreviewY, `-${resistance}`, {
+                        fontSize: "12px",
                         color: damageType === "magic" ? "#cc99ff" : "#6666ff",
                         fontStyle: "italic",
                     })
@@ -425,7 +464,55 @@ export abstract class Enemy extends Unit {
                 container.add(reductionText);
             }
 
+            // Show mark bonus if applicable
+            if (markBonus > 0) {
+                const markBonusText = this.scene.add
+                    .text(120, spellPreviewY, `+${markBonus}🎯`, {
+                        fontSize: "11px",
+                        color: "#ff8844",
+                    })
+                    .setOrigin(0, 0.5);
+                container.add(markBonusText);
+            }
+
             container.add([separator, spellNameText, damageRangeText]);
+        } else if (player && selectedSpell && selectedSpell.buffEffect && !selectedSpell.buffEffect.targetSelf) {
+            // Show debuff spell effect preview (for non-damaging debuff spells)
+            const separator = this.scene.add.graphics();
+            separator.lineStyle(2, 0x666666);
+            separator.moveTo(-160, yPos);
+            separator.lineTo(160, yPos);
+            separator.strokePath();
+
+            const spellPreviewY = yPos + 15;
+
+            // Spell name
+            const spellNameText = this.scene.add
+                .text(-160, spellPreviewY, selectedSpell.name, {
+                    fontSize: "14px",
+                    color: "#ffff00",
+                    fontStyle: "bold",
+                })
+                .setOrigin(0, 0.5);
+
+            // Effect description
+            const buffEffect = selectedSpell.buffEffect;
+            let effectText = "";
+            if (buffEffect.type === "mark") {
+                effectText = `🎯 Mark +${buffEffect.value} dmg (${buffEffect.duration}t)`;
+            } else if (buffEffect.type === "stat_boost") {
+                effectText = `${buffEffect.value > 0 ? "+" : ""}${buffEffect.value} ${buffEffect.stat} (${buffEffect.duration}t)`;
+            }
+
+            const effectDisplay = this.scene.add
+                .text(160, spellPreviewY, effectText, {
+                    fontSize: "13px",
+                    color: "#ff8844",
+                    fontStyle: "bold",
+                })
+                .setOrigin(1, 0.5);
+
+            container.add([separator, spellNameText, effectDisplay]);
         }
 
         this.statsTooltip = container;
@@ -449,9 +536,9 @@ export abstract class Enemy extends Unit {
             const healthText = this.statsTooltip.getData(
                 "healthText"
             ) as Phaser.GameObjects.Text;
-            const selectedSpell = this.statsTooltip.getData("selectedSpell");
+            const healthBarY = this.statsTooltip.getData("healthBarY") as number;
 
-            if (healthBar && healthText) {
+            if (healthBar && healthText && healthBarY !== undefined) {
                 // Clear and redraw health bar
                 healthBar.clear();
                 const healthPercent = this.health / this.maxHealth;
@@ -466,13 +553,7 @@ export abstract class Enemy extends Unit {
                 }
 
                 healthBar.fillStyle(healthColor, 0.9);
-                healthBar.fillRoundedRect(
-                    -98,
-                    selectedSpell ? -43 : -23,
-                    barWidth,
-                    20,
-                    10
-                );
+                healthBar.fillRoundedRect(-98, healthBarY + 2, barWidth, 20, 10);
 
                 // Update health text
                 healthText.setText(`${this.health} / ${this.maxHealth}`);
@@ -505,6 +586,91 @@ export abstract class Enemy extends Unit {
 
     public get intelligence(): number {
         return this.stats.intelligence || 0;
+    }
+
+    // =========================================================================
+    // Buff System Support
+    // =========================================================================
+
+    /**
+     * Get all active buffs/debuffs on this enemy.
+     */
+    public getActiveBuffs(): ActiveBuff[] {
+        return [...this.activeBuffs];
+    }
+
+    /**
+     * Add a buff/debuff to this enemy.
+     */
+    public addBuff(buff: ActiveBuff): void {
+        this.activeBuffs = buffSystem.addBuff(this.activeBuffs, buff);
+        console.log(`[Enemy] Added buff: ${buff.buffType} (${buff.remainingTurns} turns)`);
+        this.refreshTooltip();
+    }
+
+    /**
+     * Remove a specific buff.
+     */
+    public removeBuff(buffId: string): void {
+        this.activeBuffs = buffSystem.removeBuff(this.activeBuffs, buffId);
+    }
+
+    /**
+     * Tick buffs at turn start.
+     */
+    public tickBuffs(): { stat: string; value: number }[] {
+        const result = buffSystem.tickBuffs(this.activeBuffs);
+        this.activeBuffs = result.updatedBuffs;
+
+        for (const expired of result.expiredBuffs) {
+            console.log(`[Enemy] Buff expired: ${expired.buffType}`);
+        }
+
+        this.refreshTooltip();
+        return result.tickEffects;
+    }
+
+    /**
+     * Check if enemy is marked (takes extra damage).
+     */
+    public isMarked(): boolean {
+        return buffSystem.hasBuffType(this.activeBuffs, "mark");
+    }
+
+    /**
+     * Get mark damage bonus (extra damage taken).
+     */
+    public getMarkDamageBonus(): number {
+        return buffSystem.getMarkDamageBonus(this.activeBuffs);
+    }
+
+    /**
+     * Consume mark after being hit.
+     */
+    public consumeMark(): void {
+        this.activeBuffs = buffSystem.consumeMark(this.activeBuffs);
+        this.refreshTooltip();
+    }
+
+    /**
+     * Get stat modifier from active buffs.
+     */
+    public getBuffStatModifier(stat: string): number {
+        return buffSystem.getStatModifier(this.activeBuffs, stat as any);
+    }
+
+    /**
+     * Clear all buffs.
+     */
+    public clearAllBuffs(): void {
+        this.activeBuffs = [];
+    }
+
+    /**
+     * Get buff descriptions for UI.
+     */
+    public getBuffDescriptions(): string[] {
+        return buffSystem.getBuffDescriptions(this.activeBuffs);
     }
 }
 
