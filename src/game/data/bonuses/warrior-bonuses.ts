@@ -322,4 +322,246 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
             },
         ],
     },
+
+    // ==========================================================================
+    // New Warrior Stat Bonuses
+    // ==========================================================================
+    {
+        id: "brute_force",
+        category: "stat",
+        name: "Brute Force",
+        description: "+2 Force, +1 Health",
+        icon: "🦍",
+        stackable: false,
+        tags: ["offensive", "melee", "health"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "force", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "health", value: 1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxHealth", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "unstoppable",
+        category: "stat",
+        name: "Unstoppable",
+        description: "+2 Force, +2 Movement, -2 Magic Resistance",
+        icon: "🚂",
+        stackable: false,
+        tags: ["offensive", "melee", "mobility", "risky"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "force", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "movementPoints", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxMovementPoints", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "moveRange", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "magicResistance", value: -2 },
+            },
+        ],
+    },
+    {
+        id: "iron_skin",
+        category: "stat",
+        name: "Iron Skin",
+        description: "+2 Armor, +1 Force, -1 Movement",
+        icon: "🪨",
+        stackable: false,
+        tags: ["defensive", "offensive", "melee"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "armor", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "force", value: 1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "movementPoints", value: -1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxMovementPoints", value: -1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "moveRange", value: -1 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // New Slash Spell Upgrades
+    // ==========================================================================
+    {
+        id: "heavy_slash",
+        category: "spell",
+        name: "Heavy Slash",
+        description: "Slash: +3 Damage, +1 AP Cost",
+        icon: "icon_slash",
+        stackable: false,
+        tags: ["melee", "damage", "risky"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "slash",
+                spellModifier: { property: "damage", value: 3 },
+            },
+            {
+                type: "spell_modifier",
+                target: "slash",
+                spellModifier: { property: "apCost", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "bleeding_slash",
+        category: "spell",
+        name: "Bleeding Slash",
+        description: "Slash: Target loses 1 Force for 2 turns",
+        icon: "icon_slash",
+        stackable: false,
+        tags: ["melee", "debuff"],
+        effects: [
+            {
+                type: "on_hit",
+                target: "slash",
+                trigger: { effect: "add_stat", value: -1, stat: "force" },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // New Power Strike Spell Upgrades
+    // ==========================================================================
+    {
+        id: "shattering_strike",
+        category: "spell",
+        name: "Shattering Strike",
+        description: "Power Strike: +2 Damage (armor piercing)",
+        icon: "icon_power_strike",
+        stackable: false,
+        tags: ["melee", "damage"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "power_strike",
+                spellModifier: { property: "damage", value: 2 },
+            },
+        ],
+    },
+    {
+        id: "quick_strike",
+        category: "spell",
+        name: "Quick Strike",
+        description: "Power Strike: -1 AP Cost, -1 Damage",
+        icon: "icon_power_strike",
+        stackable: false,
+        tags: ["melee", "efficiency"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "power_strike",
+                spellModifier: { property: "apCost", value: -1 },
+            },
+            {
+                type: "spell_modifier",
+                target: "power_strike",
+                spellModifier: { property: "damage", value: -1 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // Shield Bash / Battle Cry Spell Upgrades
+    // ==========================================================================
+    {
+        id: "stunning_bash",
+        category: "spell",
+        name: "Stunning Bash",
+        description: "Shield Bash: +1 Damage",
+        icon: "🛡️",
+        stackable: false,
+        tags: ["melee", "damage", "control"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "shield_bash",
+                spellModifier: { property: "damage", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "inspiring_cry",
+        category: "spell",
+        name: "Inspiring Cry",
+        description: "Battle Cry: Also grants +1 Armor",
+        icon: "📣",
+        stackable: false,
+        tags: ["melee", "buff", "defensive"],
+        effects: [
+            {
+                type: "on_hit",
+                target: "battle_cry",
+                trigger: { effect: "add_stat", value: 1, stat: "armor" },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // New Warrior Passive Bonuses
+    // ==========================================================================
+    {
+        id: "juggernaut",
+        category: "passive",
+        name: "Juggernaut",
+        description: "+2 Armor when above 75% HP",
+        icon: "🦏",
+        stackable: false,
+        tags: ["defensive", "conditional"],
+        effects: [
+            {
+                type: "conditional",
+                statModifier: { stat: "armor", value: 2 },
+                condition: { type: "health_above", value: 75 },
+            },
+        ],
+    },
+    {
+        id: "revenge",
+        category: "passive",
+        name: "Revenge",
+        description: "+2 Force after taking damage",
+        icon: "😤",
+        stackable: false,
+        tags: ["offensive", "melee", "reactive"],
+        effects: [
+            {
+                type: "on_damage_taken",
+                trigger: { effect: "add_stat", value: 2, stat: "force" },
+            },
+        ],
+    },
 ];

@@ -291,4 +291,238 @@ export const RANGER_BONUSES: BonusDefinition[] = [
             },
         ],
     },
+
+    // ==========================================================================
+    // New Ranger Stat Bonuses
+    // ==========================================================================
+    {
+        id: "sharpshooter",
+        category: "stat",
+        name: "Sharpshooter",
+        description: "+2 Dexterity, +1 Range on ranged spells",
+        icon: "🔭",
+        stackable: false,
+        tags: ["offensive", "ranged", "range"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "dexterity", value: 2 },
+            },
+            {
+                type: "spell_modifier",
+                spellModifier: { property: "range", value: 1 },
+                condition: { type: "is_ranged_spell" },
+            },
+        ],
+    },
+    {
+        id: "scout",
+        category: "stat",
+        name: "Scout",
+        description: "+3 Movement, +1 Dexterity, -1 Armor",
+        icon: "🦅",
+        stackable: false,
+        tags: ["offensive", "ranged", "mobility", "risky"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "movementPoints", value: 3 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxMovementPoints", value: 3 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "moveRange", value: 3 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "dexterity", value: 1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "armor", value: -1 },
+            },
+        ],
+    },
+    {
+        id: "survivalist",
+        category: "stat",
+        name: "Survivalist",
+        description: "+2 Dexterity, +2 Health, -1 Force",
+        icon: "🏕️",
+        stackable: false,
+        tags: ["offensive", "ranged", "health"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "dexterity", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "health", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxHealth", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "force", value: -1 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // New Arrow Shot Spell Upgrades
+    // ==========================================================================
+    {
+        id: "heavy_arrow",
+        category: "spell",
+        name: "Heavy Arrow",
+        description: "Arrow Shot: +2 Damage, -1 Range",
+        icon: "icon_arrow_shot",
+        stackable: false,
+        tags: ["ranged", "damage"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "arrow_shot",
+                spellModifier: { property: "damage", value: 2 },
+            },
+            {
+                type: "spell_modifier",
+                target: "arrow_shot",
+                spellModifier: { property: "range", value: -1 },
+            },
+        ],
+    },
+    {
+        id: "swift_arrow",
+        category: "spell",
+        name: "Swift Arrow",
+        description: "Arrow Shot: -1 AP Cost",
+        icon: "icon_arrow_shot",
+        stackable: false,
+        tags: ["ranged", "efficiency"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "arrow_shot",
+                spellModifier: { property: "apCost", value: -1 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // New Bone Piercer Spell Upgrades
+    // ==========================================================================
+    {
+        id: "lethal_piercer",
+        category: "spell",
+        name: "Lethal Piercer",
+        description: "Bone Piercer: +3 Damage, +1 AP Cost",
+        icon: "icon_bone_piercer",
+        stackable: false,
+        tags: ["ranged", "damage", "risky"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "bone_piercer",
+                spellModifier: { property: "damage", value: 3 },
+            },
+            {
+                type: "spell_modifier",
+                target: "bone_piercer",
+                spellModifier: { property: "apCost", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "long_piercer",
+        category: "spell",
+        name: "Long Piercer",
+        description: "Bone Piercer: +2 Range",
+        icon: "icon_bone_piercer",
+        stackable: false,
+        tags: ["ranged", "range"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "bone_piercer",
+                spellModifier: { property: "range", value: 2 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // Piercing Arrow / Hunter's Mark Spell Upgrades
+    // ==========================================================================
+    {
+        id: "armor_piercing",
+        category: "spell",
+        name: "Armor Piercing",
+        description: "Piercing Arrow: +2 Damage",
+        icon: "➳",
+        stackable: false,
+        tags: ["ranged", "damage"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "piercing_arrow",
+                spellModifier: { property: "damage", value: 2 },
+            },
+        ],
+    },
+    {
+        id: "extended_mark",
+        category: "spell",
+        name: "Extended Mark",
+        description: "Hunter's Mark: +1 Range",
+        icon: "🎯",
+        stackable: false,
+        tags: ["ranged", "utility"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "hunters_mark",
+                spellModifier: { property: "range", value: 1 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // New Ranger Passive Bonuses
+    // ==========================================================================
+    {
+        id: "hit_and_run",
+        category: "passive",
+        name: "Hit and Run",
+        description: "+2 Movement after attacking",
+        icon: "🏃",
+        stackable: false,
+        tags: ["ranged", "mobility"],
+        effects: [
+            {
+                type: "on_hit",
+                trigger: { effect: "add_mp", value: 2 },
+            },
+        ],
+    },
+    {
+        id: "predator",
+        category: "passive",
+        name: "Predator",
+        description: "+1 Dexterity per enemy defeated (max +3)",
+        icon: "🐆",
+        stackable: false,
+        tags: ["offensive", "ranged"],
+        effects: [
+            {
+                type: "on_kill",
+                trigger: { effect: "add_stat", value: 1, stat: "dexterity" },
+            },
+        ],
+    },
 ];

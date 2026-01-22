@@ -482,4 +482,244 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
             },
         ],
     },
+
+    // ==========================================================================
+    // New Magician Stat Bonuses
+    // ==========================================================================
+    {
+        id: "arcane_power",
+        category: "stat",
+        name: "Arcane Power",
+        description: "+2 Intelligence, +1 AP",
+        icon: "⚡",
+        stackable: false,
+        tags: ["offensive", "magic", "utility"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "intelligence", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "actionPoints", value: 1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxActionPoints", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "spell_weaver",
+        category: "stat",
+        name: "Spell Weaver",
+        description: "+2 Intelligence, +1 Range on magic spells, -1 Health",
+        icon: "🕸️",
+        stackable: false,
+        tags: ["offensive", "magic", "range", "risky"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "intelligence", value: 2 },
+            },
+            {
+                type: "spell_modifier",
+                spellModifier: { property: "range", value: 1 },
+                condition: { type: "is_magic_spell" },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "health", value: -1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxHealth", value: -1 },
+            },
+        ],
+    },
+    {
+        id: "fortified_mind",
+        category: "stat",
+        name: "Fortified Mind",
+        description: "+2 Intelligence, +2 Magic Resistance, -1 Movement",
+        icon: "🧠",
+        stackable: false,
+        tags: ["offensive", "defensive", "magic"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "intelligence", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "magicResistance", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "movementPoints", value: -1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxMovementPoints", value: -1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "moveRange", value: -1 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // New Magic Missile Spell Upgrades
+    // ==========================================================================
+    {
+        id: "homing_missiles",
+        category: "spell",
+        name: "Homing Missiles",
+        description: "Magic Missile: +1 Damage, +1 Range",
+        icon: "icon_magic_missile",
+        stackable: false,
+        tags: ["magic", "damage", "range"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "magic_missile",
+                spellModifier: { property: "damage", value: 1 },
+            },
+            {
+                type: "spell_modifier",
+                target: "magic_missile",
+                spellModifier: { property: "range", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "rapid_missiles",
+        category: "spell",
+        name: "Rapid Missiles",
+        description: "Magic Missile: -1 AP Cost",
+        icon: "icon_magic_missile",
+        stackable: false,
+        tags: ["magic", "efficiency"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "magic_missile",
+                spellModifier: { property: "apCost", value: -1 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // New Fireball Spell Upgrades
+    // ==========================================================================
+    {
+        id: "scorching_flames",
+        category: "spell",
+        name: "Scorching Flames",
+        description: "Fireball: +2 Damage, burns target (-1 Force)",
+        icon: "icon_fire_ball",
+        stackable: false,
+        tags: ["magic", "damage", "debuff"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "fireball",
+                spellModifier: { property: "damage", value: 2 },
+            },
+            {
+                type: "on_hit",
+                target: "fireball",
+                trigger: { effect: "add_stat", value: -1, stat: "force" },
+            },
+        ],
+    },
+    {
+        id: "concentrated_flame",
+        category: "spell",
+        name: "Concentrated Flame",
+        description: "Fireball: +4 Damage (single target focus)",
+        icon: "icon_fire_ball",
+        stackable: false,
+        tags: ["magic", "damage"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "fireball",
+                spellModifier: { property: "damage", value: 4 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // Arcane Bolt / Arcane Shield Spell Upgrades
+    // ==========================================================================
+    {
+        id: "empowered_bolt",
+        category: "spell",
+        name: "Empowered Bolt",
+        description: "Arcane Bolt: +2 Damage",
+        icon: "✨",
+        stackable: false,
+        tags: ["magic", "damage"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "arcane_bolt",
+                spellModifier: { property: "damage", value: 2 },
+            },
+        ],
+    },
+    {
+        id: "reinforced_shield",
+        category: "spell",
+        name: "Reinforced Shield",
+        description: "Arcane Shield: +1 Range (can cast on allies)",
+        icon: "🔮",
+        stackable: false,
+        tags: ["magic", "defensive", "utility"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "arcane_shield",
+                spellModifier: { property: "range", value: 1 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // New Magician Passive Bonuses
+    // ==========================================================================
+    {
+        id: "mana_surge",
+        category: "passive",
+        name: "Mana Surge",
+        description: "+1 Intelligence when casting magic (stacking)",
+        icon: "🌊",
+        stackable: false,
+        tags: ["offensive", "magic"],
+        effects: [
+            {
+                type: "on_hit",
+                trigger: { effect: "add_stat", value: 1, stat: "intelligence" },
+                condition: { type: "is_magic_spell" },
+            },
+        ],
+    },
+    {
+        id: "arcane_reflexes",
+        category: "passive",
+        name: "Arcane Reflexes",
+        description: "20% chance to gain +2 MP when taking damage",
+        icon: "💫",
+        stackable: false,
+        tags: ["defensive", "mobility", "chance"],
+        effects: [
+            {
+                type: "on_damage_taken",
+                trigger: { effect: "add_mp", value: 2 },
+                condition: { type: "random_chance", value: 20 },
+            },
+        ],
+    },
 ];

@@ -27,6 +27,9 @@ import {
     getBonusesForSpell,
     getBonusesForClass,
 } from "../data/bonuses";
+import { getClassById } from "../data/classes";
+import { GameProgress } from "../classes/GameProgress";
+import { ArtifactSystem } from "./ArtifactSystem";
 
 // =============================================================================
 // Spell Base Costs (for AP reduction validation)
@@ -383,6 +386,9 @@ export class BonusSystem {
         // Get bonuses available to this class (common + class-specific)
         const classAvailableBonuses = getBonusesForClass(playerClass);
 
+        // Get player's available spell IDs (starting spells + artifact spells)
+        const playerSpellIds = this.getPlayerAvailableSpellIds(playerClass);
+
         // Filter valid bonuses
         const validBonuses = classAvailableBonuses.filter((bonus) => {
             // Check if already applied (non-stackable)
@@ -402,6 +408,11 @@ export class BonusSystem {
 
             // Check if AoE bonus is irrelevant
             if (this.isAoeBonusIrrelevant(bonus, appliedBonusIds)) {
+                return false;
+            }
+
+            // Check if spell upgrade bonus targets a spell the player doesn't have
+            if (this.targetsUnavailableSpell(bonus, playerSpellIds)) {
                 return false;
             }
 
@@ -567,6 +578,56 @@ export class BonusSystem {
 
             if (!hasAnyAoe) {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the player's available spell IDs (starting spells + artifact spells).
+     */
+    private getPlayerAvailableSpellIds(playerClass: PlayerClass): string[] {
+        const spellIds: string[] = [];
+
+        // Get starting spells from class definition
+        const classDefinition = getClassById(playerClass);
+        if (classDefinition) {
+            spellIds.push(...classDefinition.startingSpellIds);
+        }
+
+        // Get spells from equipped artifacts
+        const progress = GameProgress.getInstance();
+        const equippedArtifacts = progress.getEquippedArtifacts();
+        const artifactSystem = new ArtifactSystem();
+        const artifactSpells = artifactSystem.getSpellsFromArtifacts(equippedArtifacts);
+        
+        for (const spell of artifactSpells) {
+            spellIds.push(spell.id);
+        }
+
+        return spellIds;
+    }
+
+    /**
+     * Check if a spell upgrade bonus targets a spell the player doesn't have.
+     */
+    private targetsUnavailableSpell(
+        bonus: BonusDefinition,
+        playerSpellIds: string[]
+    ): boolean {
+        // Only check spell upgrade bonuses
+        if (bonus.category !== "spell") {
+            return false;
+        }
+
+        // Check each effect that targets a specific spell
+        for (const effect of bonus.effects) {
+            if (effect.type === "spell_modifier" && effect.target) {
+                // If the target spell is not in the player's available spells, skip this bonus
+                if (!playerSpellIds.includes(effect.target)) {
+                    return true;
+                }
             }
         }
 

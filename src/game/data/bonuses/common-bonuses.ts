@@ -606,4 +606,167 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         tags: ["utility"],
         effects: [],
     },
+
+    // ==========================================================================
+    // New Stat Bonuses
+    // ==========================================================================
+    {
+        id: "resilience",
+        category: "stat",
+        name: "Resilience",
+        description: "+3 Max Health, +1 Magic Resistance",
+        icon: "💚",
+        stackable: false,
+        tags: ["defensive", "health", "magic"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "health", value: 3 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxHealth", value: 3 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "magicResistance", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "veteran",
+        category: "stat",
+        name: "Veteran",
+        description: "+1 Force, +1 Armor",
+        icon: "🎖️",
+        stackable: true,
+        tags: ["offensive", "defensive"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "force", value: 1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "armor", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "agile_fighter",
+        category: "stat",
+        name: "Agile Fighter",
+        description: "+2 Movement, +1 Dexterity, -1 Health",
+        icon: "🦎",
+        stackable: false,
+        tags: ["mobility", "offensive", "risky"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "movementPoints", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxMovementPoints", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "moveRange", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "dexterity", value: 1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "health", value: -1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxHealth", value: -1 },
+            },
+        ],
+    },
+    {
+        id: "prepared",
+        category: "passive",
+        name: "Prepared",
+        description: "+2 AP on battle start",
+        icon: "📋",
+        stackable: false,
+        tags: ["offensive", "utility"],
+        effects: [
+            {
+                type: "on_battle_start",
+                trigger: { effect: "add_ap", value: 2 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // New Passive Bonuses
+    // ==========================================================================
+    {
+        id: "killing_spree",
+        category: "passive",
+        name: "Killing Spree",
+        description: "+1 AP after defeating an enemy",
+        icon: "💀",
+        stackable: false,
+        tags: ["offensive", "utility"],
+        effects: [
+            {
+                type: "on_kill",
+                trigger: { effect: "add_ap", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "second_strike",
+        category: "passive",
+        name: "Second Strike",
+        description: "15% chance to gain +1 AP on hit",
+        icon: "🎰",
+        stackable: false,
+        tags: ["offensive", "chance"],
+        effects: [
+            {
+                type: "on_hit",
+                trigger: { effect: "add_ap", value: 1 },
+                condition: { type: "random_chance", value: 15 },
+            },
+        ],
+    },
+    {
+        id: "survivor",
+        category: "passive",
+        name: "Survivor",
+        description: "Heal 3 HP when dropping below 30% health",
+        icon: "🩹",
+        stackable: false,
+        tags: ["defensive", "sustain", "conditional"],
+        effects: [
+            {
+                type: "on_damage_taken",
+                trigger: { effect: "heal", value: 3 },
+                condition: { type: "health_below", value: 30 },
+            },
+        ],
+    },
+    {
+        id: "opportunist",
+        category: "passive",
+        name: "Opportunist",
+        description: "+2 damage vs enemies below 50% HP",
+        icon: "🎯",
+        stackable: false,
+        tags: ["offensive", "conditional"],
+        effects: [
+            {
+                type: "conditional",
+                trigger: { effect: "damage", value: 2 },
+                condition: { type: "target_health_below", value: 50 },
+            },
+        ],
+    },
 ];
