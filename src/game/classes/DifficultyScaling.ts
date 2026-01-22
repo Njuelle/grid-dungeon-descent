@@ -34,21 +34,21 @@ export class DifficultyScaling {
             };
         }
 
-        // Progressive scaling with slower ramp-up and extended progression
+        // Progressive scaling with balanced ramp-up
         let scaleFactor = wins;
 
-        // Different scaling rates for different aspects - FURTHER REDUCED FOR LONGER PLAY
+        // Different scaling rates - balanced between easy and hard
         const healthScale =
-            wins <= 5 ? 0.04 : wins <= 10 ? 0.05 : wins <= 15 ? 0.045 : 0.04; // Reduced ~30%
+            wins <= 5 ? 0.05 : wins <= 10 ? 0.065 : wins <= 15 ? 0.055 : 0.05;
         const damageScale =
-            wins <= 5 ? 0.03 : wins <= 10 ? 0.04 : wins <= 15 ? 0.035 : 0.03; // Reduced ~40%
+            wins <= 5 ? 0.04 : wins <= 10 ? 0.05 : wins <= 15 ? 0.045 : 0.04;
 
         return {
             enemyHealthMultiplier: 1.0 + scaleFactor * healthScale,
             enemyDamageMultiplier: 1.0 + scaleFactor * damageScale,
-            enemyArmorBonus: Math.floor(scaleFactor / 7), // +1 armor every 7 wins (was 5)
-            enemyCount: Math.min(3 + Math.floor(scaleFactor / 4), 7), // Max 7 enemies, slower growth (was 8, every 3)
-            enemyMoveRangeBonus: Math.floor(scaleFactor / 8), // +1 move range every 8 wins (was 6)
+            enemyArmorBonus: Math.floor(scaleFactor / 6), // +1 armor every 6 wins
+            enemyCount: Math.min(3 + Math.floor(scaleFactor / 4), 7), // Max 7 enemies
+            enemyMoveRangeBonus: Math.floor(scaleFactor / 7), // +1 move range every 7 wins
         };
     }
 
