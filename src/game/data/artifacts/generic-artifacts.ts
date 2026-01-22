@@ -111,4 +111,40 @@ export const GENERIC_ARTIFACTS: ArtifactDefinition[] = [
         icon: "💎",
         grantedSpellId: "quicken",
     },
+    // === NEW GENERIC ARTIFACTS ===
+    {
+        id: "artifact_adrenaline_injector",
+        name: "Adrenaline Injector",
+        description: "Emergency stimulant for burst actions",
+        icon: "💉",
+        grantedSpellId: "adrenaline_rush",
+    },
+    {
+        id: "artifact_frost_pendant",
+        name: "Frost Pendant",
+        description: "Pendant radiating freezing cold",
+        icon: "🥶",
+        grantedSpellId: "chilling_touch",
+    },
+    {
+        id: "artifact_titans_girdle",
+        name: "Titan's Girdle",
+        description: "Belt worn by giants, grants immense defense",
+        icon: "🪨",
+        grantedSpellId: "iron_will",
+    },
+    {
+        id: "artifact_essence_drain_stone",
+        name: "Essence Drain Stone",
+        description: "Dark stone that siphons life force",
+        icon: "💜",
+        grantedSpellId: "essence_drain",
+    },
+    {
+        id: "artifact_battle_strategist_map",
+        name: "Battle Strategist's Map",
+        description: "Ancient map showing escape routes",
+        icon: "🗺️",
+        grantedSpellId: "tactical_retreat",
+    },
 ];
