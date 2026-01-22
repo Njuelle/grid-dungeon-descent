@@ -260,7 +260,7 @@ export class BonusSelectionUI {
         return card;
     }
 
-    private createRerollButton(x: number, y: number, currentBonuses: BonusDefinition[]): void {
+    private createRerollButton(x: number, y: number, _currentBonuses: BonusDefinition[]): void {
         this.rerollButton = this.scene.add.container(x, y);
 
         const buttonWidth = 320;

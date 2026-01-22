@@ -240,7 +240,7 @@ export abstract class Unit {
             moveToNextStep();
         } catch (error) {
             console.error("Error in moveAlongPath:", error);
-            console.error("Stack trace:", error.stack);
+            console.error("Stack trace:", (error as Error).stack);
             // If there's an error, still call onComplete to prevent the game from getting stuck
             if (onComplete) onComplete();
         }

@@ -13,15 +13,6 @@ export class DifficultyScaling {
         const progress = GameProgress.getInstance();
         const wins = progress.getWins();
 
-        // Base difficulty
-        const baseModifiers: DifficultyModifiers = {
-            enemyHealthMultiplier: 1.0,
-            enemyDamageMultiplier: 1.0,
-            enemyArmorBonus: 0,
-            enemyCount: 5,
-            enemyMoveRangeBonus: 0,
-        };
-
         // Scale difficulty based on wins
         if (wins === 0) {
             // First game - tutorial

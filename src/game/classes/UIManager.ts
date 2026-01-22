@@ -1,8 +1,8 @@
 import { Scene } from "phaser";
 import { Player, AttackType } from "./Player";
 import { Spell } from "./Spell";
-import { BonusDefinition, PlayerClass } from "../core/types";
-import { getBonusById } from "../data/bonuses";
+import { BonusDefinition } from "../core/types";
+import { getBonusById } from "../data/bonuses/index";
 import { bonusSystem } from "../systems/BonusSystem";
 import { GameProgress } from "./GameProgress";
 import { DifficultyScaling } from "./DifficultyScaling";
@@ -771,7 +771,7 @@ export class UIManager {
         x: number,
         y: number,
         spell: Spell,
-        index: number
+        _index: number
     ): Phaser.GameObjects.Container {
         const container = this.scene.add.container(x, y);
         container.setDepth(50);
@@ -859,7 +859,7 @@ export class UIManager {
 
     private spellTooltip?: Phaser.GameObjects.Container;
 
-    private showSpellTooltip(spell: Spell, x: number, y: number): void {
+    private showSpellTooltip(spell: Spell, x: number, _y: number): void {
         if (this.spellTooltip) return;
 
         // Build range text
@@ -1303,14 +1303,14 @@ export class UIManager {
         messagePanelBg.setDepth(100);
 
         // Medieval scroll decorations (corner flourishes)
-        const decorationText = this.scene.add
+        this.scene.add
             .text(centerX - 335, centerY - 25, "⚜️", {
                 fontSize: "24px",
                 color: "#d4af37",
             })
             .setDepth(100);
 
-        const decorationText2 = this.scene.add
+        this.scene.add
             .text(centerX + 311, centerY - 25, "⚜️", {
                 fontSize: "24px",
                 color: "#d4af37",
@@ -1318,7 +1318,7 @@ export class UIManager {
             .setDepth(100);
 
         // Medieval defeat message - adjusted position and reduced line spacing
-        const defeatMessage = this.scene.add
+        this.scene.add
             .text(
                 centerX,
                 centerY + 30, // Moved down from centerY + 10 for better spacing
@@ -1709,7 +1709,7 @@ export class UIManager {
 
             // Create list items
             let yOffset = 0;
-            bonusDetails.forEach((bonus, index) => {
+            bonusDetails.forEach((bonus, _index) => {
                 if (!bonus) return;
 
                 // Bonus item background - using complementary medieval color
@@ -1780,9 +1780,9 @@ export class UIManager {
                 this.scene.input.on(
                     "wheel",
                     (
-                        pointer: any,
-                        gameObjects: any[],
-                        deltaX: number,
+                        _pointer: any,
+                        _gameObjects: any[],
+                        _deltaX: number,
                         deltaY: number
                     ) => {
                         if (this.bonusHistoryModal) {
@@ -1819,9 +1819,9 @@ export class UIManager {
         closeBtn.on(
             "pointerover",
             (
-                pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _pointer: Phaser.Input.Pointer,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 closeBtn.setBackgroundColor("#cc6666");
@@ -1832,9 +1832,9 @@ export class UIManager {
         closeBtn.on(
             "pointerout",
             (
-                pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _pointer: Phaser.Input.Pointer,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 closeBtn.setBackgroundColor("#aa4444");
@@ -1845,9 +1845,9 @@ export class UIManager {
         closeBtn.on(
             "pointermove",
             (
-                pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _pointer: Phaser.Input.Pointer,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 this.scene.input.setDefaultCursor("pointer");
@@ -1876,9 +1876,9 @@ export class UIManager {
         overlay.on(
             "pointerdown",
             (
-                pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _pointer: Phaser.Input.Pointer,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 event.stopPropagation(); // Prevent event from reaching game tiles
@@ -1890,8 +1890,8 @@ export class UIManager {
             "pointermove",
             (
                 pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 event.stopPropagation(); // Prevent hover effects on game tiles
@@ -1912,9 +1912,9 @@ export class UIManager {
         overlay.on(
             "pointerover",
             (
-                pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _pointer: Phaser.Input.Pointer,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 event.stopPropagation();
@@ -1924,9 +1924,9 @@ export class UIManager {
         overlay.on(
             "pointerout",
             (
-                pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _pointer: Phaser.Input.Pointer,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 event.stopPropagation();
@@ -2148,9 +2148,9 @@ export class UIManager {
         closeBtn.on(
             "pointerover",
             (
-                pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _pointer: Phaser.Input.Pointer,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 closeBtn.setBackgroundColor("#cc6666");
@@ -2161,9 +2161,9 @@ export class UIManager {
         closeBtn.on(
             "pointerout",
             (
-                pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _pointer: Phaser.Input.Pointer,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 closeBtn.setBackgroundColor("#aa4444");
@@ -2174,9 +2174,9 @@ export class UIManager {
         closeBtn.on(
             "pointermove",
             (
-                pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _pointer: Phaser.Input.Pointer,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 this.scene.input.setDefaultCursor("pointer");
@@ -2216,9 +2216,9 @@ export class UIManager {
         overlay.on(
             "pointerdown",
             (
-                pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _pointer: Phaser.Input.Pointer,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 event.stopPropagation();
@@ -2230,8 +2230,8 @@ export class UIManager {
             "pointermove",
             (
                 pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 event.stopPropagation();
@@ -2252,9 +2252,9 @@ export class UIManager {
         overlay.on(
             "pointerover",
             (
-                pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _pointer: Phaser.Input.Pointer,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 event.stopPropagation();
@@ -2264,9 +2264,9 @@ export class UIManager {
         overlay.on(
             "pointerout",
             (
-                pointer: Phaser.Input.Pointer,
-                localX: number,
-                localY: number,
+                _pointer: Phaser.Input.Pointer,
+                _localX: number,
+                _localY: number,
                 event: Phaser.Types.Input.EventData
             ) => {
                 event.stopPropagation();
@@ -2318,7 +2318,7 @@ export class UIManager {
 
     private showStatTooltip(
         x: number,
-        y: number,
+        _y: number,
         title: string,
         description: string
     ): void {

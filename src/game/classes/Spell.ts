@@ -1,17 +1,6 @@
-export type BuffType = "stat_boost" | "damage_boost" | "mark" | "shield" | "instant";
-export type SpellCategory = "attack" | "buff";
+import { BuffEffect, SpellCategory, BuffType } from "../core/types";
 
-export interface BuffEffect {
-    type: BuffType;
-    /** Stat to modify (for stat_boost type) */
-    stat?: string;
-    /** Value of the buff effect */
-    value: number;
-    /** Duration in turns (0 = instant effect like heal/gain AP) */
-    duration: number;
-    /** True for self-buffs, false for enemy debuffs/marks */
-    targetSelf?: boolean;
-}
+export type { BuffType, SpellCategory, BuffEffect };
 
 export interface Spell {
     id: string;

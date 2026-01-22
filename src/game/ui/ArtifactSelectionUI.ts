@@ -9,10 +9,10 @@
  */
 
 import { Scene } from "phaser";
-import { ArtifactDefinition, SpellDefinition } from "../core/types";
+import { ArtifactDefinition } from "../core/types";
 import { artifactSystem } from "../systems/ArtifactSystem";
 import { GameProgress } from "../classes/GameProgress";
-import { getSpellById } from "../data/spells";
+import { getSpellById } from "../data/spells/index";
 
 // =============================================================================
 // Types

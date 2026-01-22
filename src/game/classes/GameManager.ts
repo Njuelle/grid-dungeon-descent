@@ -2028,7 +2028,6 @@ export class GameManager {
 
     private findNearestUnit(from: Unit, units: Unit[]): Unit | null {
         let nearest: Unit | null = null;
-        let minPathDistance = Infinity;
         let minGridDistance = Infinity;
 
         // First, try to find units that are actually reachable
@@ -2506,7 +2505,7 @@ export class GameManager {
 
     private applyHealingBonuses(
         attacker: Player,
-        target: Unit,
+        _target: Unit,
         spell: Spell
     ): void {
         const progress = GameProgress.getInstance();
@@ -2557,7 +2556,7 @@ export class GameManager {
 
     private applyKillBonuses(
         attacker: Player,
-        target: Unit,
+        _target: Unit,
         spell: Spell
     ): void {
         const progress = GameProgress.getInstance();

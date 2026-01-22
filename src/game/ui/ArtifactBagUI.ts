@@ -10,7 +10,7 @@
 import { Scene } from "phaser";
 import { ArtifactDefinition } from "../core/types";
 import { artifactSystem } from "../systems/ArtifactSystem";
-import { getSpellById } from "../data/spells";
+import { getSpellById } from "../data/spells/index";
 import { GameProgress } from "../classes/GameProgress";
 
 // =============================================================================
@@ -22,7 +22,6 @@ export class ArtifactBagUI {
     private container: Phaser.GameObjects.Container;
     private artifactSlots: Phaser.GameObjects.Container[] = [];
     private tooltip?: Phaser.GameObjects.Container;
-    private isVisible: boolean = false;
 
     constructor(scene: Scene) {
         this.scene = scene;
@@ -39,7 +38,6 @@ export class ArtifactBagUI {
      * Shows the artifact bag UI.
      */
     public show(): void {
-        this.isVisible = true;
         this.container.setVisible(true);
         this.refresh();
     }
@@ -48,7 +46,6 @@ export class ArtifactBagUI {
      * Hides the artifact bag UI.
      */
     public hide(): void {
-        this.isVisible = false;
         this.container.setVisible(false);
         this.hideTooltip();
     }
@@ -114,7 +111,7 @@ export class ArtifactBagUI {
         y: number,
         size: number,
         artifact: ArtifactDefinition | undefined,
-        index: number
+        _index: number
     ): Phaser.GameObjects.Container {
         const slot = this.scene.add.container(x + size / 2, y + size / 2);
 

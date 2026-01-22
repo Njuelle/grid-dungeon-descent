@@ -13,9 +13,6 @@ import {
     UnitState,
     SpellDefinition,
     GridPosition,
-    DamageType,
-    AoeShape,
-    DamageCalculation,
 } from "../core/types";
 import {
     calculateAttackDamage,
@@ -31,7 +28,6 @@ import {
     calculateMovementOnDamage,
     shouldExecute,
     getManhattanDistance,
-    isAttackInRange,
 } from "../core/CombatCalculator";
 import { isAlive } from "../core/UnitState";
 import { BonusSystem } from "./BonusSystem";
@@ -195,8 +191,7 @@ export class CombatSystem {
             attacker.stats,
             target.stats,
             distance,
-            appliedBonuses,
-            this.bonusSystem
+            appliedBonuses
         );
     }
 
@@ -243,7 +238,6 @@ export class CombatSystem {
         );
 
         // Check for execute condition
-        const targetHealthPercent = target.stats.health / target.stats.maxHealth;
         if (shouldExecute(spell.id, target.stats.health, target.stats.maxHealth, appliedBonuses)) {
             result.isExecute = true;
             result.damage = target.stats.health; // Kill instantly
@@ -370,8 +364,6 @@ export class CombatSystem {
         if (!spell.aoeShape || !spell.aoeRadius) {
             return [targetPos];
         }
-
-        const tiles: GridPosition[] = [];
 
         switch (spell.aoeShape) {
             case "circle":

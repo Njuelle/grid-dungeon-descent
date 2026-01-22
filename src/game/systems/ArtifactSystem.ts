@@ -16,8 +16,8 @@ import {
     getArtifactById,
     getArtifactsForClass,
     isArtifactValidForClass,
-} from "../data/artifacts";
-import { getSpellById } from "../data/spells";
+} from "../data/artifacts/index";
+import { getSpellById } from "../data/spells/index";
 import { GameProgress } from "../classes/GameProgress";
 
 // =============================================================================

@@ -72,7 +72,7 @@ export class ModalUI {
     /**
      * Shows the bonus history modal.
      */
-    public showBonusHistory(bonuses: BonusDefinition[], wins: number, getBonusById: (id: string) => BonusDefinition | undefined): void {
+    public showBonusHistory(bonuses: BonusDefinition[], wins: number, _getBonusById: (id: string) => BonusDefinition | undefined): void {
         if (this.isShowing()) return;
 
         const modalWidth = 600;
@@ -128,7 +128,7 @@ export class ModalUI {
             this.container!.add(noBonusText);
         } else {
             let yOffset = listY;
-            bonuses.forEach((bonus, index) => {
+            bonuses.forEach((bonus, _index) => {
                 this.createBonusListItem(bonus, 0, yOffset, modalWidth);
                 yOffset += itemHeight;
             });
@@ -327,7 +327,7 @@ export class ModalUI {
         this.container.add(modalBg);
     }
 
-    private createBonusListItem(bonus: BonusDefinition, x: number, y: number, modalWidth: number): void {
+    private createBonusListItem(bonus: BonusDefinition, _x: number, y: number, _modalWidth: number): void {
         const itemBg = this.scene.add.graphics();
         itemBg.fillStyle(0x4a332a, 0.8);
         itemBg.fillRoundedRect(-250, y - 25, 500, 50, 10);

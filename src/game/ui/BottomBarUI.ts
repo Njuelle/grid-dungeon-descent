@@ -9,7 +9,7 @@
  */
 
 import { Scene } from "phaser";
-import { SpellDefinition, UnitStats, ActiveBuff, StatName } from "../core/types";
+import { SpellDefinition, ActiveBuff, StatName } from "../core/types";
 
 // =============================================================================
 // Types
@@ -62,7 +62,6 @@ export class BottomBarUI {
 
     // State
     private selectedSpell: SpellDefinition | null = null;
-    private currentSpells: SpellDefinition[] = [];
 
     constructor(scene: Scene) {
         this.scene = scene;
@@ -219,7 +218,7 @@ export class BottomBarUI {
         y: number,
         dataKey: string,
         color: string,
-        tooltipTitle: string
+        _tooltipTitle: string
     ): void {
         const iconText = this.scene.add.text(x, y, icon, { fontSize: "22px" }).setOrigin(0.5);
         const valueText = this.scene.add
@@ -241,7 +240,6 @@ export class BottomBarUI {
         // Clear existing buttons
         this.spellButtons.forEach((button) => button.destroy());
         this.spellButtons = [];
-        this.currentSpells = spells;
 
         const buttonY = this.scene.scale.height - 50;
         const startX = 100;
@@ -499,7 +497,7 @@ export class BottomBarUI {
     // Tooltips
     // =========================================================================
 
-    private showSpellTooltip(spell: SpellDefinition, x: number, y: number): void {
+    private showSpellTooltip(spell: SpellDefinition, x: number, _y: number): void {
         if (this.spellTooltip) return;
 
         let rangeText = `Range: ${spell.range}`;

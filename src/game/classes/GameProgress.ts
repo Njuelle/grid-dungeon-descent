@@ -1,4 +1,5 @@
 import { PlayerClass } from "../core/types";
+import { getBonusById } from "../data/bonuses/index";
 
 /** Maximum number of artifacts a player can equip */
 const MAX_ARTIFACTS = 3;
@@ -30,7 +31,9 @@ export class GameProgress {
     // =========================================================================
 
     public addBonus(bonusId: string): void {
-        if (!this.appliedBonuses.includes(bonusId)) {
+        const bonus = getBonusById(bonusId);
+        // Allow adding the same bonus multiple times if it's stackable
+        if (bonus?.stackable || !this.appliedBonuses.includes(bonusId)) {
             this.appliedBonuses.push(bonusId);
             this.save();
         }
@@ -174,7 +177,7 @@ export class GameProgress {
     // Persistence
     // =========================================================================
 
-    private save(): void {
+    public save(): void {
         const data = {
             appliedBonuses: this.appliedBonuses,
             wins: this.wins,

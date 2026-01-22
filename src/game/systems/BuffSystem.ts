@@ -9,7 +9,7 @@
  * - Calculate stat modifiers from active buffs
  */
 
-import { ActiveBuff, BuffType, StatName, SpellDefinition, BuffEffect } from "../core/types";
+import { ActiveBuff, BuffType, StatName, BuffEffect } from "../core/types";
 
 // =============================================================================
 // BuffSystem Class
@@ -27,7 +27,7 @@ export class BuffSystem {
     public applyBuffEffect(
         buffEffect: BuffEffect,
         sourceSpellId: string,
-        currentBuffs: ActiveBuff[]
+        _currentBuffs: ActiveBuff[]
     ): { buff: ActiveBuff | null; instantEffect: { stat: StatName; value: number } | null } {
         // Handle instant effects (duration = 0)
         if (buffEffect.duration === 0 || buffEffect.type === "instant") {

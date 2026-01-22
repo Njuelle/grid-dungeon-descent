@@ -1,11 +1,10 @@
 import { Scene } from "phaser";
 import { Unit, UnitStats } from "./Unit";
-import { Spell, PLAYER_SPELLS } from "./Spell";
+import { Spell } from "./Spell";
 import { GameProgress } from "./GameProgress";
-import { ActiveBuff, PlayerClass, SpellDefinition, BonusDefinition } from "../core/types";
+import { ActiveBuff, PlayerClass } from "../core/types";
 import { getClassById, WARRIOR_CLASS } from "../data/classes";
-import { getSpellsByIds } from "../data/spells";
-import { getBonusById } from "../data/bonuses";
+import { getSpellsByIds } from "../data/spells/index";
 import { artifactSystem } from "../systems/ArtifactSystem";
 import { buffSystem } from "../systems/BuffSystem";
 import { bonusSystem } from "../systems/BonusSystem";
@@ -15,7 +14,6 @@ export type AttackType = "melee" | "ranged" | "magic";
 export class Player extends Unit {
     private currentSpell: Spell;
     private spells: Spell[] = [];
-    private static unitCount = 0;
     private playerClass: PlayerClass;
     private activeBuffs: ActiveBuff[] = [];
 
@@ -217,16 +215,6 @@ export class Player extends Unit {
     }
 
     public enableStatsTooltip(): void {
-        // Tooltip functionality removed - stats are now shown in the UI bar
-    }
-
-    private statsTooltip?: Phaser.GameObjects.Container;
-
-    private showStatsTooltip(): void {
-        // Tooltip functionality removed - stats are now shown in the UI bar
-    }
-
-    private hideStatsTooltip(): void {
         // Tooltip functionality removed - stats are now shown in the UI bar
     }
 
@@ -508,7 +496,7 @@ export class Player extends Unit {
         return this.stats.magicResistance || 0;
     }
 
-    public dealDamage(damage: number): void {
+    public dealDamage(_damage: number): void {
         // Implementation of dealDamage method
     }
 

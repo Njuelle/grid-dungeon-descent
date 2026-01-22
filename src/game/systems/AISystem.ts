@@ -297,7 +297,7 @@ export class AISystem {
      * Calculates priority score for a target.
      */
     private calculateTargetPriority(
-        enemy: UnitState,
+        _enemy: UnitState,
         target: UnitState,
         distance: number,
         canAttack: boolean,

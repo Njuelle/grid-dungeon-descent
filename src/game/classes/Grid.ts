@@ -306,12 +306,6 @@ export class Grid {
         return true;
     }
 
-    private wouldBlockPath(wallX: number, wallY: number): boolean {
-        // This method is now deprecated but kept for compatibility
-        // The new system uses wouldBlockCriticalPath instead
-        return false;
-    }
-
     private draw(): void {
         // Draw floor tiles first
         this.drawFloor();
@@ -921,7 +915,6 @@ export class Grid {
                 let err = dx - dy;
                 let currentX = casterX;
                 let currentY = casterY;
-                let lengthCovered = 0;
 
                 // Iterate for the length of the line or until grid boundary/wall
                 for (let i = 0; i < radius; i++) {

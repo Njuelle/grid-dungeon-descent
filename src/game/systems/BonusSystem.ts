@@ -11,7 +11,6 @@
 
 import {
     BonusDefinition,
-    BonusEffect,
     UnitStats,
     SpellDefinition,
     TriggerCondition,
@@ -23,10 +22,8 @@ import {
     ALL_BONUSES,
     BONUS_REGISTRY,
     getBonusById,
-    getBonusesByCategory,
-    getBonusesForSpell,
     getBonusesForClass,
-} from "../data/bonuses";
+} from "../data/bonuses/index";
 import { getClassById } from "../data/classes";
 import { GameProgress } from "../classes/GameProgress";
 import { ArtifactSystem } from "./ArtifactSystem";
@@ -642,8 +639,8 @@ export class BonusSystem {
      * Calculate bonus damage for an attack.
      */
     public calculateBonusDamage(
-        baseDamage: number,
-        spellType: AttackType,
+        _baseDamage: number,
+        _spellType: AttackType,
         appliedBonusIds: string[],
         context: {
             attackerStats: UnitStats;

@@ -10,7 +10,7 @@
 import { Scene } from "phaser";
 import { ClassDefinition, PlayerClass } from "../core/types";
 import { PLAYER_CLASSES } from "../data/classes";
-import { getSpellsByIds } from "../data/spells";
+import { getSpellsByIds } from "../data/spells/index";
 
 // =============================================================================
 // Types

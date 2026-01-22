@@ -158,7 +158,7 @@ export class MainMenu extends Scene {
         this.createMedievalProgressPanel();
 
         // Medieval version/credits
-        const versionText = this.add
+        this.add
             .text(
                 this.scale.width - 20,
                 this.scale.height - 20,
@@ -173,7 +173,7 @@ export class MainMenu extends Scene {
             .setOrigin(1, 1)
             .setDepth(100);
 
-        const creditsText = this.add
+        this.add
             .text(
                 20,
                 this.scale.height - 20,
@@ -385,7 +385,6 @@ export class MainMenu extends Scene {
     private createMedievalProgressPanel(): void {
         const progress = GameProgress.getInstance();
         const wins = progress.getWins();
-        const bonuses = progress.getAppliedBonuses().length;
         const difficulty = DifficultyScaling.getDifficultyDescription();
 
         // Medieval scroll/parchment background
@@ -402,14 +401,14 @@ export class MainMenu extends Scene {
         panelBg.setDepth(100);
 
         // Medieval scroll decorations (corner flourishes)
-        const decorationText = this.add
+        this.add
             .text(30, 30, "⚜️", {
                 fontSize: "24px",
                 color: "#d4af37",
             })
             .setDepth(100);
 
-        const decorationText2 = this.add
+        this.add
             .text(390, 30, "⚜️", {
                 fontSize: "24px",
                 color: "#d4af37",
@@ -417,7 +416,7 @@ export class MainMenu extends Scene {
             .setDepth(100);
 
         // Progress title
-        const progressTitle = this.add
+        this.add
             .text(60, 45, "EXPEDITION RECORDS", {
                 fontSize: "22px",
                 color: "#d4af37",
@@ -429,7 +428,7 @@ export class MainMenu extends Scene {
             .setDepth(100);
 
         // Stats with medieval language
-        const statsText = this.add
+        this.add
             .text(60, 80, `Dungeons Cleared: ${wins}`, {
                 fontSize: "18px",
                 color: "#f5deb3",
@@ -437,7 +436,7 @@ export class MainMenu extends Scene {
             })
             .setDepth(100);
 
-        const difficultyText = this.add
+        this.add
             .text(
                 60,
                 130,

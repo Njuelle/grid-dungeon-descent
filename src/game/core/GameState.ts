@@ -11,7 +11,6 @@ import {
     UnitState,
     GridPosition,
     Team,
-    SpellDefinition,
 } from "./types";
 import {
     copyUnitState,

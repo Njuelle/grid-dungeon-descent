@@ -12,13 +12,9 @@ import { Team, UnitState, GameStateSnapshot } from "../core/types";
 import {
     startTurn,
     endTurn,
-    getAliveUnitsByTeam,
     checkVictoryConditions,
-    isGameOver,
-    isVictory,
-    isDefeat,
 } from "../core/GameState";
-import { isAlive, resetTurnState } from "../core/UnitState";
+import { isAlive } from "../core/UnitState";
 
 // =============================================================================
 // Turn Event Types
@@ -134,7 +130,6 @@ export class TurnManager {
         this.emitEvent("turn_end", this.currentTeam);
 
         // Switch teams
-        const previousTeam = this.currentTeam;
         this.currentTeam = this.currentTeam === "player" ? "enemy" : "player";
 
         // Increment turn number when switching back to player

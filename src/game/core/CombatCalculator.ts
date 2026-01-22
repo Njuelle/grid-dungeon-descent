@@ -11,7 +11,6 @@ import {
     DamageCalculation,
     AttackType,
     DamageType,
-    AttackContext,
 } from "./types";
 import { BonusSystem } from "../systems/BonusSystem";
 
@@ -102,8 +101,7 @@ export function calculateDamageRange(
     attackerStats: UnitStats,
     targetStats: UnitStats,
     distance: number,
-    appliedBonuses: string[],
-    bonusSystem: BonusSystem
+    appliedBonuses: string[]
 ): { min: number; max: number; resistance: number } {
     // Base damage from spell
     const baseDamage = spell.damage;
@@ -206,7 +204,7 @@ export function getDamageType(spell: SpellDefinition): DamageType {
 /**
  * Determines the damage type for an enemy attack.
  */
-export function getEnemyDamageType(attackRange: number, enemyType?: string): DamageType {
+export function getEnemyDamageType(_attackRange: number, enemyType?: string): DamageType {
     // Magic enemies deal magic damage
     if (enemyType === "Magician" || enemyType === "Necromancer") {
         return "magic";

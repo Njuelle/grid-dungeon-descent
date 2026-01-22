@@ -102,14 +102,14 @@ export class Preloader extends Scene {
         panelBg.setDepth(100);
 
         // Medieval scroll decorations (corner flourishes) - same as main menu
-        const decorationText = this.add
+        this.add
             .text(centerX - 285, centerY + 95, "⚜️", {
                 fontSize: "24px",
                 color: "#d4af37",
             })
             .setDepth(100);
 
-        const decorationText2 = this.add
+        this.add
             .text(centerX + 261, centerY + 95, "⚜️", {
                 fontSize: "24px",
                 color: "#d4af37",
@@ -187,7 +187,7 @@ export class Preloader extends Scene {
         });
 
         // Add file loading progress
-        this.load.on("fileprogress", (file: any) => {
+        this.load.on("fileprogress", (_file: any) => {
             // You could add specific file loading feedback here if needed
         });
     }

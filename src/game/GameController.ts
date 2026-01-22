@@ -10,13 +10,11 @@
  * Designed to be extractable to server-side with minimal changes.
  */
 
-import { Scene } from "phaser";
 import {
     GameStateSnapshot,
     UnitState,
     SpellDefinition,
     GridPosition,
-    Team,
     BonusDefinition,
 } from "./core/types";
 import {
@@ -33,14 +31,13 @@ import {
     setUnitActed,
     addBonus,
     incrementWins,
-    updateUnit,
 } from "./core/GameState";
-import { isAlive, resetTurnState, markAsActed } from "./core/UnitState";
+import { isAlive, resetTurnState } from "./core/UnitState";
 import { BonusSystem, bonusSystem } from "./systems/BonusSystem";
 import { TurnManager, TurnEvent } from "./systems/TurnManager";
 import { CombatSystem, AttackResult } from "./systems/CombatSystem";
 import { MovementSystem } from "./systems/MovementSystem";
-import { AISystem, AITurnPlan, AIAction } from "./systems/AISystem";
+import { AISystem, AIAction } from "./systems/AISystem";
 import { EventEmitter, gameEventBus } from "./events/EventEmitter";
 
 // =============================================================================
@@ -179,11 +176,11 @@ export class GameController {
             });
         });
 
-        this.turnManager.setOnVictory((event) => {
+        this.turnManager.setOnVictory((_event) => {
             this.onVictory();
         });
 
-        this.turnManager.setOnDefeat((event) => {
+        this.turnManager.setOnDefeat((_event) => {
             this.onDefeat();
         });
     }
@@ -721,7 +718,7 @@ export class GameController {
      * Gets random bonuses for selection.
      */
     public getRandomBonuses(count: number): BonusDefinition[] {
-        return this.bonusSystem.getRandomBonuses(count, this.state.appliedBonuses);
+        return this.bonusSystem.getRandomBonuses(count, this.state.appliedBonuses, this.state.playerClass || "warrior");
     }
 
     /**
