@@ -299,7 +299,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
         id: "fortify",
         name: "Fortify",
         icon: "icon_fortify",
-        iconDescription: "ancient stone pillars forming a protective structure",
+        iconDescription: "a glowing red strength potion in an ornate iron-bound flask",
         apCost: 1,
         range: 0,
         damage: 0,

@@ -550,4 +550,228 @@ export const RANGER_BONUSES: BonusDefinition[] = [
             },
         ],
     },
+
+    // ==========================================================================
+    // Additional Ranger Stat Bonuses
+    // ==========================================================================
+    {
+        id: "marksman",
+        category: "stat",
+        name: "Marksman",
+        description: "+2 Dexterity, +1 AP, -1 Health",
+        icon: "icon_marksman",
+        iconDescription: "a sniper scope crosshair",
+        stackable: false,
+        tags: ["offensive", "ranged", "risky"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "dexterity", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "actionPoints", value: 1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxActionPoints", value: 1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "health", value: -1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxHealth", value: -1 },
+            },
+        ],
+    },
+    {
+        id: "ambusher",
+        category: "stat",
+        name: "Ambusher",
+        description: "+2 Dexterity, +1 Armor",
+        icon: "icon_ambusher",
+        iconDescription: "a hidden figure in shadows",
+        stackable: false,
+        tags: ["offensive", "defensive", "ranged"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "dexterity", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "armor", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "fleet_footed",
+        category: "stat",
+        name: "Fleet Footed",
+        description: "+1 Dexterity, +2 Movement",
+        icon: "icon_fleet_footed",
+        iconDescription: "winged boots in motion",
+        stackable: false,
+        tags: ["offensive", "ranged", "mobility"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "dexterity", value: 1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "movementPoints", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxMovementPoints", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "moveRange", value: 2 },
+            },
+        ],
+    },
+    {
+        id: "nimble_archer",
+        category: "stat",
+        name: "Nimble Archer",
+        description: "+3 Dexterity, -1 Force",
+        icon: "icon_nimble_archer",
+        iconDescription: "a graceful bow draw stance",
+        stackable: false,
+        tags: ["offensive", "ranged", "risky"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "dexterity", value: 3 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "force", value: -1 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // Additional Arrow Shot / Bone Piercer / Hunter's Mark Spell Upgrades
+    // ==========================================================================
+    {
+        id: "focused_arrow",
+        category: "spell",
+        name: "Focused Arrow",
+        description: "Arrow Shot: +2 Damage",
+        icon: "icon_arrow_shot",
+        iconDescription: "a glowing focused arrow tip",
+        stackable: false,
+        tags: ["ranged", "damage"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "arrow_shot",
+                spellModifier: { property: "damage", value: 2 },
+            },
+        ],
+    },
+    {
+        id: "quick_shot",
+        category: "spell",
+        name: "Quick Shot",
+        description: "Arrow Shot: -1 Damage, +1 Range",
+        icon: "icon_arrow_shot",
+        iconDescription: "a fast arrow with motion trail",
+        stackable: false,
+        tags: ["ranged", "range", "utility"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "arrow_shot",
+                spellModifier: { property: "damage", value: -1 },
+            },
+            {
+                type: "spell_modifier",
+                target: "arrow_shot",
+                spellModifier: { property: "range", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "precise_piercer",
+        category: "spell",
+        name: "Precise Piercer",
+        description: "Bone Piercer: +1 Damage",
+        icon: "icon_bone_piercer",
+        iconDescription: "a precisely aimed bone spike",
+        stackable: false,
+        tags: ["ranged", "damage"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "bone_piercer",
+                spellModifier: { property: "damage", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "wide_mark",
+        category: "spell",
+        name: "Wide Mark",
+        description: "Hunter's Mark: Circle AoE (Radius 1)",
+        icon: "icon_extended_mark",
+        iconDescription: "an expanding target mark area",
+        stackable: false,
+        tags: ["ranged", "aoe", "utility"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "hunters_mark",
+                spellModifier: { property: "aoeShape", value: "circle" },
+            },
+            {
+                type: "spell_modifier",
+                target: "hunters_mark",
+                spellModifier: { property: "aoeRadius", value: 1 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // Additional Ranger Passive Bonuses
+    // ==========================================================================
+    {
+        id: "eagle_eye",
+        category: "passive",
+        name: "Eagle Eye",
+        description: "+1 Dexterity when attacking from max range",
+        icon: "icon_eagle_eye",
+        iconDescription: "a sharp eagle eye looking far",
+        stackable: false,
+        tags: ["offensive", "ranged", "conditional"],
+        effects: [
+            {
+                type: "conditional",
+                trigger: { effect: "add_stat", value: 1, stat: "dexterity" },
+                condition: { type: "at_max_range" },
+            },
+        ],
+    },
+    {
+        id: "rapid_fire",
+        category: "passive",
+        name: "Rapid Fire",
+        description: "15% chance to refund AP on ranged attacks",
+        icon: "icon_rapid_fire",
+        iconDescription: "multiple arrows flying rapidly",
+        stackable: false,
+        tags: ["ranged", "efficiency", "chance"],
+        effects: [
+            {
+                type: "on_hit",
+                trigger: { effect: "add_ap", value: 1 },
+                condition: { type: "random_chance", value: 15 },
+            },
+        ],
+    },
 ];

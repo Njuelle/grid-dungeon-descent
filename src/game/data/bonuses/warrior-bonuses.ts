@@ -591,4 +591,174 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
             },
         ],
     },
+
+    // ==========================================================================
+    // Additional Warrior Stat Bonuses
+    // ==========================================================================
+    {
+        id: "titans_grip",
+        category: "stat",
+        name: "Titan's Grip",
+        description: "+2 Force, +1 Health, -1 Dexterity",
+        icon: "icon_titans_grip",
+        iconDescription: "a giant hand gripping a weapon",
+        stackable: false,
+        tags: ["offensive", "melee", "health"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "force", value: 2 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "health", value: 1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "maxHealth", value: 1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "dexterity", value: -1 },
+            },
+        ],
+    },
+    {
+        id: "battle_hardened",
+        category: "stat",
+        name: "Battle Hardened",
+        description: "+1 Force, +2 Armor",
+        icon: "icon_battle_hardened",
+        iconDescription: "a scarred veteran warrior face",
+        stackable: false,
+        tags: ["offensive", "defensive", "melee"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "force", value: 1 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "armor", value: 2 },
+            },
+        ],
+    },
+    {
+        id: "savage_instinct",
+        category: "stat",
+        name: "Savage Instinct",
+        description: "+3 Force, -1 Magic Resistance",
+        icon: "icon_savage_instinct",
+        iconDescription: "a feral wolf with glowing eyes",
+        stackable: false,
+        tags: ["offensive", "melee", "risky"],
+        effects: [
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "force", value: 3 },
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "magicResistance", value: -1 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // Additional Slash / Power Strike / Shield Bash Spell Upgrades
+    // ==========================================================================
+    {
+        id: "brutal_slash",
+        category: "spell",
+        name: "Brutal Slash",
+        description: "Slash: +1 Damage, +1 Range",
+        icon: "icon_slash",
+        iconDescription: "a brutal wide sword swing",
+        stackable: false,
+        tags: ["melee", "damage", "range"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "slash",
+                spellModifier: { property: "damage", value: 1 },
+            },
+            {
+                type: "spell_modifier",
+                target: "slash",
+                spellModifier: { property: "range", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "stunning_power_strike",
+        category: "spell",
+        name: "Stunning Power Strike",
+        description: "Power Strike: +1 Damage",
+        icon: "icon_power_strike",
+        iconDescription: "a powerful fist with stun impact",
+        stackable: false,
+        tags: ["melee", "damage"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "power_strike",
+                spellModifier: { property: "damage", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "wide_bash",
+        category: "spell",
+        name: "Wide Bash",
+        description: "Shield Bash: +1 Range",
+        icon: "icon_stunning_bash",
+        iconDescription: "a shield extending outward",
+        stackable: false,
+        tags: ["melee", "range", "control"],
+        effects: [
+            {
+                type: "spell_modifier",
+                target: "shield_bash",
+                spellModifier: { property: "range", value: 1 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // Additional Warrior Passive Bonuses
+    // ==========================================================================
+    {
+        id: "relentless",
+        category: "passive",
+        name: "Relentless",
+        description: "+1 AP when below 50% HP at turn start",
+        icon: "icon_relentless",
+        iconDescription: "a wounded warrior still fighting",
+        stackable: false,
+        tags: ["offensive", "melee", "conditional"],
+        effects: [
+            {
+                type: "on_turn_start",
+                trigger: { effect: "add_ap", value: 1 },
+                condition: { type: "health_below", value: 50 },
+            },
+        ],
+    },
+    {
+        id: "thick_skin",
+        category: "passive",
+        name: "Thick Skin",
+        description: "+1 Armor when hit by melee attack",
+        icon: "icon_thick_skin",
+        iconDescription: "hardened leather armor scales",
+        stackable: false,
+        tags: ["defensive", "melee", "reactive"],
+        effects: [
+            {
+                type: "on_damage_taken",
+                trigger: { effect: "add_stat", value: 1, stat: "armor" },
+                condition: { type: "is_melee_attack" },
+            },
+        ],
+    },
 ];

@@ -67,7 +67,7 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         name: "Swiftness",
         description: "+1 Movement Point",
         icon: "icon_movement_boost",
-        iconDescription: "a running shoe with speed lines",
+        iconDescription: "a swirling blue speed potion in a crystal vial with silver stopper",
         stackable: true,
         tags: ["mobility"],
         effects: [
