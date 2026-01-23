@@ -22,6 +22,7 @@ import {
     getEnemyDamageType,
     calculateDamageTaken,
     calculateOnHitHealing,
+    calculateOnHitMovement,
     shouldRefundAP,
     calculateThornsDamage,
     shouldBlockWithSpellShield,
@@ -71,6 +72,7 @@ export interface AttackResult {
     isCritical: boolean;
     isExecute: boolean;
     healing: number;
+    movementGained: number;
     thornsDamage: number;
     apRefunded: boolean;
     blocked: boolean;
@@ -215,6 +217,7 @@ export class CombatSystem {
             isCritical: false,
             isExecute: false,
             healing: 0,
+            movementGained: 0,
             thornsDamage: 0,
             apRefunded: false,
             blocked: false,
@@ -312,6 +315,9 @@ export class CombatSystem {
                 healing: result.healing,
             });
         }
+
+        // Calculate on-hit movement (hit and run, etc.)
+        result.movementGained = calculateOnHitMovement(appliedBonuses, this.bonusSystem);
 
         // Check for AP refund (spell echo)
         result.apRefunded = shouldRefundAP(spell, appliedBonuses, this.bonusSystem);

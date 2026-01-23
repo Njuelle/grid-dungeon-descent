@@ -692,8 +692,8 @@ export abstract class Unit {
         this.sprite.on("pointerover", () => {
             this.sprite.setScale(baseScaleX * 1.1, baseScaleY * 1.1);
             this.scene.input.setDefaultCursor("pointer");
-            // Show stats tooltip if available (but not for player units)
-            if ("showStatsTooltip" in this && this.team !== "player") {
+            // Show stats tooltip if available (for all units including player)
+            if ("showStatsTooltip" in this) {
                 (this as any).showStatsTooltip();
             }
         });
@@ -701,8 +701,8 @@ export abstract class Unit {
         this.sprite.on("pointerout", () => {
             this.sprite.setScale(baseScaleX, baseScaleY);
             this.scene.input.setDefaultCursor("default");
-            // Hide stats tooltip if available (but not for player units)
-            if ("hideStatsTooltip" in this && this.team !== "player") {
+            // Hide stats tooltip if available (for all units including player)
+            if ("hideStatsTooltip" in this) {
                 (this as any).hideStatsTooltip();
             }
         });

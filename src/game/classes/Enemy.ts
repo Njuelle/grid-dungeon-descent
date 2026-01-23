@@ -6,6 +6,16 @@ import { ActiveBuff, SpellDefinition } from "../core/types";
 import { buffSystem } from "../systems/BuffSystem";
 import { getEnemySpellsByType, getDefaultEnemySpell } from "../data/spells/enemy-spells";
 
+/**
+ * Target state information for smart spell selection.
+ */
+export interface EnemyTargetState {
+    isMarked: boolean;
+    markValue: number;
+    healthPercent: number;
+    activeDebuffs: string[]; // spell IDs of active debuffs
+}
+
 export abstract class Enemy extends Unit {
     protected static unitCount = 0;
     public enemyType: string;
@@ -878,11 +888,33 @@ export abstract class Enemy extends Unit {
 
     /**
      * Get the best spell to use against a target at a given distance.
+     * Legacy method - use getBestSpellForSituation for smarter selection.
      */
     public getBestSpellForDistance(distance: number): SpellDefinition | null {
-        // Filter spells we can afford and that are in range
+        return this.getBestSpellForSituation(distance, {
+            isMarked: false,
+            markValue: 0,
+            healthPercent: 1,
+            activeDebuffs: [],
+        });
+    }
+
+    /**
+     * Get the best spell based on situational scoring.
+     * Considers target state, debuff value, lifesteal, marks, etc.
+     */
+    public getBestSpellForSituation(
+        distance: number,
+        targetState: EnemyTargetState
+    ): SpellDefinition | null {
+        const selfHealthPercent = this.stats.health / this.stats.maxHealth;
+        
+        // Filter spells we can afford and that are in range (excluding self-buffs)
         const usableSpells = this.spells.filter(spell => {
             if (!this.canCastSpell(spell)) return false;
+            
+            // Skip self-buffs - they're handled separately
+            if (spell.buffEffect?.targetSelf) return false;
             
             // Check range
             const minRange = spell.minRange || 0;
@@ -893,19 +925,168 @@ export abstract class Enemy extends Unit {
 
         if (usableSpells.length === 0) return null;
 
-        // Prefer damaging spells over buffs when in range
-        const attackSpells = usableSpells.filter(s => s.damage > 0);
-        if (attackSpells.length > 0) {
-            // Sort by damage potential (damage + stat bonus)
-            return attackSpells.sort((a, b) => {
-                const damageA = a.damage + (a.type === "melee" ? this.force : a.type === "ranged" ? this.dexterity : this.intelligence);
-                const damageB = b.damage + (b.type === "melee" ? this.force : b.type === "ranged" ? this.dexterity : this.intelligence);
-                return damageB - damageA;
-            })[0];
+        // Score each spell based on the situation
+        const scoredSpells = usableSpells.map(spell => {
+            let score = 0;
+            
+            // Base damage score
+            const statBonus = this.getStatBonusForSpell(spell);
+            const baseDamage = spell.damage + statBonus;
+            score += baseDamage * 10; // Weight damage heavily
+            
+            // Bonus for hitting a marked target
+            if (targetState.isMarked && spell.damage > 0) {
+                score += targetState.markValue * 10;
+            }
+            
+            // Value mark spells highly if target isn't marked
+            if (spell.buffEffect?.type === "mark" && !targetState.isMarked) {
+                // Mark spells are valuable - mark value * 2 turns of potential use
+                score += (spell.buffEffect.value || 3) * 15;
+            }
+            
+            // Value debuff spells
+            if (spell.buffEffect && !spell.buffEffect.targetSelf && spell.buffEffect.type === "stat_boost") {
+                // Check if target already has this debuff
+                const hasThisDebuff = targetState.activeDebuffs.includes(spell.id);
+                if (!hasThisDebuff) {
+                    // Debuff value = |stat reduction| * duration * multiplier
+                    const debuffValue = Math.abs(spell.buffEffect.value || 0) * (spell.buffEffect.duration || 1);
+                    score += debuffValue * 8;
+                    
+                    // Extra value for movement reduction debuffs
+                    if (spell.buffEffect.stat === "movementPoints") {
+                        score += 10;
+                    }
+                } else {
+                    // Already has this debuff, lower priority
+                    score -= 20;
+                }
+            }
+            
+            // Value lifesteal when hurt
+            if (spell.buffEffect?.targetSelf && spell.buffEffect.stat === "health" && spell.damage > 0) {
+                // Lifesteal spells are more valuable when we're hurt
+                const healthDeficit = 1 - selfHealthPercent;
+                score += (spell.buffEffect.value || 0) * healthDeficit * 20;
+            }
+            
+            // Prefer finishing low-health targets
+            if (targetState.healthPercent < 0.3 && spell.damage > 0) {
+                score += 15;
+            }
+            
+            // Small AP efficiency bonus (lower cost = slightly better)
+            score -= spell.apCost * 2;
+            
+            return { spell, score };
+        });
+
+        // Sort by score (highest first)
+        scoredSpells.sort((a, b) => b.score - a.score);
+        
+        console.log(`[Enemy AI] ${this.enemyType} spell scores:`, 
+            scoredSpells.map(s => `${s.spell.name}:${s.score.toFixed(0)}`).join(", "));
+        
+        return scoredSpells[0]?.spell || null;
+    }
+
+    /**
+     * Get stat bonus for a spell based on its type.
+     */
+    private getStatBonusForSpell(spell: SpellDefinition): number {
+        if (spell.type === "melee") return this.force;
+        if (spell.type === "ranged") return this.dexterity;
+        if (spell.type === "magic") return this.intelligence;
+        return 0;
+    }
+
+    /**
+     * Get an offensive self-buff to use before attacking.
+     * Returns null if no buff is beneficial or available.
+     */
+    public getPreAttackBuff(canAttackAfterBuff: boolean, targetDistance: number): SpellDefinition | null {
+        const selfHealthPercent = this.stats.health / this.stats.maxHealth;
+        
+        // Get self-buff spells we can afford
+        const buffSpells = this.spells.filter(spell => 
+            spell.spellCategory === "buff" &&
+            spell.buffEffect?.targetSelf &&
+            this.canCastSpell(spell)
+        );
+
+        if (buffSpells.length === 0) return null;
+
+        // Check if we already have this buff active
+        const activeBuffIds = this.activeBuffs.map(b => b.sourceSpellId);
+
+        for (const spell of buffSpells) {
+            // Skip if we already have this buff
+            if (activeBuffIds.includes(spell.id)) continue;
+            
+            const buffEffect = spell.buffEffect!;
+            
+            // Offensive buffs (force, dexterity, intelligence boost)
+            if (buffEffect.stat === "force" || buffEffect.stat === "dexterity" || buffEffect.stat === "intelligence") {
+                // Only use if we can attack after buffing
+                if (canAttackAfterBuff) {
+                    // Check if we have enough AP for both buff and an attack
+                    const remainingAP = (this.stats.actionPoints || 0) - spell.apCost;
+                    const canAttackAfter = this.spells.some(s => 
+                        s.apCost <= remainingAP && 
+                        s.damage > 0 &&
+                        !s.buffEffect?.targetSelf &&
+                        targetDistance <= s.range &&
+                        targetDistance >= (s.minRange || 0)
+                    );
+                    
+                    if (canAttackAfter) {
+                        console.log(`[Enemy AI] ${this.enemyType} considering offensive buff: ${spell.name}`);
+                        return spell;
+                    }
+                }
+            }
+            
+            // Healing buffs - use when below 60% health
+            if (buffEffect.stat === "health" && selfHealthPercent < 0.6) {
+                console.log(`[Enemy AI] ${this.enemyType} considering healing: ${spell.name}`);
+                return spell;
+            }
+            
+            // Armor buffs - use when below 50% health or when in melee range
+            if (buffEffect.stat === "armor" && (selfHealthPercent < 0.5 || targetDistance <= 1)) {
+                console.log(`[Enemy AI] ${this.enemyType} considering armor buff: ${spell.name}`);
+                return spell;
+            }
         }
 
-        // If no attack spells, return a buff spell (like Troll regenerate)
-        return usableSpells[0];
+        return null;
+    }
+
+    /**
+     * Check if enemy has remaining AP to take actions.
+     */
+    public hasRemainingAP(): boolean {
+        const ap = this.stats.actionPoints || 0;
+        // Check if any spell can be cast
+        return this.spells.some(spell => spell.apCost <= ap);
+    }
+
+    /**
+     * Check if enemy has remaining MP to move.
+     */
+    public hasRemainingMP(): boolean {
+        const mp = this.stats.movementPoints || 0;
+        return mp > 0;
+    }
+
+    /**
+     * Get the lowest AP cost spell available.
+     */
+    public getLowestCostSpell(): SpellDefinition | null {
+        const affordable = this.spells.filter(spell => this.canCastSpell(spell));
+        if (affordable.length === 0) return null;
+        return affordable.reduce((a, b) => a.apCost < b.apCost ? a : b);
     }
 
     /**

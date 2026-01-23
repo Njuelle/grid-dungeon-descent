@@ -28,6 +28,7 @@ import {
     useActionPoints,
     grantMovementPoints,
     grantActionPoints,
+    modifyUnitStat,
     setUnitActed,
     addBonus,
     incrementWins,
@@ -474,6 +475,40 @@ export class GameController {
                         killerId: attacker.id,
                         position: target.position,
                     });
+
+                    // Process on-kill bonus effects for AoE kills
+                    const onKillEffects = this.bonusSystem.getOnKillEffects(
+                        this.state.appliedBonuses,
+                        spell.type
+                    );
+
+                    if (onKillEffects.apGained > 0) {
+                        this.state = grantActionPoints(this.state, attacker.id, onKillEffects.apGained);
+                        this.eventBus.emit("unit:ap_gained", {
+                            unitId: attacker.id,
+                            amount: onKillEffects.apGained,
+                            source: "on_kill",
+                        });
+                    }
+
+                    if (onKillEffects.mpGained > 0) {
+                        this.state = grantMovementPoints(this.state, attacker.id, onKillEffects.mpGained);
+                        this.eventBus.emit("unit:movement_gained", {
+                            unitId: attacker.id,
+                            amount: onKillEffects.mpGained,
+                            source: "on_kill",
+                        });
+                    }
+
+                    for (const statGain of onKillEffects.statGains) {
+                        this.state = modifyUnitStat(this.state, attacker.id, statGain.stat, statGain.value);
+                        this.eventBus.emit("unit:stat_gained", {
+                            unitId: attacker.id,
+                            stat: statGain.stat,
+                            amount: statGain.value,
+                            source: "on_kill",
+                        });
+                    }
                 }
             }
         }
@@ -537,6 +572,16 @@ export class GameController {
             });
         }
 
+        // Apply on-hit movement (hit and run, etc.)
+        if (result.movementGained > 0) {
+            this.state = grantMovementPoints(this.state, attacker.id, result.movementGained);
+            this.eventBus.emit("unit:movement_gained", {
+                unitId: attacker.id,
+                amount: result.movementGained,
+                source: "on_hit",
+            });
+        }
+
         // Apply thorns damage
         if (result.thornsDamage > 0) {
             this.state = damageUnit(this.state, attacker.id, result.thornsDamage);
@@ -555,9 +600,41 @@ export class GameController {
                 position: target.position,
             });
 
-            // Momentum bonus: +1 MP on kill
-            if (this.state.appliedBonuses.includes("momentum")) {
-                this.state = grantMovementPoints(this.state, attacker.id, 1);
+            // Process on-kill bonus effects
+            const onKillEffects = this.bonusSystem.getOnKillEffects(
+                this.state.appliedBonuses,
+                spell.type
+            );
+
+            // Grant AP on kill (killing_spree, spell_thief, etc.)
+            if (onKillEffects.apGained > 0) {
+                this.state = grantActionPoints(this.state, attacker.id, onKillEffects.apGained);
+                this.eventBus.emit("unit:ap_gained", {
+                    unitId: attacker.id,
+                    amount: onKillEffects.apGained,
+                    source: "on_kill",
+                });
+            }
+
+            // Grant MP on kill (momentum, etc.)
+            if (onKillEffects.mpGained > 0) {
+                this.state = grantMovementPoints(this.state, attacker.id, onKillEffects.mpGained);
+                this.eventBus.emit("unit:movement_gained", {
+                    unitId: attacker.id,
+                    amount: onKillEffects.mpGained,
+                    source: "on_kill",
+                });
+            }
+
+            // Grant stat bonuses on kill (berserker_rage, predator, etc.)
+            for (const statGain of onKillEffects.statGains) {
+                this.state = modifyUnitStat(this.state, attacker.id, statGain.stat, statGain.value);
+                this.eventBus.emit("unit:stat_gained", {
+                    unitId: attacker.id,
+                    stat: statGain.stat,
+                    amount: statGain.value,
+                    source: "on_kill",
+                });
             }
         }
     }

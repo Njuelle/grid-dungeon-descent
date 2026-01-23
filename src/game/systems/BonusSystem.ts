@@ -732,6 +732,40 @@ export class BonusSystem {
     }
 
     /**
+     * Get movement points gained on hit (hit and run, etc.).
+     */
+    public getOnHitMovement(appliedBonusIds: string[]): number {
+        let movement = 0;
+
+        // Process all on_hit bonuses with add_mp effect
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (
+                    effect.type === "on_hit" &&
+                    effect.trigger?.effect === "add_mp" &&
+                    typeof effect.trigger.value === "number"
+                ) {
+                    // Check condition if present
+                    if (effect.condition) {
+                        // Handle random chance condition
+                        if (effect.condition.type === "random_chance" && effect.condition.value) {
+                            if (Math.random() * 100 >= effect.condition.value) {
+                                continue; // Condition not met
+                            }
+                        }
+                    }
+                    movement += effect.trigger.value;
+                }
+            }
+        }
+
+        return movement;
+    }
+
+    /**
      * Check if execute condition is met (Power Strike vs low HP enemies).
      */
     public shouldExecute(
@@ -760,6 +794,69 @@ export class BonusSystem {
             return 1;
         }
         return 0;
+    }
+
+    /**
+     * Get effects to apply when killing an enemy.
+     */
+    public getOnKillEffects(
+        appliedBonusIds: string[],
+        spellType?: AttackType
+    ): {
+        apGained: number;
+        mpGained: number;
+        statGains: Array<{ stat: StatName; value: number }>;
+    } {
+        const result = {
+            apGained: 0,
+            mpGained: 0,
+            statGains: [] as Array<{ stat: StatName; value: number }>,
+        };
+
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (effect.type !== "on_kill" || !effect.trigger) continue;
+
+                // Check condition if present
+                if (effect.condition) {
+                    // Handle is_magic_spell condition
+                    if (effect.condition.type === "is_magic_spell") {
+                        if (spellType !== "magic") {
+                            continue; // Condition not met
+                        }
+                    }
+                    // Handle random chance condition
+                    if (effect.condition.type === "random_chance" && effect.condition.value) {
+                        if (Math.random() * 100 >= effect.condition.value) {
+                            continue; // Condition not met
+                        }
+                    }
+                }
+
+                // Apply the effect
+                switch (effect.trigger.effect) {
+                    case "add_ap":
+                        result.apGained += effect.trigger.value;
+                        break;
+                    case "add_mp":
+                        result.mpGained += effect.trigger.value;
+                        break;
+                    case "add_stat":
+                        if (effect.trigger.stat) {
+                            result.statGains.push({
+                                stat: effect.trigger.stat,
+                                value: effect.trigger.value,
+                            });
+                        }
+                        break;
+                }
+            }
+        }
+
+        return result;
     }
 
     /**

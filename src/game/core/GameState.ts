@@ -9,6 +9,7 @@
 import {
     GameStateSnapshot,
     UnitState,
+    UnitStats,
     GridPosition,
     Team,
 } from "./types";
@@ -24,6 +25,7 @@ import {
     addActionPoints,
     updateUnitPosition,
     markAsActed,
+    modifyStat,
 } from "./UnitState";
 
 // =============================================================================
@@ -239,6 +241,18 @@ export function grantActionPoints(
     amount: number
 ): GameStateSnapshot {
     return updateUnit(state, unitId, (unit) => addActionPoints(unit, amount));
+}
+
+/**
+ * Modifies a stat for a unit.
+ */
+export function modifyUnitStat(
+    state: GameStateSnapshot,
+    unitId: string,
+    stat: keyof UnitStats,
+    amount: number
+): GameStateSnapshot {
+    return updateUnit(state, unitId, (unit) => modifyStat(unit, stat, amount));
 }
 
 // =============================================================================

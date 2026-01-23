@@ -17,7 +17,12 @@ export type EnemyType =
     | "Tank"
     | "Gobelin"
     | "Ogre"
-    | "Troll";
+    | "Troll"
+    | "ShadowAssassin"
+    | "Shaman"
+    | "Berserker"
+    | "FrostMage"
+    | "DarkKnight";
 
 // =============================================================================
 // Warrior Enemy Spells
@@ -274,6 +279,181 @@ export const TROLL_ENEMY_SPELLS: SpellDefinition[] = [
 ];
 
 // =============================================================================
+// Shadow Assassin Enemy Spells
+// =============================================================================
+
+export const SHADOW_ASSASSIN_ENEMY_SPELLS: SpellDefinition[] = [
+    {
+        id: "enemy_shadowstrike",
+        name: "Shadowstrike",
+        icon: "icon_enemy_shadowstrike",
+        apCost: 1,
+        range: 1,
+        damage: 3,
+        description: "A swift strike from the shadows",
+        type: "melee",
+    },
+    {
+        id: "enemy_mark_prey",
+        name: "Mark Prey",
+        icon: "icon_enemy_mark_prey",
+        apCost: 1,
+        range: 3,
+        damage: 0,
+        description: "Marks the target for +3 bonus damage on next hit",
+        type: "melee",
+        spellCategory: "buff",
+        buffEffect: {
+            type: "mark",
+            value: 3,
+            duration: 2,
+            targetSelf: false,
+        },
+    },
+];
+
+// =============================================================================
+// Shaman Enemy Spells
+// =============================================================================
+
+export const SHAMAN_ENEMY_SPELLS: SpellDefinition[] = [
+    {
+        id: "enemy_spirit_bolt",
+        name: "Spirit Bolt",
+        icon: "icon_enemy_spirit_bolt",
+        apCost: 1,
+        range: 3,
+        minRange: 1,
+        damage: 2,
+        description: "A bolt of spiritual energy",
+        type: "magic",
+    },
+    {
+        id: "enemy_war_cry",
+        name: "War Cry",
+        icon: "icon_enemy_war_cry",
+        apCost: 2,
+        range: 0,
+        damage: 0,
+        description: "Lets out a war cry, gaining strength",
+        type: "melee",
+        spellCategory: "buff",
+        buffEffect: {
+            type: "stat_boost",
+            stat: "force",
+            value: 2,
+            duration: 3,
+            targetSelf: true,
+        },
+    },
+];
+
+// =============================================================================
+// Berserker Enemy Spells
+// =============================================================================
+
+export const BERSERKER_ENEMY_SPELLS: SpellDefinition[] = [
+    {
+        id: "enemy_reckless_strike",
+        name: "Reckless Strike",
+        icon: "icon_enemy_reckless_strike",
+        apCost: 1,
+        range: 1,
+        damage: 4,
+        description: "A powerful but reckless melee attack",
+        type: "melee",
+    },
+    {
+        id: "enemy_blood_rage",
+        name: "Blood Rage",
+        icon: "icon_enemy_blood_rage",
+        apCost: 1,
+        range: 0,
+        damage: 0,
+        description: "Enters a blood rage, gaining +3 Force but losing 1 HP",
+        type: "melee",
+        spellCategory: "buff",
+        buffEffect: {
+            type: "stat_boost",
+            stat: "force",
+            value: 3,
+            duration: 2,
+            targetSelf: true,
+        },
+    },
+];
+
+// =============================================================================
+// Frost Mage Enemy Spells
+// =============================================================================
+
+export const FROST_MAGE_ENEMY_SPELLS: SpellDefinition[] = [
+    {
+        id: "enemy_frost_bolt",
+        name: "Frost Bolt",
+        icon: "icon_enemy_frost_bolt",
+        apCost: 1,
+        range: 4,
+        minRange: 1,
+        damage: 2,
+        description: "A bolt of freezing ice",
+        type: "magic",
+    },
+    {
+        id: "enemy_freezing_touch",
+        name: "Freezing Touch",
+        icon: "icon_enemy_freezing_touch",
+        apCost: 2,
+        range: 3,
+        minRange: 1,
+        damage: 1,
+        description: "Freezes the target, reducing their movement",
+        type: "magic",
+        buffEffect: {
+            type: "stat_boost",
+            stat: "movementPoints",
+            value: -2,
+            duration: 2,
+            targetSelf: false,
+        },
+    },
+];
+
+// =============================================================================
+// Dark Knight Enemy Spells
+// =============================================================================
+
+export const DARK_KNIGHT_ENEMY_SPELLS: SpellDefinition[] = [
+    {
+        id: "enemy_dark_slash",
+        name: "Dark Slash",
+        icon: "icon_enemy_dark_slash",
+        apCost: 1,
+        range: 1,
+        damage: 3,
+        description: "A slash infused with dark energy",
+        type: "melee",
+    },
+    {
+        id: "enemy_soul_drain",
+        name: "Soul Drain",
+        icon: "icon_enemy_soul_drain",
+        apCost: 2,
+        range: 1,
+        damage: 4,
+        description: "Drains the target's soul, healing self for 2 HP",
+        type: "melee",
+        buffEffect: {
+            type: "instant",
+            stat: "health",
+            value: 2,
+            duration: 0,
+            targetSelf: true,
+        },
+    },
+];
+
+// =============================================================================
 // Enemy Spell Registry
 // =============================================================================
 
@@ -289,6 +469,11 @@ export const ENEMY_SPELLS_BY_TYPE: Record<EnemyType, SpellDefinition[]> = {
     Gobelin: GOBELIN_ENEMY_SPELLS,
     Ogre: OGRE_ENEMY_SPELLS,
     Troll: TROLL_ENEMY_SPELLS,
+    ShadowAssassin: SHADOW_ASSASSIN_ENEMY_SPELLS,
+    Shaman: SHAMAN_ENEMY_SPELLS,
+    Berserker: BERSERKER_ENEMY_SPELLS,
+    FrostMage: FROST_MAGE_ENEMY_SPELLS,
+    DarkKnight: DARK_KNIGHT_ENEMY_SPELLS,
 };
 
 /**
@@ -303,6 +488,11 @@ export const ALL_ENEMY_SPELLS: SpellDefinition[] = [
     ...GOBELIN_ENEMY_SPELLS,
     ...OGRE_ENEMY_SPELLS,
     ...TROLL_ENEMY_SPELLS,
+    ...SHADOW_ASSASSIN_ENEMY_SPELLS,
+    ...SHAMAN_ENEMY_SPELLS,
+    ...BERSERKER_ENEMY_SPELLS,
+    ...FROST_MAGE_ENEMY_SPELLS,
+    ...DARK_KNIGHT_ENEMY_SPELLS,
 ];
 
 /**

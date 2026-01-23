@@ -302,6 +302,13 @@ export class Preloader extends Scene {
         );
         this.load.image("ogre_idle", "mobs/ogre/ogre_idle.png");
         this.load.image("troll_idle", "mobs/troll/troll_idle.png");
+        
+        // Load new enemy sprites
+        this.load.image("assassin_idle", "mobs/assassin/assassin_idle.png");
+        this.load.image("berserker_idle", "mobs/berserker/berserker_idle.png");
+        this.load.image("shaman_idle", "mobs/shaman/shaman_idle.png");
+        this.load.image("frost_mage_idle", "mobs/frost_mage/frost_mage_idle.png");
+        this.load.image("dark_knight_idle", "mobs/dark_knight/dark_knight_idle.png");
 
         // Load player sprites for all classes
         this.load.image("hero_warrior", "heros/warrior/hero_warrior_idle.png");

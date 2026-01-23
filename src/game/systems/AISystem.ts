@@ -339,11 +339,11 @@ export class AISystem {
     ): TargetEvaluation[] {
         const evaluations: TargetEvaluation[] = [];
 
-        // Get attack spells we can afford (not self-buffs)
+        // Get attack spells we can afford (not self-buffs), including debuff spells
         const attackSpells = spells.filter(spell => 
             spell.apCost <= currentAP && 
             (!spell.buffEffect?.targetSelf) &&
-            spell.damage > 0
+            (spell.damage > 0 || (spell.buffEffect && !spell.buffEffect.targetSelf))
         );
 
         for (const target of targets) {

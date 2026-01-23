@@ -48,6 +48,9 @@ export class Player extends Unit {
         // Set default spell
         this.currentSpell = this.spells[0];
         this.updateAttackRange();
+        
+        // Enable tooltip on hover (must be called after super() completes)
+        this.enableStatsTooltip();
     }
 
     private static applyBonusesToStats(baseStats: UnitStats): UnitStats {
@@ -214,8 +217,293 @@ export class Player extends Unit {
         console.log(`[Player] Created sprite for class ${playerClass}: ${spriteKey}`);
     }
 
+    // Tooltip state
+    private statsTooltip?: Phaser.GameObjects.Container;
+    private isTooltipVisible: boolean = false;
+
     public enableStatsTooltip(): void {
-        // Tooltip functionality removed - stats are now shown in the UI bar
+        // Add hover effect to show stats
+        console.log("[Player] enableStatsTooltip called, sprite exists:", !!this.sprite);
+        if (this.sprite) {
+            console.log("[Player] Setting up tooltip events on sprite");
+            this.sprite.on("pointerover", () => {
+                console.log("[Player] pointerover event triggered");
+                this.showStatsTooltip();
+            });
+            this.sprite.on("pointerout", () => {
+                console.log("[Player] pointerout event triggered");
+                this.hideStatsTooltip();
+            });
+        }
+    }
+
+    private showStatsTooltip(): void {
+        console.log("[Player] showStatsTooltip called, existing tooltip:", !!this.statsTooltip);
+        if (this.statsTooltip) return;
+
+        this.isTooltipVisible = true;
+
+        // Check if player has active buffs/debuffs
+        const hasBuffs = this.activeBuffs.length > 0;
+
+        const x = this.sprite.x;
+
+        // Calculate tooltip height based on content
+        // Title: 22px + Health bar: 40px + Stats: 22px + AP/MP: 28px + padding: 28px = 140px base
+        let tooltipHeight = 140;
+        if (hasBuffs) tooltipHeight += 40; // Buff/debuff status row
+        
+        const tooltipOffset = 140;
+
+        // Check if positioning above would cause cropping (with some margin)
+        const topMargin = 20;
+        const wouldCropAtTop =
+            this.sprite.y - tooltipOffset - tooltipHeight / 2 < topMargin;
+
+        // Position tooltip below player if it would crop at top, otherwise above
+        const y = wouldCropAtTop
+            ? this.sprite.y + tooltipOffset // Below player
+            : this.sprite.y - tooltipOffset; // Above player (original behavior)
+
+        // Container for all tooltip elements
+        const container = this.scene.add.container(x, y);
+
+        // Background - wider tooltip (360px)
+        const bg = this.scene.add.graphics();
+        bg.fillStyle(0x1a2a3a, 0.95); // Dark blue for player
+
+        const bgHeight = tooltipHeight;
+        const bgY = -tooltipHeight / 2;
+        const tooltipWidth = 360;
+        const halfWidth = tooltipWidth / 2;
+
+        bg.fillRoundedRect(-halfWidth, bgY, tooltipWidth, bgHeight, 16);
+        
+        // Border color - gold for player
+        const borderColor = this.isMarked() ? 0xff6600 : 0xd4af37;
+        bg.lineStyle(4, borderColor);
+        bg.strokeRoundedRect(-halfWidth, bgY, tooltipWidth, bgHeight, 16);
+
+        // Use fixed Y positions relative to bgY for consistent layout
+        let yPos = bgY + 15;
+
+        // Title - player class
+        const classTitle = this.playerClass.charAt(0).toUpperCase() + this.playerClass.slice(1);
+        const titleText = this.scene.add
+            .text(0, yPos, classTitle.toUpperCase(), {
+                fontSize: "18px",
+                color: "#d4af37", // Gold for player
+                fontStyle: "bold",
+            })
+            .setOrigin(0.5);
+        yPos += 22;
+
+        // Health bar
+        const healthBarY = yPos;
+        const healthBarBg = this.scene.add.graphics();
+        healthBarBg.fillStyle(0x000000, 0.8);
+        healthBarBg.fillRoundedRect(-100, healthBarY, 200, 22, 11);
+
+        const healthBar = this.scene.add.graphics();
+        const healthPercent = this.health / this.maxHealth;
+        const barWidth = 196 * healthPercent;
+
+        let healthColor = 0x00aa00;
+        if (healthPercent <= 0.25) {
+            healthColor = 0xff0000;
+        } else if (healthPercent <= 0.5) {
+            healthColor = 0xffaa00;
+        }
+
+        healthBar.fillStyle(healthColor, 0.9);
+        healthBar.fillRoundedRect(-98, healthBarY + 2, barWidth, 18, 9);
+
+        const healthText = this.scene.add
+            .text(0, healthBarY + 11, `${this.health} / ${this.maxHealth}`, {
+                fontSize: "16px",
+                color: "#ffffff",
+                fontStyle: "bold",
+            })
+            .setOrigin(0.5);
+        yPos += 40;
+
+        // Stats row
+        const statsY = yPos;
+
+        // Force icon and value
+        const forceIcon = this.scene.add
+            .text(-125, statsY, "⚔️", { fontSize: "18px" })
+            .setOrigin(0.5);
+        const effectiveForce = this.getEffectiveStat("force");
+        const forceModifier = this.getBuffStatModifier("force");
+        const forceColor = forceModifier > 0 ? "#44ff44" : forceModifier < 0 ? "#ff4444" : "#ff6666";
+        const forceText = this.scene.add
+            .text(-104, statsY, effectiveForce.toString(), {
+                fontSize: "16px",
+                color: forceColor,
+                fontStyle: "bold",
+            })
+            .setOrigin(0.5);
+
+        // Dexterity icon and value
+        const dexIcon = this.scene.add
+            .text(-70, statsY, "🏹", { fontSize: "18px" })
+            .setOrigin(0.5);
+        const effectiveDex = this.getEffectiveStat("dexterity");
+        const dexModifier = this.getBuffStatModifier("dexterity");
+        const dexColor = dexModifier > 0 ? "#44ff44" : dexModifier < 0 ? "#ff4444" : "#66ff66";
+        const dexText = this.scene.add
+            .text(-49, statsY, effectiveDex.toString(), {
+                fontSize: "16px",
+                color: dexColor,
+                fontStyle: "bold",
+            })
+            .setOrigin(0.5);
+
+        // Intelligence icon and value
+        const intIcon = this.scene.add
+            .text(-15, statsY, "🧠", { fontSize: "18px" })
+            .setOrigin(0.5);
+        const effectiveInt = this.getEffectiveStat("intelligence");
+        const intModifier = this.getBuffStatModifier("intelligence");
+        const intColor = intModifier > 0 ? "#44ff44" : intModifier < 0 ? "#ff4444" : "#ff66ff";
+        const intText = this.scene.add
+            .text(6, statsY, effectiveInt.toString(), {
+                fontSize: "16px",
+                color: intColor,
+                fontStyle: "bold",
+            })
+            .setOrigin(0.5);
+
+        // Armor icon and value
+        const armorIcon = this.scene.add
+            .text(40, statsY, "🛡️", { fontSize: "18px" })
+            .setOrigin(0.5);
+        const effectiveArmor = this.getEffectiveStat("armor");
+        const armorModifier = this.getBuffStatModifier("armor");
+        const armorColor = armorModifier > 0 ? "#44ff44" : armorModifier < 0 ? "#ff4444" : "#6666ff";
+        const armorText = this.scene.add
+            .text(61, statsY, effectiveArmor.toString(), {
+                fontSize: "16px",
+                color: armorColor,
+                fontStyle: "bold",
+            })
+            .setOrigin(0.5);
+
+        // Magic Resistance icon and value
+        const mrIcon = this.scene.add
+            .text(95, statsY, "✨", { fontSize: "18px" })
+            .setOrigin(0.5);
+        const effectiveMR = this.getEffectiveStat("magicResistance");
+        const mrModifier = this.getBuffStatModifier("magicResistance");
+        const mrColor = mrModifier > 0 ? "#44ff44" : mrModifier < 0 ? "#ff4444" : "#cc99ff";
+        const mrText = this.scene.add
+            .text(116, statsY, effectiveMR.toString(), {
+                fontSize: "16px",
+                color: mrColor,
+                fontStyle: "bold",
+            })
+            .setOrigin(0.5);
+
+        // Add all elements to container
+        container.add([
+            bg,
+            titleText,
+            healthBarBg,
+            healthBar,
+            healthText,
+            forceIcon,
+            forceText,
+            dexIcon,
+            dexText,
+            intIcon,
+            intText,
+            armorIcon,
+            armorText,
+            mrIcon,
+            mrText,
+        ]);
+
+        // Move yPos past stats row
+        yPos = statsY + 22;
+
+        // Show AP/MP
+        const apmpY = yPos + 5;
+        
+        // AP icon and value
+        const apIcon = this.scene.add
+            .text(-60, apmpY, "⚡", { fontSize: "16px" })
+            .setOrigin(0.5);
+
+        const apText = this.scene.add
+            .text(-35, apmpY, `${this.actionPoints}/${this.maxActionPoints} AP`, {
+                fontSize: "14px",
+                color: "#ffcc00",
+                fontStyle: "bold",
+            })
+            .setOrigin(0, 0.5);
+
+        // MP icon and value
+        const mpIcon = this.scene.add
+            .text(40, apmpY, "👟", { fontSize: "16px" })
+            .setOrigin(0.5);
+
+        const mpModifier = this.getBuffStatModifier("movementPoints");
+        const effectiveMP = Math.max(0, this.movementPoints + mpModifier);
+        const effectiveMaxMP = Math.max(1, this.maxMovementPoints + this.getBuffStatModifier("maxMovementPoints"));
+        const mpColor = mpModifier < 0 ? "#ff6666" : "#66ccff";
+        const mpText = this.scene.add
+            .text(65, apmpY, `${effectiveMP}/${effectiveMaxMP} MP`, {
+                fontSize: "14px",
+                color: mpColor,
+                fontStyle: "bold",
+            })
+            .setOrigin(0, 0.5);
+
+        container.add([apIcon, apText, mpIcon, mpText]);
+        yPos += 28;
+
+        // Show active buffs/debuffs/marks
+        if (hasBuffs) {
+            const buffSeparator = this.scene.add.graphics();
+            buffSeparator.lineStyle(2, 0xd4af37);
+            buffSeparator.moveTo(-160, yPos);
+            buffSeparator.lineTo(160, yPos);
+            buffSeparator.strokePath();
+            container.add(buffSeparator);
+
+            // Display buff icons and text below separator
+            const buffDescriptions = this.getBuffDescriptions();
+            const buffIcon = this.isMarked() ? "🎯" : "✨";
+            const buffColor = this.isMarked() ? "#ff8844" : "#44ff88";
+            const buffText = this.scene.add
+                .text(-160, yPos + 20, buffIcon + " " + buffDescriptions.join(", "), {
+                    fontSize: "12px",
+                    color: buffColor,
+                    fontStyle: "bold",
+                    wordWrap: { width: 320 },
+                })
+                .setOrigin(0, 0.5);
+            container.add(buffText);
+        }
+
+        this.statsTooltip = container;
+        this.statsTooltip.setDepth(100);
+    }
+
+    private hideStatsTooltip(): void {
+        if (this.statsTooltip) {
+            this.statsTooltip.destroy();
+            this.statsTooltip = undefined;
+        }
+        this.isTooltipVisible = false;
+    }
+
+    private refreshTooltip(): void {
+        if (this.isTooltipVisible) {
+            this.hideStatsTooltip();
+            this.showStatsTooltip();
+        }
     }
 
     public getSpells(): Spell[] {
@@ -457,8 +745,18 @@ export class Player extends Unit {
     }
 
     public destroy(): void {
-        // No need to hide tooltip anymore
+        this.hideStatsTooltip();
         super.destroy();
+    }
+
+    // Override takeDamage to refresh tooltip when health changes
+    public takeDamage(
+        damage: number,
+        damageType: "physical" | "magic" = "physical",
+        attacker?: Unit
+    ): void {
+        super.takeDamage(damage, damageType, attacker);
+        this.refreshTooltip();
     }
 
     // Stat getters
@@ -606,6 +904,7 @@ export class Player extends Unit {
         const oldHealth = this.stats.health;
         this.stats.health = Math.min(this.stats.maxHealth, this.stats.health + amount);
         console.log(`[Player] Healed ${this.stats.health - oldHealth} HP (${oldHealth} -> ${this.stats.health})`);
+        this.refreshTooltip();
     }
 
     /**

@@ -318,6 +318,16 @@ export function calculateOnHitHealing(
 }
 
 /**
+ * Calculates movement points gained from on-hit effects.
+ */
+export function calculateOnHitMovement(
+    appliedBonuses: string[],
+    bonusSystem: BonusSystem
+): number {
+    return bonusSystem.getOnHitMovement(appliedBonuses);
+}
+
+/**
  * Checks if AP should be refunded (spell echo).
  */
 export function shouldRefundAP(

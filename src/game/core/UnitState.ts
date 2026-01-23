@@ -187,6 +187,28 @@ export function addActionPoints(
 }
 
 /**
+ * Modifies a stat by a given amount.
+ */
+export function modifyStat(
+    state: UnitStateType,
+    stat: keyof UnitStats,
+    amount: number
+): UnitStateType {
+    const currentValue = state.stats[stat];
+    if (currentValue === undefined) {
+        return state;
+    }
+
+    return {
+        ...state,
+        stats: {
+            ...state.stats,
+            [stat]: (currentValue as number) + amount,
+        },
+    };
+}
+
+/**
  * Resets turn-based state for a new turn.
  */
 export function resetTurnState(state: UnitStateType): UnitStateType {

@@ -4,11 +4,14 @@ import { Player } from "./Player";
 import { Enemy } from "./Enemy";
 import { Magician } from "./enemies/Magician";
 import { Necromancer } from "./enemies/Necromancer";
+import { Shaman } from "./enemies/Shaman";
+import { FrostMage } from "./enemies/FrostMage";
 import { Grid } from "./Grid";
 import { UIManager } from "./UIManager";
 import { Spell } from "./Spell";
 import { GameProgress } from "./GameProgress";
 import { buffSystem } from "../systems/BuffSystem";
+import { SpellDefinition } from "../core/types";
 
 export class GameManager {
     private scene: Scene;
@@ -870,7 +873,9 @@ export class GameManager {
             // Enemy attack - check if it's a magic user or based on range
             if (
                 attacker instanceof Magician ||
-                attacker instanceof Necromancer
+                attacker instanceof Necromancer ||
+                attacker instanceof Shaman ||
+                attacker instanceof FrostMage
             ) {
                 attackSound = "magic_attack";
             } else if (attacker.attackRange > 1) {
@@ -1236,6 +1241,76 @@ export class GameManager {
         }
     }
 
+    /**
+     * Play a debuff animation effect on a unit (when they receive a debuff/mark).
+     * Uses different visual effects based on the debuff type.
+     */
+    private playDebuffAnimation(unit: Unit, debuffType: string): void {
+        const sprite = unit.sprite;
+        if (!sprite) return;
+
+        // Play a magic sound for debuff
+        try {
+            this.scene.sound.play("magic_attack", { volume: 0.25 });
+        } catch (e) {
+            console.log("[GameManager] Could not play debuff sound");
+        }
+
+        // Different tints based on debuff type
+        let tintColor = 0xff8844; // Default orange for marks
+        if (debuffType === "mark") {
+            tintColor = 0xff6600; // Orange for marks
+        } else if (debuffType === "stat_boost" || debuffType === "slow") {
+            tintColor = 0x4488ff; // Blue for movement/stat debuffs (like freeze)
+        }
+
+        // Store original scale
+        const originalScaleX = sprite.scaleX;
+        const originalScaleY = sprite.scaleY;
+
+        // Flash the sprite with the debuff tint
+        sprite.setTint(tintColor);
+
+        // Create a quick pulse effect
+        this.scene.tweens.add({
+            targets: sprite,
+            scaleX: originalScaleX * 0.9,
+            scaleY: originalScaleY * 0.9,
+            duration: 100,
+            yoyo: true,
+            repeat: 1,
+            ease: 'Sine.easeInOut',
+            onComplete: () => {
+                sprite.clearTint();
+                sprite.setScale(originalScaleX, originalScaleY);
+            }
+        });
+
+        // Show floating debuff indicator text
+        const debuffText = debuffType === "mark" ? "MARKED!" : "SLOWED!";
+        const floatingText = this.scene.add
+            .text(sprite.x, sprite.y - 40, debuffText, {
+                fontSize: "16px",
+                color: debuffType === "mark" ? "#ff8844" : "#4488ff",
+                stroke: "#000000",
+                strokeThickness: 3,
+                fontStyle: "bold",
+            })
+            .setOrigin(0.5)
+            .setDepth(200);
+
+        // Animate the text floating up and fading
+        this.scene.tweens.add({
+            targets: floatingText,
+            y: floatingText.y - 30,
+            alpha: 0,
+            duration: 1200,
+            onComplete: () => {
+                floatingText.destroy();
+            },
+        });
+    }
+
     private applyDamageToTarget(
         attacker: Player,
         target: Unit,
@@ -1494,536 +1569,298 @@ export class GameManager {
                 return;
             }
 
-            let actionIndex = 0;
-            const maxActions = enemyUnits.length;
+            let enemyIndex = 0;
+            let actionCount = 0;
+            const maxTotalActions = enemyUnits.length * 10; // Safety limit
 
-            const performNextAction = () => {
-                try {
-                    // Safety check to prevent infinite loops
-                    if (actionIndex > maxActions + 5) {
-                        console.error(
-                            "[GameManager] Too many actions - forcing end turn"
-                        );
-                        this.scene.time.delayedCall(500, () => this.endTurn());
-                        return;
-                    }
-
-                    if (actionIndex >= enemyUnits.length) {
-                        console.log(
-                            "[GameManager] All enemies acted - ending turn"
-                        );
-                        this.scene.time.delayedCall(500, () => this.endTurn());
-                        return;
-                    }
-
-                    const enemy = enemyUnits[actionIndex];
-                    console.log(
-                        `[GameManager] Processing action for enemy ${actionIndex}/${enemyUnits.length}`
-                    );
-
-                    const nearestPlayer = this.findNearestUnit(
-                        enemy,
-                        playerUnits
-                    );
-
-                    if (!nearestPlayer) {
-                        console.log("[GameManager] No nearest player found");
-                        actionIndex++;
-                        performNextAction();
-                        return;
-                    }
-
-                    const distance = this.grid.getDistance(
-                        enemy.gridX,
-                        enemy.gridY,
-                        nearestPlayer.gridX,
-                        nearestPlayer.gridY
-                    );
-
-                    // Try to cast a spell (with line of sight check)
-                    // First, check if enemy can use a spell against this target
-                    const enemyUnit = enemy instanceof Enemy ? enemy : null;
-                    const bestSpell = enemyUnit?.getBestSpellForDistance(distance);
-                    
-                    // Check for self-buff opportunity (like Troll regenerate when low health)
-                    if (enemyUnit) {
-                        const healthPercent = enemyUnit.health / enemyUnit.maxHealth;
-                        const selfBuffSpells = enemyUnit.getSpells().filter(s => 
-                            s.spellCategory === "buff" && 
-                            s.buffEffect?.targetSelf &&
-                            enemyUnit.canCastSpell(s)
-                        );
-                        
-                        // Use self-buff if below 60% health and have a healing spell
-                        if (healthPercent < 0.6 && selfBuffSpells.length > 0) {
-                            const healingSpell = selfBuffSpells.find(s => s.buffEffect?.stat === "health");
-                            if (healingSpell) {
-                                console.log(`[GameManager] ${enemyUnit.enemyType} using self-buff: ${healingSpell.name}`);
-                                enemyUnit.consumeActionPoints(healingSpell.apCost);
-                                enemyUnit.applySelfBuff(healingSpell);
-                                
-                                if (this.uiManager) {
-                                    this.uiManager.addCombatLogMessage(
-                                        `${enemyUnit.enemyType} uses ${healingSpell.name}`
-                                    );
-                                }
-                                
-                                enemy.hasActed = true;
-                                this.scene.time.delayedCall(500, () => {
-                                    actionIndex++;
-                                    performNextAction();
-                                });
-                                return;
-                            }
-                        }
-                    }
-                    
-                    if (
-                        bestSpell &&
-                        enemyUnit &&
-                        enemyUnit.canCastSpell(bestSpell) &&
-                        this.hasLineOfSightWithUnits(
-                            enemy.gridX,
-                            enemy.gridY,
-                            nearestPlayer.gridX,
-                            nearestPlayer.gridY,
-                            enemy
-                        )
-                    ) {
-                        // Calculate spell damage
-                        const damage = enemyUnit.calculateSpellDamage(bestSpell);
-
-                        console.log(
-                            `[DEBUG] Enemy ${enemyUnit.enemyType} casting ${bestSpell.name} for ${damage} damage`
-                        );
-
-                        // Consume AP for the spell
-                        enemyUnit.consumeActionPoints(bestSpell.apCost);
-
-                        // Add attack animation for enemy
-                        this.playAttackAnimation(enemy, nearestPlayer, () => {
-                            console.log(
-                                `[DEBUG] Enemy spell cast completed, applying damage`
-                            );
-
-                            if (this.uiManager && enemyUnit) {
-                                const damageType: "physical" | "magic" = 
-                                    bestSpell.type === "magic" ? "magic" : "physical";
-                                
-                                let stat = 0;
-                                let statName = "";
-                                
-                                if (bestSpell.type === "magic") {
-                                    stat = enemyUnit.intelligence;
-                                    statName = "INT";
-                                } else if (bestSpell.type === "melee") {
-                                    stat = enemyUnit.force;
-                                    statName = "FOR";
-                                } else {
-                                    stat = enemyUnit.dexterity;
-                                    statName = "DEX";
-                                }
-
-                                const resistance =
-                                    damageType === "magic"
-                                        ? nearestPlayer.magicResistance
-                                        : nearestPlayer.armor;
-                                const loggedActualDamage = Math.max(
-                                    1,
-                                    damage - resistance
-                                );
-                                const resistanceType =
-                                    damageType === "magic"
-                                        ? "m.resist"
-                                        : "armor";
-                                this.uiManager.addCombatLogMessage(
-                                    `${enemyUnit.enemyType} casts ${bestSpell.name} (${stat} ${statName}): ${damage} dmg - ${resistance} ${resistanceType} = ${loggedActualDamage} dmg to Player`
-                                );
-
-                                console.log(
-                                    `[DEBUG] Player health before damage: ${nearestPlayer.health}`
-                                );
-                                nearestPlayer.takeDamage(
-                                    damage,
-                                    damageType,
-                                    enemy
-                                );
-                                console.log(
-                                    `[DEBUG] Player health after damage: ${nearestPlayer.health}`
-                                );
-                                
-                                // Apply spell debuff effect if any (affects player)
-                                if (bestSpell.buffEffect && !bestSpell.buffEffect.targetSelf && nearestPlayer instanceof Player) {
-                                    const buffEffect = bestSpell.buffEffect;
-                                    if (buffEffect.duration > 0) {
-                                        const debuff = {
-                                            id: `${bestSpell.id}_${Date.now()}`,
-                                            buffType: buffEffect.type,
-                                            remainingTurns: buffEffect.duration,
-                                            stat: buffEffect.stat,
-                                            value: buffEffect.value,
-                                            sourceSpellId: bestSpell.id,
-                                        };
-                                        nearestPlayer.addBuff(debuff);
-                                        console.log(`[GameManager] Applied debuff to player: ${buffEffect.stat} ${buffEffect.value}`);
-                                    }
-                                }
-                                
-                                // Apply self-buff from spell if any (like life drain healing)
-                                if (bestSpell.buffEffect && bestSpell.buffEffect.targetSelf) {
-                                    enemyUnit.applySelfBuff(bestSpell);
-                                }
-                            } else {
-                                console.log(
-                                    `[DEBUG] Player health before damage (no UI): ${nearestPlayer.health}`
-                                );
-                                nearestPlayer.takeDamage(
-                                    damage,
-                                    "physical",
-                                    enemy
-                                );
-                                console.log(
-                                    `[DEBUG] Player health after damage (no UI): ${nearestPlayer.health}`
-                                );
-                            }
-
-                            // Emit an event so UIManager can react and update the player's health display
-                            if (nearestPlayer instanceof Player) {
-                                this.scene.events.emit(
-                                    "playerDamaged",
-                                    nearestPlayer
-                                );
-                            }
-
-                            enemy.hasActed = true;
-
-                            this.scene.time.delayedCall(500, () => {
-                                if (!nearestPlayer.isAlive()) {
-                                    this.removeUnit(nearestPlayer);
-                                    this.checkVictory();
-                                }
-                                actionIndex++;
-                                performNextAction();
-                            });
-                        });
-                    }
-                    // Move closer
-                    else {
-                        if (enemy instanceof Enemy) {
-                            const moveTarget = this.findBestMovePosition(
-                                enemy,
-                                nearestPlayer
-                            );
-                            if (moveTarget) {
-                                // Double-check the path is valid before attempting movement
-                                console.log(
-                                    `[AI] ${enemy.enemyType} attempting to move from (${enemy.gridX}, ${enemy.gridY}) to (${moveTarget.x}, ${moveTarget.y})`
-                                );
-
-                                // Get the path for enemy movement
-                                const path = this.grid.findPath(
-                                    enemy.gridX,
-                                    enemy.gridY,
-                                    moveTarget.x,
-                                    moveTarget.y,
-                                    (x, y) => {
-                                        const unit = this.getUnitAt(x, y);
-                                        return !!unit && unit !== enemy;
-                                    }
-                                );
-
-                                // Additional validation
-                                if (!path) {
-                                    console.log(
-                                        `[AI] WARNING: findPath returned null for ${enemy.enemyType}`
-                                    );
-                                    enemy.hasActed = true;
-                                    actionIndex++;
-                                    performNextAction();
-                                    return;
-                                }
-
-                                if (path.length === 0) {
-                                    console.log(
-                                        `[AI] WARNING: Empty path for ${enemy.enemyType} (already at destination?)`
-                                    );
-                                    enemy.hasActed = true;
-                                    actionIndex++;
-                                    performNextAction();
-                                    return;
-                                }
-
-                                // Verify path doesn't go through walls
-                                let pathValid = true;
-                                for (const step of path) {
-                                    if (this.grid.isWall(step.x, step.y)) {
-                                        console.log(
-                                            `[AI] ERROR: Path goes through wall at (${step.x}, ${step.y})`
-                                        );
-                                        pathValid = false;
-                                        break;
-                                    }
-                                }
-
-                                if (!pathValid) {
-                                    console.log(
-                                        `[AI] Invalid path detected for ${enemy.enemyType}, skipping movement`
-                                    );
-                                    enemy.hasActed = true;
-                                    actionIndex++;
-                                    performNextAction();
-                                    return;
-                                }
-
-                                console.log(
-                                    `[AI] Path validated: ${path.length} steps for ${enemy.enemyType}`
-                                );
-
-                                if (
-                                    path &&
-                                    path.length > 0 &&
-                                    path.length <= enemy.moveRange
-                                ) {
-                                    enemy.moveAlongPath(path, () => {
-                                        console.log(
-                                            `[GameManager DEBUG] Enemy move complete for ${
-                                                enemy instanceof Enemy
-                                                    ? enemy.enemyType
-                                                    : "unit"
-                                            } at (${enemy.gridX}, ${
-                                                enemy.gridY
-                                            }). Nearest player: ${
-                                                nearestPlayer
-                                                    ? nearestPlayer.team
-                                                    : "null"
-                                            }. Re-evaluating attack.`
-                                        );
-
-                                        const newDistance =
-                                            this.grid.getDistance(
-                                                enemy.gridX,
-                                                enemy.gridY,
-                                                nearestPlayer.gridX,
-                                                nearestPlayer.gridY
-                                            );
-                                        const canAttackAfterMove =
-                                            newDistance <= enemy.attackRange &&
-                                            this.hasLineOfSightWithUnits(
-                                                enemy.gridX,
-                                                enemy.gridY,
-                                                nearestPlayer.gridX,
-                                                nearestPlayer.gridY,
-                                                enemy
-                                            );
-
-                                        console.log(
-                                            `[GameManager DEBUG] ${
-                                                enemy instanceof Enemy
-                                                    ? enemy.enemyType
-                                                    : "unit"
-                                            } at (${enemy.gridX},${
-                                                enemy.gridY
-                                            }) to player at (${
-                                                nearestPlayer.gridX
-                                            },${
-                                                nearestPlayer.gridY
-                                            }). New distance: ${newDistance}, Attack range: ${
-                                                enemy.attackRange
-                                            }, LOS: ${this.hasLineOfSightWithUnits(
-                                                enemy.gridX,
-                                                enemy.gridY,
-                                                nearestPlayer.gridX,
-                                                nearestPlayer.gridY,
-                                                enemy
-                                            )}. Can attack: ${canAttackAfterMove}`
-                                        );
-
-                                        if (canAttackAfterMove) {
-                                            console.log(
-                                                `[GameManager DEBUG] ${
-                                                    enemy instanceof Enemy
-                                                        ? enemy.enemyType
-                                                        : "unit"
-                                                } attempting spell cast after move.`
-                                            );
-                                            
-                                            // Use spell-based combat after move
-                                            const enemyAfterMove = enemy instanceof Enemy ? enemy : null;
-                                            const newDistanceForSpell = this.grid.getDistance(
-                                                enemy.gridX, enemy.gridY,
-                                                nearestPlayer.gridX, nearestPlayer.gridY
-                                            );
-                                            const spellAfterMove = enemyAfterMove?.getBestSpellForDistance(newDistanceForSpell);
-                                            
-                                            if (spellAfterMove && enemyAfterMove && enemyAfterMove.canCastSpell(spellAfterMove)) {
-                                                const damage = enemyAfterMove.calculateSpellDamage(spellAfterMove);
-                                                console.log(
-                                                    `[GameManager DEBUG] ${enemyAfterMove.enemyType} casting ${spellAfterMove.name} for ${damage} damage`
-                                                );
-                                                
-                                                // Consume AP
-                                                enemyAfterMove.consumeActionPoints(spellAfterMove.apCost);
-
-                                                // Add attack animation for enemy after move
-                                                this.playAttackAnimation(
-                                                    enemy,
-                                                    nearestPlayer,
-                                                    () => {
-                                                        const damageType: "physical" | "magic" = 
-                                                            spellAfterMove.type === "magic" ? "magic" : "physical";
-                                                        
-                                                        if (this.uiManager && enemyAfterMove) {
-                                                            let stat = 0;
-                                                            let statName = "";
-
-                                                            if (spellAfterMove.type === "magic") {
-                                                                stat = enemyAfterMove.intelligence;
-                                                                statName = "INT";
-                                                            } else if (spellAfterMove.type === "melee") {
-                                                                stat = enemyAfterMove.force;
-                                                                statName = "FOR";
-                                                            } else {
-                                                                stat = enemyAfterMove.dexterity;
-                                                                statName = "DEX";
-                                                            }
-                                                            
-                                                            const resistance =
-                                                                damageType === "magic"
-                                                                    ? nearestPlayer.magicResistance
-                                                                    : nearestPlayer.armor;
-                                                            const loggedActualDamage = Math.max(1, damage - resistance);
-                                                            const resistanceType = damageType === "magic" ? "m.resist" : "armor";
-                                                            
-                                                            this.uiManager.addCombatLogMessage(
-                                                                `${enemyAfterMove.enemyType} casts ${spellAfterMove.name} (${stat} ${statName}): ${damage} dmg - ${resistance} ${resistanceType} = ${loggedActualDamage} dmg to Player`
-                                                            );
-                                                        }
-
-                                                        console.log(
-                                                            `[DEBUG] Enemy (after move) casting spell for ${damage} damage`
-                                                        );
-                                                        nearestPlayer.takeDamage(
-                                                            damage,
-                                                            damageType,
-                                                            enemy
-                                                        );
-                                                        
-                                                        // Apply debuff effect if any
-                                                        if (spellAfterMove.buffEffect && !spellAfterMove.buffEffect.targetSelf && nearestPlayer instanceof Player) {
-                                                            const buffEffect = spellAfterMove.buffEffect;
-                                                            if (buffEffect.duration > 0) {
-                                                                const debuff = {
-                                                                    id: `${spellAfterMove.id}_${Date.now()}`,
-                                                                    buffType: buffEffect.type,
-                                                                    remainingTurns: buffEffect.duration,
-                                                                    stat: buffEffect.stat,
-                                                                    value: buffEffect.value,
-                                                                    sourceSpellId: spellAfterMove.id,
-                                                                };
-                                                                nearestPlayer.addBuff(debuff);
-                                                            }
-                                                        }
-                                                        
-                                                        // Apply self-buff from spell if any
-                                                        if (spellAfterMove.buffEffect && spellAfterMove.buffEffect.targetSelf && enemyAfterMove) {
-                                                            enemyAfterMove.applySelfBuff(spellAfterMove);
-                                                        }
-
-                                                        if (nearestPlayer instanceof Player) {
-                                                            this.scene.events.emit(
-                                                                "playerDamaged",
-                                                                nearestPlayer
-                                                            );
-                                                        }
-
-                                                        enemy.hasActed = true;
-
-                                                        this.scene.time.delayedCall(
-                                                            500,
-                                                            () => {
-                                                                if (!nearestPlayer.isAlive()) {
-                                                                    this.removeUnit(nearestPlayer);
-                                                                    this.checkVictory();
-                                                                }
-                                                                actionIndex++;
-                                                                performNextAction();
-                                                            }
-                                                        );
-                                                    }
-                                                );
-                                            } else {
-                                                // No spell available, end turn
-                                                enemy.hasActed = true;
-                                                actionIndex++;
-                                                performNextAction();
-                                            }
-                                        } else {
-                                            console.log(
-                                                `[GameManager DEBUG] ${
-                                                    enemy instanceof Enemy
-                                                        ? enemy.enemyType
-                                                        : "unit"
-                                                } cannot attack after move. Ending action.`
-                                            );
-                                            enemy.hasActed = true;
-                                            actionIndex++;
-                                            performNextAction();
-                                        }
-                                    });
-                                } else {
-                                    console.log(
-                                        `[GameManager DEBUG] ${
-                                            enemy instanceof Enemy
-                                                ? enemy.enemyType
-                                                : "unit"
-                                        } cannot move (no path or path too long). Path: ${
-                                            path ? path.length : "null"
-                                        }, Range: ${enemy.moveRange}`
-                                    );
-                                    enemy.hasActed = true;
-                                    actionIndex++;
-                                    performNextAction();
-                                }
-                            } else {
-                                console.log(
-                                    `[GameManager DEBUG] ${
-                                        enemy instanceof Enemy
-                                            ? enemy.enemyType
-                                            : "unit"
-                                    } cannot move (no valid move position). Ending action.`
-                                );
-                                enemy.hasActed = true;
-                                actionIndex++;
-                                performNextAction();
-                            }
-                        } else {
-                            console.log(
-                                `[GameManager DEBUG] ${
-                                    enemy instanceof Enemy
-                                        ? enemy.enemyType
-                                        : "unit"
-                                } cannot move (no valid move position). Ending action.`
-                            );
-                            enemy.hasActed = true;
-                            actionIndex++;
-                            performNextAction();
-                        }
-                    }
-                } catch (error) {
-                    console.error(
-                        "[GameManager] Error in performNextAction:",
-                        error
-                    );
-                    actionIndex++;
-                    performNextAction();
+            const processNextEnemy = () => {
+                if (enemyIndex >= enemyUnits.length) {
+                    console.log("[GameManager] All enemies acted - ending turn");
+                    this.scene.time.delayedCall(500, () => this.endTurn());
+                    return;
                 }
+
+                const enemy = enemyUnits[enemyIndex];
+                if (!(enemy instanceof Enemy)) {
+                    enemyIndex++;
+                    processNextEnemy();
+                    return;
+                }
+
+                console.log(`[GameManager] Processing enemy ${enemyIndex + 1}/${enemyUnits.length}: ${enemy.enemyType}`);
+                this.processEnemyActions(enemy, playerUnits, () => {
+                    enemy.hasActed = true;
+                    enemyIndex++;
+                    processNextEnemy();
+                }, actionCount, maxTotalActions, (newCount) => { actionCount = newCount; });
             };
 
-            performNextAction();
+            processNextEnemy();
         } catch (error) {
             console.error("[GameManager] Error in playEnemyTurn:", error);
             this.endTurn();
         }
+    }
+
+    /**
+     * Process all actions for a single enemy unit (multi-action support).
+     * Loops while enemy has AP remaining and can take useful actions.
+     */
+    private processEnemyActions(
+        enemy: Enemy,
+        playerUnits: Unit[],
+        onComplete: () => void,
+        actionCount: number,
+        maxActions: number,
+        updateActionCount: (count: number) => void
+    ): void {
+        // Safety check
+        if (actionCount >= maxActions) {
+            console.warn(`[GameManager] Max actions reached for ${enemy.enemyType}`);
+            onComplete();
+            return;
+        }
+
+        const nearestPlayer = this.findNearestUnit(enemy, playerUnits);
+        if (!nearestPlayer || !nearestPlayer.isAlive()) {
+            console.log(`[GameManager] No valid target for ${enemy.enemyType}`);
+            onComplete();
+            return;
+        }
+
+        const distance = this.grid.getDistance(
+            enemy.gridX, enemy.gridY,
+            nearestPlayer.gridX, nearestPlayer.gridY
+        );
+
+        // Build target state for smart spell selection
+        const targetState = this.getTargetState(nearestPlayer);
+        
+        // Check if enemy has AP remaining
+        if (!enemy.hasRemainingAP()) {
+            console.log(`[GameManager] ${enemy.enemyType} has no AP remaining`);
+            onComplete();
+            return;
+        }
+
+        // Check for pre-attack buff opportunity (offensive buffs before attacking)
+        const hasLOS = this.hasLineOfSightWithUnits(
+            enemy.gridX, enemy.gridY,
+            nearestPlayer.gridX, nearestPlayer.gridY,
+            enemy
+        );
+        const canAttackNow = hasLOS && enemy.getBestSpellForSituation(distance, targetState) !== null;
+        const preAttackBuff = enemy.getPreAttackBuff(canAttackNow, distance);
+
+        if (preAttackBuff) {
+            console.log(`[GameManager] ${enemy.enemyType} using pre-attack buff: ${preAttackBuff.name}`);
+            enemy.consumeActionPoints(preAttackBuff.apCost);
+            enemy.applySelfBuff(preAttackBuff);
+
+            if (this.uiManager) {
+                this.uiManager.addCombatLogMessage(`${enemy.enemyType} uses ${preAttackBuff.name}`);
+            }
+
+            // Visual feedback for buff, then continue with more actions
+            updateActionCount(actionCount + 1);
+            this.playBuffAnimation(enemy, () => {
+                this.scene.time.delayedCall(200, () => {
+                    this.processEnemyActions(enemy, playerUnits, onComplete, actionCount + 1, maxActions, updateActionCount);
+                });
+            });
+            return;
+        }
+
+        // Try to cast an attack/debuff spell if in range and has LOS
+        const bestSpell = enemy.getBestSpellForSituation(distance, targetState);
+        
+        if (bestSpell && enemy.canCastSpell(bestSpell) && hasLOS) {
+            this.executeEnemySpell(enemy, nearestPlayer as Player, bestSpell, () => {
+                updateActionCount(actionCount + 1);
+                
+                // Check if player died
+                if (!nearestPlayer.isAlive()) {
+                    this.removeUnit(nearestPlayer);
+                    this.checkVictory();
+                    onComplete();
+                    return;
+                }
+
+                // Continue with more actions if AP remains
+                this.scene.time.delayedCall(300, () => {
+                    this.processEnemyActions(enemy, playerUnits, onComplete, actionCount + 1, maxActions, updateActionCount);
+                });
+            });
+            return;
+        }
+
+        // Can't attack - try to move closer if has MP
+        if (enemy.hasRemainingMP()) {
+            const moveTarget = this.findBestMovePosition(enemy, nearestPlayer);
+            
+            if (moveTarget) {
+                const path = this.grid.findPath(
+                    enemy.gridX, enemy.gridY,
+                    moveTarget.x, moveTarget.y,
+                    (x, y) => {
+                        const unit = this.getUnitAt(x, y);
+                        return !!unit && unit !== enemy;
+                    }
+                );
+
+                if (path && path.length > 0 && this.isPathValid(path)) {
+                    // Limit path to available MP
+                    const mp = enemy.movementPoints || enemy.moveRange;
+                    const limitedPath = path.slice(0, mp);
+                    
+                    if (limitedPath.length > 0) {
+                        console.log(`[GameManager] ${enemy.enemyType} moving ${limitedPath.length} tiles`);
+                        
+                        // Consume MP for movement
+                        enemy.consumeMovementPoints(limitedPath.length);
+                        
+                        enemy.moveAlongPath(limitedPath, () => {
+                            updateActionCount(actionCount + 1);
+                            
+                            // After moving, try to take more actions
+                            this.scene.time.delayedCall(200, () => {
+                                this.processEnemyActions(enemy, playerUnits, onComplete, actionCount + 1, maxActions, updateActionCount);
+                            });
+                        });
+                        return;
+                    }
+                }
+            }
+        }
+
+        // No useful actions remaining
+        console.log(`[GameManager] ${enemy.enemyType} has no more useful actions`);
+        onComplete();
+    }
+
+    /**
+     * Get target state for smart spell selection.
+     */
+    private getTargetState(target: Unit): { isMarked: boolean; markValue: number; healthPercent: number; activeDebuffs: string[] } {
+        const healthPercent = target.health / target.maxHealth;
+        
+        if (target instanceof Player) {
+            return {
+                isMarked: target.isMarked(),
+                markValue: target.getMarkDamageBonus(),
+                healthPercent,
+                activeDebuffs: target.getActiveBuffs()
+                    .filter(b => b.sourceSpellId)
+                    .map(b => b.sourceSpellId as string),
+            };
+        }
+        
+        return {
+            isMarked: false,
+            markValue: 0,
+            healthPercent,
+            activeDebuffs: [],
+        };
+    }
+
+    /**
+     * Execute an enemy spell on a target.
+     */
+    private executeEnemySpell(
+        enemy: Enemy,
+        target: Player,
+        spell: SpellDefinition,
+        onComplete: () => void
+    ): void {
+        const damage = enemy.calculateSpellDamage(spell);
+        console.log(`[GameManager] ${enemy.enemyType} casting ${spell.name} for ${damage} damage`);
+
+        // Consume AP
+        enemy.consumeActionPoints(spell.apCost);
+
+        // Play attack animation
+        this.playAttackAnimation(enemy, target, () => {
+            const damageType: "physical" | "magic" = spell.type === "magic" ? "magic" : "physical";
+
+            // Log to combat log
+            if (this.uiManager) {
+                let stat = 0;
+                let statName = "";
+
+                if (spell.type === "magic") {
+                    stat = enemy.intelligence;
+                    statName = "INT";
+                } else if (spell.type === "melee") {
+                    stat = enemy.force;
+                    statName = "FOR";
+                } else {
+                    stat = enemy.dexterity;
+                    statName = "DEX";
+                }
+
+                const resistance = damageType === "magic" ? target.magicResistance : target.armor;
+                const actualDamage = Math.max(1, damage - resistance);
+                const resistanceType = damageType === "magic" ? "m.resist" : "armor";
+
+                this.uiManager.addCombatLogMessage(
+                    `${enemy.enemyType} casts ${spell.name} (${stat} ${statName}): ${damage} dmg - ${resistance} ${resistanceType} = ${actualDamage} dmg to Player`
+                );
+            }
+
+            // Apply damage (only if spell has damage)
+            if (spell.damage > 0) {
+                target.takeDamage(damage, damageType, enemy);
+            }
+
+            // Apply debuff effect to target
+            if (spell.buffEffect && !spell.buffEffect.targetSelf) {
+                const buffEffect = spell.buffEffect;
+                if (buffEffect.duration > 0) {
+                    const debuff = {
+                        id: `${spell.id}_${Date.now()}`,
+                        buffType: buffEffect.type,
+                        remainingTurns: buffEffect.duration,
+                        stat: buffEffect.stat,
+                        value: buffEffect.value,
+                        sourceSpellId: spell.id,
+                    };
+                    target.addBuff(debuff);
+                    this.playDebuffAnimation(target, buffEffect.type);
+                    console.log(`[GameManager] Applied debuff to player: ${buffEffect.stat} ${buffEffect.value}`);
+
+                    if (this.uiManager) {
+                        const effectDesc = buffEffect.type === "mark"
+                            ? `Marked! (+${buffEffect.value} damage taken)`
+                            : `${buffEffect.stat} ${buffEffect.value}`;
+                        this.uiManager.addCombatLogMessage(
+                            `${spell.name}: Player ${effectDesc} for ${buffEffect.duration} turns!`
+                        );
+                    }
+                }
+            }
+
+            // Apply self-buff from spell (like life drain healing)
+            if (spell.buffEffect && spell.buffEffect.targetSelf) {
+                enemy.applySelfBuff(spell);
+            }
+
+            // Emit player damaged event
+            this.scene.events.emit("playerDamaged", target);
+
+            this.scene.time.delayedCall(300, onComplete);
+        });
+    }
+
+    /**
+     * Validate that a path doesn't go through walls.
+     */
+    private isPathValid(path: { x: number; y: number }[]): boolean {
+        for (const step of path) {
+            if (this.grid.isWall(step.x, step.y)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private findNearestUnit(from: Unit, units: Unit[]): Unit | null {

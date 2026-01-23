@@ -26,6 +26,9 @@ export interface GameEventMap {
     "unit:moved": UnitMovedEvent;
     "unit:damaged": UnitDamagedEvent;
     "unit:healed": UnitHealedEvent;
+    "unit:movement_gained": UnitMovementGainedEvent;
+    "unit:ap_gained": UnitAPGainedEvent;
+    "unit:stat_gained": UnitStatGainedEvent;
     "unit:killed": UnitKilledEvent;
 
     // Combat Events
@@ -119,6 +122,25 @@ export interface UnitHealedEvent {
     source: string;
     newHealth: number;
     maxHealth: number;
+}
+
+export interface UnitMovementGainedEvent {
+    unitId: string;
+    amount: number;
+    source: string;
+}
+
+export interface UnitAPGainedEvent {
+    unitId: string;
+    amount: number;
+    source: string;
+}
+
+export interface UnitStatGainedEvent {
+    unitId: string;
+    stat: string;
+    amount: number;
+    source: string;
 }
 
 export interface UnitKilledEvent {

@@ -12,6 +12,11 @@ import {
     Necromancer,
     Ogre,
     Troll,
+    ShadowAssassin,
+    Shaman,
+    Berserker,
+    FrostMage,
+    DarkKnight,
 } from "../classes/enemies";
 import { Magician } from "../classes/enemies/Magician";
 import { DifficultyScaling } from "../classes/DifficultyScaling";
@@ -128,6 +133,11 @@ export class TacticalBattle extends Scene {
             | "necromancer"
             | "ogre"
             | "troll"
+            | "shadowAssassin"
+            | "shaman"
+            | "berserker"
+            | "frostMage"
+            | "darkKnight"
         )[] = [];
 
         // Build enemy type array based on distribution
@@ -145,6 +155,16 @@ export class TacticalBattle extends Scene {
             enemyTypes.push("ogre");
         for (let i = 0; i < enemyDistribution.troll; i++)
             enemyTypes.push("troll");
+        for (let i = 0; i < enemyDistribution.shadowAssassin; i++)
+            enemyTypes.push("shadowAssassin");
+        for (let i = 0; i < enemyDistribution.shaman; i++)
+            enemyTypes.push("shaman");
+        for (let i = 0; i < enemyDistribution.berserker; i++)
+            enemyTypes.push("berserker");
+        for (let i = 0; i < enemyDistribution.frostMage; i++)
+            enemyTypes.push("frostMage");
+        for (let i = 0; i < enemyDistribution.darkKnight; i++)
+            enemyTypes.push("darkKnight");
         if (enemyDistribution.magician) {
             for (let i = 0; i < enemyDistribution.magician; i++)
                 enemyTypes.push("magician");
@@ -205,6 +225,21 @@ export class TacticalBattle extends Scene {
                 case "troll":
                     enemy = new Troll(this, pos.x, pos.y);
                     break;
+                case "shadowAssassin":
+                    enemy = new ShadowAssassin(this, pos.x, pos.y);
+                    break;
+                case "shaman":
+                    enemy = new Shaman(this, pos.x, pos.y);
+                    break;
+                case "berserker":
+                    enemy = new Berserker(this, pos.x, pos.y);
+                    break;
+                case "frostMage":
+                    enemy = new FrostMage(this, pos.x, pos.y);
+                    break;
+                case "darkKnight":
+                    enemy = new DarkKnight(this, pos.x, pos.y);
+                    break;
             }
             this.gameManager.addUnit(enemy);
             enemiesPlaced++;
@@ -251,6 +286,21 @@ export class TacticalBattle extends Scene {
                         break;
                     case "troll":
                         enemy = new Troll(this, x, y);
+                        break;
+                    case "shadowAssassin":
+                        enemy = new ShadowAssassin(this, x, y);
+                        break;
+                    case "shaman":
+                        enemy = new Shaman(this, x, y);
+                        break;
+                    case "berserker":
+                        enemy = new Berserker(this, x, y);
+                        break;
+                    case "frostMage":
+                        enemy = new FrostMage(this, x, y);
+                        break;
+                    case "darkKnight":
+                        enemy = new DarkKnight(this, x, y);
                         break;
                 }
                 this.gameManager.addUnit(enemy);
