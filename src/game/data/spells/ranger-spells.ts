@@ -20,6 +20,7 @@ export const RANGER_STARTING_SPELLS: SpellDefinition[] = [
         damage: 2,
         description: "Basic ranged attack",
         type: "ranged",
+        animation: "vfx_ranged_attack",
     },
     {
         id: "piercing_arrow",
@@ -32,6 +33,7 @@ export const RANGER_STARTING_SPELLS: SpellDefinition[] = [
         damage: 4,
         description: "A powerful shot that pierces armor",
         type: "ranged",
+        animation: "vfx_ranged_attack",
     },
     {
         id: "hunters_mark",
@@ -51,6 +53,7 @@ export const RANGER_STARTING_SPELLS: SpellDefinition[] = [
             duration: 3,
             targetSelf: false,
         },
+        animation: "vfx_debuff_attack",
     },
 ];
 
@@ -70,6 +73,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
         damage: 3,
         description: "Fires a sharp bone that pierces foes",
         type: "ranged",
+        animation: "vfx_ranged_attack",
     },
     {
         id: "multi_shot",
@@ -84,6 +88,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
         type: "ranged",
         aoeShape: "cone",
         aoeRadius: 2,
+        animation: "vfx_ranged_attack",
     },
     {
         id: "poison_arrow",
@@ -103,6 +108,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 3,
             targetSelf: false,
         },
+        animation: "vfx_ranged_attack",
     },
     {
         id: "trap",
@@ -122,6 +128,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_debuff_attack",
     },
     {
         id: "camouflage",
@@ -141,6 +148,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "snipe",
@@ -153,6 +161,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
         damage: 6,
         description: "Long-range precision shot",
         type: "ranged",
+        animation: "vfx_ranged_attack",
     },
     {
         id: "volley",
@@ -167,6 +176,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
         type: "ranged",
         aoeShape: "circle",
         aoeRadius: 1,
+        animation: "vfx_ranged_attack",
     },
     {
         id: "marked_for_death",
@@ -185,6 +195,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_debuff_attack",
     },
     {
         id: "evasive_roll",
@@ -204,6 +215,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "net_shot",
@@ -224,6 +236,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: false,
         },
+        animation: "vfx_debuff_attack",
     },
     {
         id: "wind_step",
@@ -243,6 +256,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "headshot",
@@ -255,6 +269,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
         damage: 7,
         description: "Precise shot dealing massive damage",
         type: "ranged",
+        animation: "vfx_ranged_attack",
     },
     {
         id: "barbed_arrow",
@@ -274,6 +289,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_ranged_attack",
     },
     {
         id: "true_sight",
@@ -293,6 +309,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_debuff_attack",
     },
     {
         id: "venom_strike",
@@ -312,6 +329,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_ranged_attack",
     },
     // === NEW RANGER ARTIFACT SPELLS ===
     {
@@ -332,6 +350,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_ranged_attack",
     },
     {
         id: "hamstring_bolt",
@@ -351,6 +370,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_ranged_attack",
     },
     {
         id: "expose_weakness",
@@ -370,6 +390,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: false,
         },
+        animation: "vfx_debuff_attack",
     },
     {
         id: "gale_step",
@@ -389,6 +410,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "ambush",
@@ -401,5 +423,6 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
         damage: 5,
         description: "Strike from the shadows with a powerful shot",
         type: "ranged",
+        animation: "vfx_ranged_attack",
     },
 ];

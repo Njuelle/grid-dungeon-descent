@@ -38,6 +38,7 @@ export const WARRIOR_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 3,
         description: "Basic melee slash attack",
         type: "melee",
+        animation: "vfx_melee_attack",
     },
     {
         id: "enemy_heavy_strike",
@@ -48,6 +49,7 @@ export const WARRIOR_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 5,
         description: "A powerful overhead strike",
         type: "melee",
+        animation: "vfx_melee_attack",
     },
 ];
 
@@ -66,6 +68,7 @@ export const ARCHER_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 2,
         description: "Basic ranged arrow attack",
         type: "ranged",
+        animation: "vfx_ranged_attack",
     },
     {
         id: "enemy_aimed_shot",
@@ -77,6 +80,7 @@ export const ARCHER_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 4,
         description: "A carefully aimed powerful shot",
         type: "ranged",
+        animation: "vfx_ranged_attack",
     },
 ];
 
@@ -95,6 +99,7 @@ export const MAGICIAN_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 2,
         description: "A bolt of arcane energy",
         type: "magic",
+        animation: "vfx_magic_attack",
     },
     {
         id: "enemy_arcane_blast",
@@ -106,6 +111,7 @@ export const MAGICIAN_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 4,
         description: "A powerful arcane explosion",
         type: "magic",
+        animation: "vfx_magic_attack",
     },
 ];
 
@@ -124,6 +130,7 @@ export const NECROMANCER_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 3,
         description: "A bolt of dark necrotic energy",
         type: "magic",
+        animation: "vfx_magic_attack",
     },
     {
         id: "enemy_life_drain",
@@ -142,6 +149,7 @@ export const NECROMANCER_ENEMY_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_magic_attack",
     },
 ];
 
@@ -159,6 +167,7 @@ export const TANK_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 2,
         description: "Bash with a heavy shield",
         type: "melee",
+        animation: "vfx_melee_attack",
     },
     {
         id: "enemy_fortify",
@@ -177,6 +186,7 @@ export const TANK_ENEMY_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
 ];
 
@@ -194,6 +204,7 @@ export const GOBELIN_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 1,
         description: "A quick stabbing attack",
         type: "melee",
+        animation: "vfx_melee_attack",
     },
     {
         id: "enemy_poison_stab",
@@ -211,6 +222,7 @@ export const GOBELIN_ENEMY_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_melee_attack",
     },
 ];
 
@@ -228,6 +240,7 @@ export const OGRE_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 5,
         description: "A devastating smashing attack",
         type: "melee",
+        animation: "vfx_melee_attack",
     },
     {
         id: "enemy_ground_pound",
@@ -240,6 +253,7 @@ export const OGRE_ENEMY_SPELLS: SpellDefinition[] = [
         type: "melee",
         aoeShape: "circle",
         aoeRadius: 1,
+        animation: "vfx_melee_attack",
     },
 ];
 
@@ -257,6 +271,7 @@ export const TROLL_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 3,
         description: "A vicious claw attack",
         type: "melee",
+        animation: "vfx_melee_attack",
     },
     {
         id: "enemy_regenerate",
@@ -275,6 +290,7 @@ export const TROLL_ENEMY_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
 ];
 
@@ -292,6 +308,7 @@ export const SHADOW_ASSASSIN_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 3,
         description: "A swift strike from the shadows",
         type: "melee",
+        animation: "vfx_melee_attack",
     },
     {
         id: "enemy_mark_prey",
@@ -309,6 +326,7 @@ export const SHADOW_ASSASSIN_ENEMY_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_debuff_attack",
     },
 ];
 
@@ -327,6 +345,7 @@ export const SHAMAN_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 2,
         description: "A bolt of spiritual energy",
         type: "magic",
+        animation: "vfx_magic_attack",
     },
     {
         id: "enemy_war_cry",
@@ -345,6 +364,7 @@ export const SHAMAN_ENEMY_SPELLS: SpellDefinition[] = [
             duration: 3,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
 ];
 
@@ -362,6 +382,7 @@ export const BERSERKER_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 4,
         description: "A powerful but reckless melee attack",
         type: "melee",
+        animation: "vfx_melee_attack",
     },
     {
         id: "enemy_blood_rage",
@@ -380,6 +401,7 @@ export const BERSERKER_ENEMY_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
 ];
 
@@ -398,6 +420,7 @@ export const FROST_MAGE_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 2,
         description: "A bolt of freezing ice",
         type: "magic",
+        animation: "vfx_magic_attack",
     },
     {
         id: "enemy_freezing_touch",
@@ -416,6 +439,7 @@ export const FROST_MAGE_ENEMY_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_magic_attack",
     },
 ];
 
@@ -433,6 +457,7 @@ export const DARK_KNIGHT_ENEMY_SPELLS: SpellDefinition[] = [
         damage: 3,
         description: "A slash infused with dark energy",
         type: "melee",
+        animation: "vfx_melee_attack",
     },
     {
         id: "enemy_soul_drain",
@@ -450,6 +475,7 @@ export const DARK_KNIGHT_ENEMY_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_melee_attack",
     },
 ];
 

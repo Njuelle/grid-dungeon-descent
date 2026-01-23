@@ -27,6 +27,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "speed_boost",
@@ -46,6 +47,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "damage_aura",
@@ -64,6 +66,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "thorns_aura",
@@ -83,6 +86,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 3,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "life_steal",
@@ -101,6 +105,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_melee_attack",
     },
     {
         id: "barrier",
@@ -119,6 +124,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "haste",
@@ -138,6 +144,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "focus",
@@ -157,6 +164,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "regeneration",
@@ -176,6 +184,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 3,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "lucky_strike",
@@ -193,6 +202,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_melee_attack",
     },
     {
         id: "elixir",
@@ -212,6 +222,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "rally",
@@ -231,6 +242,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "empower",
@@ -249,6 +261,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "soul_rip",
@@ -267,6 +280,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_melee_attack",
     },
     {
         id: "quicken",
@@ -286,6 +300,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     // === NEW GENERIC ARTIFACT SPELLS ===
     {
@@ -306,6 +321,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "chilling_touch",
@@ -324,6 +340,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: false,
         },
+        animation: "vfx_melee_attack",
     },
     {
         id: "iron_will",
@@ -343,6 +360,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "essence_drain",
@@ -361,6 +379,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_melee_attack",
     },
     {
         id: "tactical_retreat",
@@ -380,5 +399,6 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
 ];

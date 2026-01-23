@@ -285,25 +285,80 @@ export class Grid {
     }
 
     private wouldBlockCriticalPath(): boolean {
-        // Check if there's a path from left side to right side
-        // This ensures the battlefield remains traversable
+        // Use flood-fill to ensure all non-wall tiles form a single connected component
+        // This guarantees the player can always reach all enemies
 
-        // Try multiple starting points on the left
-        const leftPoints = [2, 4, 6, 8];
-        const rightPoints = [7, 8, 9];
+        // Find the first non-wall tile to start flood-fill
+        let startX = -1;
+        let startY = -1;
 
-        for (const ly of leftPoints) {
-            for (const ry of rightPoints) {
-                const path = this.findPath(0, ly, this.size - 1, ry);
-                if (path !== null) {
-                    // Found at least one valid path
-                    return false;
+        for (let x = 0; x < this.size && startX === -1; x++) {
+            for (let y = 0; y < this.size; y++) {
+                if (!this.walls[x][y]) {
+                    startX = x;
+                    startY = y;
+                    break;
                 }
             }
         }
 
-        // No path found - this would block critical movement
-        return true;
+        // If no non-wall tiles exist, path is blocked
+        if (startX === -1) {
+            return true;
+        }
+
+        // Count total non-wall tiles
+        let totalNonWallTiles = 0;
+        for (let x = 0; x < this.size; x++) {
+            for (let y = 0; y < this.size; y++) {
+                if (!this.walls[x][y]) {
+                    totalNonWallTiles++;
+                }
+            }
+        }
+
+        // Flood-fill from the starting tile
+        const visited: boolean[][] = [];
+        for (let x = 0; x < this.size; x++) {
+            visited[x] = [];
+            for (let y = 0; y < this.size; y++) {
+                visited[x][y] = false;
+            }
+        }
+
+        const queue: [number, number][] = [[startX, startY]];
+        visited[startX][startY] = true;
+        let reachableCount = 0;
+
+        const directions = [
+            [0, -1],
+            [1, 0],
+            [0, 1],
+            [-1, 0],
+        ];
+
+        while (queue.length > 0) {
+            const [x, y] = queue.shift()!;
+            reachableCount++;
+
+            for (const [dx, dy] of directions) {
+                const nx = x + dx;
+                const ny = y + dy;
+
+                if (
+                    this.isValidPosition(nx, ny) &&
+                    !this.walls[nx][ny] &&
+                    !visited[nx][ny]
+                ) {
+                    visited[nx][ny] = true;
+                    queue.push([nx, ny]);
+                }
+            }
+        }
+
+        // If we can't reach all non-wall tiles, the map is divided
+        // This would block critical movement
+        return reachableCount < totalNonWallTiles;
     }
 
     private draw(): void {

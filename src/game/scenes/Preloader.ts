@@ -327,6 +327,13 @@ export class Preloader extends Scene {
         this.load.audio("magic_attack", "sound/magic_attack.wav");
         this.load.audio("walk", "sound/walk.wav");
         this.load.audio("victory", "sound/victory.wav");
+
+        // Load VFX animations (GIFs)
+        this.load.image("vfx_melee_attack", "vfx/melee_attack.gif");
+        this.load.image("vfx_ranged_attack", "vfx/ranged_attack.gif");
+        this.load.image("vfx_magic_attack", "vfx/magic_attack.gif");
+        this.load.image("vfx_buff_attack", "vfx/buff_attack.gif");
+        this.load.image("vfx_debuff_attack", "vfx/debuff_attack.gif");
     }
 
     /**

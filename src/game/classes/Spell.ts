@@ -20,6 +20,8 @@ export interface Spell {
     spellCategory?: SpellCategory;
     /** Buff effect configuration (for buff spells) */
     buffEffect?: BuffEffect;
+    /** VFX animation key to play when spell is cast */
+    animation?: string;
 }
 
 export const PLAYER_SPELLS: Spell[] = [

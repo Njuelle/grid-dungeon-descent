@@ -20,6 +20,7 @@ export const MAGICIAN_STARTING_SPELLS: SpellDefinition[] = [
         damage: 2,
         description: "A quick bolt of arcane energy",
         type: "magic",
+        animation: "vfx_magic_attack",
     },
     {
         id: "magic_missile",
@@ -32,6 +33,7 @@ export const MAGICIAN_STARTING_SPELLS: SpellDefinition[] = [
         damage: 4,
         description: "Powerful magical projectile",
         type: "magic",
+        animation: "vfx_magic_attack",
     },
     {
         id: "arcane_shield",
@@ -51,6 +53,7 @@ export const MAGICIAN_STARTING_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
 ];
 
@@ -72,6 +75,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
         type: "magic",
         aoeShape: "circle",
         aoeRadius: 1,
+        animation: "vfx_magic_attack",
     },
     {
         id: "ice_shard",
@@ -91,6 +95,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_magic_attack",
     },
     {
         id: "lightning_bolt",
@@ -103,6 +108,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
         damage: 4,
         description: "A bolt of lightning that strikes instantly",
         type: "magic",
+        animation: "vfx_magic_attack",
     },
     {
         id: "teleport",
@@ -122,6 +128,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "mana_shield",
@@ -141,6 +148,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "chain_lightning",
@@ -155,6 +163,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
         type: "magic",
         aoeShape: "line",
         aoeRadius: 3,
+        animation: "vfx_magic_attack",
     },
     {
         id: "meteor",
@@ -169,6 +178,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
         type: "magic",
         aoeShape: "circle",
         aoeRadius: 1,
+        animation: "vfx_magic_attack",
     },
     {
         id: "frost_nova",
@@ -189,6 +199,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_magic_attack",
     },
     {
         id: "blink",
@@ -208,6 +219,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "mind_control",
@@ -228,6 +240,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_debuff_attack",
     },
     {
         id: "arcane_barrage",
@@ -242,6 +255,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
         type: "magic",
         aoeShape: "cone",
         aoeRadius: 2,
+        animation: "vfx_magic_attack",
     },
     {
         id: "thunder_strike",
@@ -261,6 +275,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: false,
         },
+        animation: "vfx_magic_attack",
     },
     {
         id: "deep_freeze",
@@ -280,6 +295,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_magic_attack",
     },
     {
         id: "flame_shield",
@@ -299,6 +315,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "phase_shift",
@@ -318,6 +335,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     // === NEW MAGICIAN ARTIFACT SPELLS ===
     {
@@ -340,6 +358,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_magic_attack",
     },
     {
         id: "mana_surge",
@@ -359,6 +378,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "absolute_zero",
@@ -378,6 +398,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: false,
         },
+        animation: "vfx_magic_attack",
     },
     {
         id: "rebirth_flame",
@@ -397,6 +418,7 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "static_field",
@@ -417,5 +439,6 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_magic_attack",
     },
 ];

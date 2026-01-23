@@ -850,7 +850,8 @@ export class GameManager {
     private playAttackAnimation(
         attacker: Unit,
         target: Unit,
-        onComplete: () => void
+        onComplete: () => void,
+        animationKey?: string
     ): void {
         console.log(
             `[DEBUG] Starting attack animation for ${attacker.team} attacking ${target.team}`
@@ -890,6 +891,11 @@ export class GameManager {
 
         // Play the attack sound
         this.scene.sound.play(attackSound, { volume: 0.5 });
+
+        // Play VFX on the target position
+        if (animationKey && target.sprite) {
+            this.playSpellVFX(animationKey, target.sprite.x, target.sprite.y);
+        }
 
         // Store original position
         const originalX = attacker.sprite.x;
@@ -945,6 +951,104 @@ export class GameManager {
         performShake();
     }
 
+    /**
+     * Play a VFX animation at the specified position using DOM elements.
+     * This allows animated GIFs to play properly.
+     * Different VFX types have different sizes.
+     */
+    private playSpellVFX(
+        animationKey: string | undefined,
+        worldX: number,
+        worldY: number
+    ): void {
+        if (!animationKey) {
+            console.log("[GameManager] No animation key provided for VFX");
+            return;
+        }
+
+        // Map animation key to GIF file path
+        const gifMap: Record<string, string> = {
+            "vfx_melee_attack": "assets/vfx/melee_attack.gif",
+            "vfx_ranged_attack": "assets/vfx/ranged_attack.gif",
+            "vfx_magic_attack": "assets/vfx/magic_attack.gif",
+            "vfx_buff_attack": "assets/vfx/buff_attack.gif",
+            "vfx_debuff_attack": "assets/vfx/debuff_attack.gif",
+        };
+
+        const gifPath = gifMap[animationKey];
+        if (!gifPath) {
+            console.log(`[GameManager] Unknown VFX animation key: ${animationKey}`);
+            return;
+        }
+
+        console.log(`[GameManager] Playing VFX: ${animationKey} at (${worldX}, ${worldY})`);
+
+        // Configure VFX size based on animation type
+        let size: number;
+        let duration: number;
+
+        if (animationKey === "vfx_buff_attack") {
+            // Buff: 1.5x
+            size = 120;
+            duration = 800;
+        } else if (animationKey === "vfx_magic_attack") {
+            // Magic: 1x (original)
+            size = 150;
+            duration = 1000;
+        } else if (animationKey === "vfx_debuff_attack") {
+            // Debuff: 1x (original)
+            size = 120;
+            duration = 800;
+        } else if (animationKey === "vfx_ranged_attack") {
+            // Ranged: 1x (original)
+            size = 150;
+            duration = 800;
+        } else {
+            // Melee attacks: 1x (original)
+            size = 150;
+            duration = 800;
+        }
+
+        // Create an HTML img element for the GIF
+        const img = document.createElement("img");
+        img.src = gifPath + "?t=" + Date.now(); // Add cache buster to restart GIF animation
+        img.style.position = "absolute";
+        img.style.width = size + "px";
+        img.style.height = size + "px";
+        img.style.pointerEvents = "none";
+        img.style.zIndex = "1000";
+        img.style.opacity = "0";
+        img.style.transition = "opacity 0.15s ease-out";
+        img.style.transform = "translate(-50%, -50%)";
+
+        // Get the canvas position to properly place the VFX
+        const canvas = this.scene.game.canvas;
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = rect.width / this.scene.scale.width;
+        const scaleY = rect.height / this.scene.scale.height;
+
+        img.style.left = (rect.left + worldX * scaleX) + "px";
+        img.style.top = (rect.top + worldY * scaleY) + "px";
+
+        // Add to document
+        document.body.appendChild(img);
+
+        // Fade in
+        requestAnimationFrame(() => {
+            img.style.opacity = "1";
+        });
+
+        // Remove after duration
+        setTimeout(() => {
+            img.style.opacity = "0";
+            setTimeout(() => {
+                if (img.parentNode) {
+                    img.parentNode.removeChild(img);
+                }
+            }, 150);
+        }, duration);
+    }
+
     private attackUnit(attacker: Player, primaryTarget: Unit): void {
         // Prevent double casting - check if already casting
         if ((attacker as any).isCasting) {
@@ -980,7 +1084,7 @@ export class GameManager {
             damage = attacker.getAttackDamage(primaryTarget, distance);
         }
 
-        // Add attack animation for player
+        // Add attack animation for player with VFX
         this.playAttackAnimation(attacker, primaryTarget, () => {
             // Apply to primary target
             this.applyDamageToTarget(attacker, primaryTarget, spell, damage);
@@ -1018,7 +1122,7 @@ export class GameManager {
                                 "Double Tap: Second shot!"
                             );
                         }
-                    });
+                    }, spell.animation);
                 });
             }
 
@@ -1119,7 +1223,7 @@ export class GameManager {
                     }
                 }
             });
-        });
+        }, spell.animation);
     }
 
     /**
@@ -1136,7 +1240,7 @@ export class GameManager {
 
         (player as any).isCasting = true;
 
-        // Play a buff animation (simple glow effect)
+        // Play a buff animation with VFX (simple glow effect)
         this.playBuffAnimation(player, () => {
             // Apply the buff effect
             if (spell.buffEffect) {
@@ -1196,14 +1300,14 @@ export class GameManager {
                 this.highlightMoveRange(player);
                 this.highlightAttackRange(player);
             }
-        });
+        }, spell.animation);
     }
 
     /**
      * Play a buff animation effect on a unit.
      * Plays a sound and a brief visual effect.
      */
-    private playBuffAnimation(unit: Unit, onComplete: () => void): void {
+    private playBuffAnimation(unit: Unit, onComplete: () => void, animationKey?: string): void {
         // Play magic attack sound for buff spells
         try {
             this.scene.sound.play("magic_attack", { volume: 0.3 });
@@ -1211,8 +1315,13 @@ export class GameManager {
             console.log("[GameManager] Could not play buff sound");
         }
 
-        // Create a brief glow effect on the unit
+        // Play VFX on the unit (self-buff plays on caster)
         const sprite = unit.sprite;
+        if (sprite && animationKey) {
+            this.playSpellVFX(animationKey, sprite.x, sprite.y);
+        }
+
+        // Create a brief glow effect on the unit
         if (sprite) {
             // Store original scale
             const originalScaleX = sprite.scaleX;
@@ -1667,7 +1776,7 @@ export class GameManager {
                 this.scene.time.delayedCall(200, () => {
                     this.processEnemyActions(enemy, playerUnits, onComplete, actionCount + 1, maxActions, updateActionCount);
                 });
-            });
+            }, preAttackBuff.animation);
             return;
         }
 
@@ -1848,7 +1957,7 @@ export class GameManager {
             this.scene.events.emit("playerDamaged", target);
 
             this.scene.time.delayedCall(300, onComplete);
-        });
+        }, spell.animation);
     }
 
     /**

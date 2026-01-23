@@ -19,6 +19,7 @@ export const WARRIOR_STARTING_SPELLS: SpellDefinition[] = [
         damage: 3,
         description: "Basic melee attack",
         type: "melee",
+        animation: "vfx_melee_attack",
     },
     {
         id: "shield_bash",
@@ -38,6 +39,7 @@ export const WARRIOR_STARTING_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: false,
         },
+        animation: "vfx_melee_attack",
     },
     {
         id: "battle_cry",
@@ -57,6 +59,7 @@ export const WARRIOR_STARTING_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
 ];
 
@@ -75,6 +78,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
         damage: 5,
         description: "Powerful melee attack that deals heavy damage",
         type: "melee",
+        animation: "vfx_melee_attack",
     },
     {
         id: "whirlwind",
@@ -88,6 +92,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
         type: "melee",
         aoeShape: "circle",
         aoeRadius: 1,
+        animation: "vfx_melee_attack",
     },
     {
         id: "intimidating_shout",
@@ -107,6 +112,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_debuff_attack",
     },
     {
         id: "shield_wall",
@@ -126,6 +132,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "berserker_rage",
@@ -145,6 +152,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 3,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "cleave",
@@ -158,6 +166,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
         type: "melee",
         aoeShape: "line",
         aoeRadius: 2,
+        animation: "vfx_melee_attack",
     },
     {
         id: "execute",
@@ -169,6 +178,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
         damage: 8,
         description: "Devastating blow against a single target",
         type: "melee",
+        animation: "vfx_melee_attack",
     },
     {
         id: "charge",
@@ -188,6 +198,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "taunt",
@@ -207,6 +218,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: false,
         },
+        animation: "vfx_debuff_attack",
     },
     {
         id: "second_wind",
@@ -226,6 +238,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "warcry",
@@ -245,6 +258,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 2,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "ground_slam",
@@ -265,6 +279,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: false,
         },
+        animation: "vfx_melee_attack",
     },
     {
         id: "impale",
@@ -278,6 +293,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
         type: "melee",
         aoeShape: "line",
         aoeRadius: 2,
+        animation: "vfx_melee_attack",
     },
     {
         id: "fortify",
@@ -297,6 +313,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 3,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "rend",
@@ -315,6 +332,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_melee_attack",
     },
     // === NEW WARRIOR ARTIFACT SPELLS ===
     {
@@ -336,6 +354,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: false,
         },
+        animation: "vfx_melee_attack",
     },
     {
         id: "blood_sacrifice",
@@ -354,6 +373,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 0,
             targetSelf: true,
         },
+        animation: "vfx_melee_attack",
     },
     {
         id: "phalanx",
@@ -373,6 +393,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "unstoppable",
@@ -392,6 +413,7 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: true,
         },
+        animation: "vfx_buff_attack",
     },
     {
         id: "judgment",
@@ -412,5 +434,6 @@ export const WARRIOR_ARTIFACT_SPELLS: SpellDefinition[] = [
             duration: 1,
             targetSelf: false,
         },
+        animation: "vfx_melee_attack",
     },
 ];
