@@ -255,8 +255,20 @@ export class ArtifactBagUI {
         if (spell) {
             const spellY = padding + 22 + 8 + descHeight + 10;
 
+            // Spell icon as image
+            let spellIcon: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
+            if (spell.icon.startsWith("icon_")) {
+                spellIcon = this.scene.add.image(-50, spellY + 10, spell.icon);
+                spellIcon.setOrigin(0.5);
+                spellIcon.setDisplaySize(20, 20);
+            } else {
+                spellIcon = this.scene.add
+                    .text(-50, spellY + 10, spell.icon, { fontSize: "18px" })
+                    .setOrigin(0.5);
+            }
+
             const spellTitle = this.scene.add
-                .text(0, spellY, `${spell.icon} ${spell.name}`, {
+                .text(10, spellY, spell.name, {
                     fontSize: "14px",
                     color: "#90ee90",
                     fontFamily: "serif",
@@ -276,7 +288,7 @@ export class ArtifactBagUI {
                 )
                 .setOrigin(0.5, 0);
 
-            this.tooltip.add([spellTitle, spellStats]);
+            this.tooltip.add([spellIcon, spellTitle, spellStats]);
         }
 
         // Add tooltip directly to scene, not container (to avoid clipping)

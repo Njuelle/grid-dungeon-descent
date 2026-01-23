@@ -5,20 +5,21 @@
  * - Enemy turn decision making
  * - Target selection
  * - Movement planning
- * - Attack decisions
+ * - Spell selection and casting
  */
 
-import { UnitState, GridPosition } from "../core/types";
+import { UnitState, GridPosition, SpellDefinition } from "../core/types";
 import { isAlive } from "../core/UnitState";
 import { getManhattanDistance } from "../core/CombatCalculator";
 import { MovementSystem } from "./MovementSystem";
 import { CombatSystem } from "./CombatSystem";
+import { getEnemySpellsByType } from "../data/spells/enemy-spells";
 
 // =============================================================================
 // AI Action Types
 // =============================================================================
 
-export type AIActionType = "move" | "attack" | "wait";
+export type AIActionType = "move" | "attack" | "cast_spell" | "self_buff" | "wait";
 
 export interface AIAction {
     type: AIActionType;
@@ -26,6 +27,8 @@ export interface AIAction {
     targetPosition?: GridPosition;
     targetUnitId?: string;
     path?: GridPosition[];
+    spellId?: string;
+    spell?: SpellDefinition;
 }
 
 export interface AITurnPlan {
@@ -44,6 +47,15 @@ export interface TargetEvaluation {
     canReachForAttack: boolean;
     priority: number;
     attackPosition?: GridPosition;
+    bestSpell?: SpellDefinition;
+}
+
+export interface SpellEvaluation {
+    spell: SpellDefinition;
+    canCast: boolean;
+    inRange: boolean;
+    estimatedDamage: number;
+    priority: number;
 }
 
 // =============================================================================
@@ -64,7 +76,7 @@ export class AISystem {
     // =========================================================================
 
     /**
-     * Plans a turn for an enemy unit.
+     * Plans a turn for an enemy unit using spells.
      */
     public planTurn(
         enemy: UnitState,
@@ -75,10 +87,19 @@ export class AISystem {
     ): AITurnPlan {
         const actions: AIAction[] = [];
 
+        // Get enemy's available spells
+        const enemySpells = getEnemySpellsByType(enemy.enemyType || "Warrior");
+        const currentAP = enemy.stats.actionPoints || 0;
+
         // Filter to alive targets only
         const aliveTargets = targets.filter(isAlive);
         if (aliveTargets.length === 0) {
-            return { unitId: enemy.id, actions: [] };
+            // No targets - consider self-buff spells
+            const selfBuffAction = this.evaluateSelfBuffs(enemy, enemySpells, currentAP);
+            if (selfBuffAction) {
+                actions.push(selfBuffAction);
+            }
+            return { unitId: enemy.id, actions };
         }
 
         // Create occupied check function
@@ -92,10 +113,12 @@ export class AISystem {
             );
         };
 
-        // Evaluate all targets
-        const evaluations = this.evaluateTargets(
+        // Evaluate all targets with spell considerations
+        const evaluations = this.evaluateTargetsWithSpells(
             enemy,
             aliveTargets,
+            enemySpells,
+            currentAP,
             gridSize,
             isWall,
             isOccupied
@@ -108,15 +131,21 @@ export class AISystem {
         const bestTarget = evaluations[0];
 
         if (!bestTarget) {
-            return { unitId: enemy.id, actions: [] };
+            // No valid targets - consider self-buff spells
+            const selfBuffAction = this.evaluateSelfBuffs(enemy, enemySpells, currentAP);
+            if (selfBuffAction) {
+                actions.push(selfBuffAction);
+            }
+            return { unitId: enemy.id, actions };
         }
 
-        // Check if we can attack current target from current position
-        if (bestTarget.canAttack) {
+        // Check if we can cast a spell on the target from current position
+        if (bestTarget.canAttack && bestTarget.bestSpell) {
             // Check line of sight
+            const targetUnit = targets.find(t => t.id === bestTarget.targetId)!;
             const hasLOS = this.combatSystem.hasLineOfSight(
                 enemy.position,
-                { x: targets.find(t => t.id === bestTarget.targetId)!.position.x, y: targets.find(t => t.id === bestTarget.targetId)!.position.y },
+                targetUnit.position,
                 isWall,
                 (x, y) => {
                     const unit = allUnits.find(u => u.position.x === x && u.position.y === y && isAlive(u) && u.id !== enemy.id);
@@ -125,17 +154,21 @@ export class AISystem {
             );
 
             if (hasLOS) {
-                // Attack immediately
+                // Cast spell immediately
                 actions.push({
-                    type: "attack",
+                    type: "cast_spell",
                     unitId: enemy.id,
                     targetUnitId: bestTarget.targetId,
+                    spellId: bestTarget.bestSpell.id,
+                    spell: bestTarget.bestSpell,
                 });
                 return { unitId: enemy.id, actions };
             }
         }
 
-        // Need to move first
+        // Need to move first - use movement points if available
+        const moveRange = enemy.stats.movementPoints || enemy.stats.moveRange;
+
         if (bestTarget.attackPosition) {
             // Find path to attack position
             const path = this.movementSystem.findPath(
@@ -147,8 +180,8 @@ export class AISystem {
             );
 
             if (path && path.length > 0) {
-                // Limit path to move range
-                const maxPath = path.slice(0, enemy.stats.moveRange);
+                // Limit path to move range (MP)
+                const maxPath = path.slice(0, moveRange);
 
                 if (maxPath.length > 0) {
                     actions.push({
@@ -159,13 +192,13 @@ export class AISystem {
                     });
                 }
 
-                // Check if we can attack after moving
+                // Check if we can cast spell after moving
                 const finalPosition = maxPath.length > 0 
                     ? maxPath[maxPath.length - 1] 
                     : enemy.position;
 
                 const target = aliveTargets.find((t) => t.id === bestTarget.targetId);
-                if (target) {
+                if (target && bestTarget.bestSpell) {
                     const newDistance = getManhattanDistance(
                         finalPosition.x,
                         finalPosition.y,
@@ -173,7 +206,10 @@ export class AISystem {
                         target.position.y
                     );
 
-                    if (newDistance <= enemy.stats.attackRange) {
+                    const spell = bestTarget.bestSpell;
+                    const minRange = spell.minRange || 0;
+
+                    if (newDistance >= minRange && newDistance <= spell.range) {
                         const hasLOSAfterMove = this.combatSystem.hasLineOfSight(
                             finalPosition,
                             target.position,
@@ -186,9 +222,11 @@ export class AISystem {
 
                         if (hasLOSAfterMove) {
                             actions.push({
-                                type: "attack",
+                                type: "cast_spell",
                                 unitId: enemy.id,
                                 targetUnitId: bestTarget.targetId,
+                                spellId: spell.id,
+                                spell: spell,
                             });
                         }
                     }
@@ -208,7 +246,7 @@ export class AISystem {
 
                 if (path && path.length > 0) {
                     // Move as close as possible
-                    const maxPath = path.slice(0, enemy.stats.moveRange);
+                    const maxPath = path.slice(0, moveRange);
                     
                     // Don't move into the target's tile
                     const safePath = maxPath.filter(
@@ -227,7 +265,60 @@ export class AISystem {
             }
         }
 
+        // If we couldn't attack, consider self-buff spells
+        if (!actions.some(a => a.type === "cast_spell")) {
+            const selfBuffAction = this.evaluateSelfBuffs(enemy, enemySpells, currentAP);
+            if (selfBuffAction) {
+                actions.push(selfBuffAction);
+            }
+        }
+
         return { unitId: enemy.id, actions };
+    }
+
+    /**
+     * Evaluate self-buff spells (like Troll's regenerate or Tank's fortify).
+     */
+    private evaluateSelfBuffs(
+        enemy: UnitState,
+        spells: SpellDefinition[],
+        currentAP: number
+    ): AIAction | null {
+        // Filter to buff spells we can afford
+        const buffSpells = spells.filter(spell => 
+            spell.spellCategory === "buff" &&
+            spell.buffEffect?.targetSelf &&
+            spell.apCost <= currentAP
+        );
+
+        if (buffSpells.length === 0) return null;
+
+        // Prioritize healing if low health
+        const healthPercent = enemy.stats.health / enemy.stats.maxHealth;
+        
+        for (const spell of buffSpells) {
+            // Healing spells - use when below 70% health
+            if (spell.buffEffect?.stat === "health" && healthPercent < 0.7) {
+                return {
+                    type: "self_buff",
+                    unitId: enemy.id,
+                    spellId: spell.id,
+                    spell: spell,
+                };
+            }
+            
+            // Defensive buffs - use when below 50% health
+            if (spell.buffEffect?.stat === "armor" && healthPercent < 0.5) {
+                return {
+                    type: "self_buff",
+                    unitId: enemy.id,
+                    spellId: spell.id,
+                    spell: spell,
+                };
+            }
+        }
+
+        return null;
     }
 
     // =========================================================================
@@ -235,16 +326,25 @@ export class AISystem {
     // =========================================================================
 
     /**
-     * Evaluates all potential targets for an enemy.
+     * Evaluates all potential targets for an enemy, considering available spells.
      */
-    private evaluateTargets(
+    private evaluateTargetsWithSpells(
         enemy: UnitState,
         targets: UnitState[],
+        spells: SpellDefinition[],
+        currentAP: number,
         gridSize: number,
         isWall: (x: number, y: number) => boolean,
         isOccupied: (x: number, y: number) => boolean
     ): TargetEvaluation[] {
         const evaluations: TargetEvaluation[] = [];
+
+        // Get attack spells we can afford (not self-buffs)
+        const attackSpells = spells.filter(spell => 
+            spell.apCost <= currentAP && 
+            (!spell.buffEffect?.targetSelf) &&
+            spell.damage > 0
+        );
 
         for (const target of targets) {
             const distance = getManhattanDistance(
@@ -254,16 +354,30 @@ export class AISystem {
                 target.position.y
             );
 
-            const canAttack = distance <= enemy.stats.attackRange;
+            // Find the best spell for this distance
+            const bestSpell = this.findBestSpellForTarget(
+                enemy,
+                attackSpells,
+                distance
+            );
+
+            const canAttack = bestSpell !== undefined && 
+                this.isSpellInRange(bestSpell, distance);
 
             // Find best attack position if can't attack from current position
             let attackPosition: GridPosition | undefined;
             let canReachForAttack = false;
 
-            if (!canAttack) {
-                attackPosition = this.findBestAttackPosition(
+            if (!canAttack && attackSpells.length > 0) {
+                // Use the spell with the longest range for positioning
+                const longestRangeSpell = attackSpells.reduce((a, b) => 
+                    a.range > b.range ? a : b
+                );
+                
+                attackPosition = this.findBestAttackPositionForSpell(
                     enemy,
                     target,
+                    longestRangeSpell,
                     gridSize,
                     isWall,
                     isOccupied
@@ -272,12 +386,13 @@ export class AISystem {
             }
 
             // Calculate priority based on various factors
-            const priority = this.calculateTargetPriority(
+            const priority = this.calculateTargetPriorityWithSpell(
                 enemy,
                 target,
                 distance,
                 canAttack,
-                canReachForAttack
+                canReachForAttack,
+                bestSpell
             );
 
             evaluations.push({
@@ -287,6 +402,7 @@ export class AISystem {
                 canReachForAttack,
                 priority,
                 attackPosition,
+                bestSpell,
             });
         }
 
@@ -294,20 +410,72 @@ export class AISystem {
     }
 
     /**
-     * Calculates priority score for a target.
+     * Find the best spell for a given distance.
      */
-    private calculateTargetPriority(
+    private findBestSpellForTarget(
+        enemy: UnitState,
+        spells: SpellDefinition[],
+        distance: number
+    ): SpellDefinition | undefined {
+        // Filter spells that can reach the target
+        const usableSpells = spells.filter(spell => 
+            this.isSpellInRange(spell, distance)
+        );
+
+        if (usableSpells.length === 0) return undefined;
+
+        // Sort by estimated damage (higher is better)
+        return usableSpells.sort((a, b) => {
+            const damageA = this.estimateSpellDamage(enemy, a);
+            const damageB = this.estimateSpellDamage(enemy, b);
+            return damageB - damageA;
+        })[0];
+    }
+
+    /**
+     * Check if a spell can reach a given distance.
+     */
+    private isSpellInRange(spell: SpellDefinition, distance: number): boolean {
+        const minRange = spell.minRange || 0;
+        return distance >= minRange && distance <= spell.range;
+    }
+
+    /**
+     * Estimate damage a spell would deal.
+     */
+    private estimateSpellDamage(enemy: UnitState, spell: SpellDefinition): number {
+        let statBonus = 0;
+        if (spell.type === "melee") {
+            statBonus = enemy.stats.force;
+        } else if (spell.type === "ranged") {
+            statBonus = enemy.stats.dexterity;
+        } else if (spell.type === "magic") {
+            statBonus = enemy.stats.intelligence || 0;
+        }
+        return spell.damage + statBonus;
+    }
+
+    /**
+     * Calculates priority score for a target with spell consideration.
+     */
+    private calculateTargetPriorityWithSpell(
         _enemy: UnitState,
         target: UnitState,
         distance: number,
         canAttack: boolean,
-        canReachForAttack: boolean
+        canReachForAttack: boolean,
+        bestSpell?: SpellDefinition
     ): number {
         let priority = 0;
 
         // High priority if can attack immediately
         if (canAttack) {
             priority += 100;
+            
+            // Bonus for high damage spells
+            if (bestSpell) {
+                priority += bestSpell.damage * 5;
+            }
         }
 
         // Medium priority if can reach for attack this turn
@@ -329,23 +497,25 @@ export class AISystem {
     }
 
     /**
-     * Finds the best position to attack a target from.
+     * Finds the best position to cast a spell on a target from.
      */
-    private findBestAttackPosition(
+    private findBestAttackPositionForSpell(
         enemy: UnitState,
         target: UnitState,
+        spell: SpellDefinition,
         gridSize: number,
         isWall: (x: number, y: number) => boolean,
         isOccupied: (x: number, y: number) => boolean
     ): GridPosition | undefined {
-        const attackRange = enemy.stats.attackRange;
-        const moveRange = enemy.stats.moveRange;
+        const spellRange = spell.range;
+        const minRange = spell.minRange || 0;
+        const moveRange = enemy.stats.movementPoints || enemy.stats.moveRange;
 
-        // Get all tiles within attack range of target
+        // Get all tiles within spell range of target (excluding min range)
         const attackTiles = this.movementSystem.getTilesInRange(
             target.position,
-            attackRange,
-            0,
+            spellRange,
+            minRange,
             gridSize,
             isWall
         );

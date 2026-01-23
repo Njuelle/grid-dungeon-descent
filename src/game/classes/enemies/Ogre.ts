@@ -12,6 +12,10 @@ export class Ogre extends Enemy {
             force: 3, // Stronger than warrior (2)
             dexterity: 0, // No ranged
             armor: 1, // Some armor (less than tank's 2)
+            actionPoints: 3, // Extra AP for powerful attacks
+            maxActionPoints: 3,
+            movementPoints: 2,
+            maxMovementPoints: 2,
         };
 
         super(scene, gridX, gridY, stats, "Ogre");

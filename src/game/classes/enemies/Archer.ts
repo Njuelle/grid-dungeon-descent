@@ -12,6 +12,10 @@ export class Archer extends Enemy {
             force: 0, // Weak melee
             dexterity: 2, // Good ranged
             armor: 0, // No armor
+            actionPoints: 2,
+            maxActionPoints: 2,
+            movementPoints: 2,
+            maxMovementPoints: 2,
         };
 
         super(scene, gridX, gridY, stats, "Archer");

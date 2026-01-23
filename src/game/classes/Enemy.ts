@@ -2,13 +2,16 @@ import { Scene } from "phaser";
 import { Unit, UnitStats } from "./Unit";
 import { DifficultyScaling } from "./DifficultyScaling";
 import { GameProgress } from "./GameProgress";
-import { ActiveBuff } from "../core/types";
+import { ActiveBuff, SpellDefinition } from "../core/types";
 import { buffSystem } from "../systems/BuffSystem";
+import { getEnemySpellsByType, getDefaultEnemySpell } from "../data/spells/enemy-spells";
 
 export abstract class Enemy extends Unit {
     protected static unitCount = 0;
     public enemyType: string;
     protected activeBuffs: ActiveBuff[] = [];
+    protected spells: SpellDefinition[] = [];
+    protected currentSpell: SpellDefinition | null = null;
 
     constructor(
         scene: Scene,
@@ -22,11 +25,27 @@ export abstract class Enemy extends Unit {
 
         super(scene, gridX, gridY, "enemy", stats);
         this.enemyType = enemyType || this.constructor.name;
+        
+        // Initialize spells for this enemy type
+        this.initializeSpells();
+        
         this.enableStatsTooltip();
+    }
+
+    /**
+     * Initialize spells for this enemy type.
+     */
+    protected initializeSpells(): void {
+        this.spells = getEnemySpellsByType(this.enemyType);
+        this.currentSpell = getDefaultEnemySpell(this.enemyType);
     }
 
     private static applyDifficultyModifiers(baseStats: UnitStats): UnitStats {
         const modifiers = DifficultyScaling.getDifficultyModifiers();
+
+        // Apply AP and MP bonuses from difficulty
+        const apBonus = modifiers.enemyAPBonus || 0;
+        const mpBonus = modifiers.enemyMPBonus || 0;
 
         return {
             health: Math.round(
@@ -54,10 +73,18 @@ export abstract class Enemy extends Unit {
                     ? baseStats.magicResistance +
                       Math.floor(modifiers.enemyArmorBonus / 2) // Half of armor bonus for magic resistance
                     : baseStats.magicResistance,
-            movementPoints: baseStats.movementPoints,
-            maxMovementPoints: baseStats.maxMovementPoints,
-            actionPoints: baseStats.actionPoints,
-            maxActionPoints: baseStats.maxActionPoints,
+            movementPoints: baseStats.movementPoints !== undefined 
+                ? baseStats.movementPoints + mpBonus 
+                : baseStats.movementPoints,
+            maxMovementPoints: baseStats.maxMovementPoints !== undefined 
+                ? baseStats.maxMovementPoints + mpBonus 
+                : baseStats.maxMovementPoints,
+            actionPoints: baseStats.actionPoints !== undefined 
+                ? baseStats.actionPoints + apBonus 
+                : baseStats.actionPoints,
+            maxActionPoints: baseStats.maxActionPoints !== undefined 
+                ? baseStats.maxActionPoints + apBonus 
+                : baseStats.maxActionPoints,
         };
     }
 
@@ -126,11 +153,15 @@ export abstract class Enemy extends Unit {
         // Check if enemy has active debuffs
         const hasDebuffs = this.activeBuffs.length > 0;
 
+        // Check if enemy has AP/MP stats
+        const hasAPMP = this.getEffectiveActionPoints() !== undefined;
+
         const x = this.sprite.x;
 
         // Calculate tooltip height based on content
         // Title: 22px + Health bar: 40px + Stats: 22px + padding: 28px = 132px base
         let tooltipHeight = 132;
+        if (hasAPMP) tooltipHeight += 28; // AP/MP row
         if (hasDebuffs) tooltipHeight += 40; // Debuff status row
         if (shouldShowDamagePreview || shouldShowDebuffPreview) tooltipHeight += 42; // Spell preview
         
@@ -312,6 +343,48 @@ export abstract class Enemy extends Unit {
 
         // Move yPos well past stats row (stats icons are 22px tall emoji, centered, but render larger)
         yPos = statsY + 22;
+
+        // Show AP/MP if enemy has these stats
+        if (hasAPMP) {
+            const apmpY = yPos + 5;
+            
+            // AP icon and value
+            const apIcon = this.scene.add
+                .text(-60, apmpY, "⚡", {
+                    fontSize: "16px",
+                })
+                .setOrigin(0.5);
+
+            const effectiveAP = this.getEffectiveActionPoints();
+            const maxAP = this.getEffectiveMaxActionPoints();
+            const apText = this.scene.add
+                .text(-35, apmpY, `${effectiveAP}/${maxAP} AP`, {
+                    fontSize: "14px",
+                    color: "#ffcc00",
+                    fontStyle: "bold",
+                })
+                .setOrigin(0, 0.5);
+
+            // MP icon and value
+            const mpIcon = this.scene.add
+                .text(40, apmpY, "👟", {
+                    fontSize: "16px",
+                })
+                .setOrigin(0.5);
+
+            const effectiveMP = this.getEffectiveMovementPoints();
+            const maxMP = this.getEffectiveMaxMovementPoints();
+            const mpText = this.scene.add
+                .text(65, apmpY, `${effectiveMP}/${maxMP} MP`, {
+                    fontSize: "14px",
+                    color: "#66ccff",
+                    fontStyle: "bold",
+                })
+                .setOrigin(0, 0.5);
+
+            container.add([apIcon, apText, mpIcon, mpText]);
+            yPos += 28;
+        }
 
         // Show active debuffs/marks on this enemy
         if (hasDebuffs) {
@@ -671,6 +744,247 @@ export abstract class Enemy extends Unit {
      */
     public getBuffDescriptions(): string[] {
         return buffSystem.getBuffDescriptions(this.activeBuffs);
+    }
+
+    // =========================================================================
+    // Spell System Support
+    // =========================================================================
+
+    /**
+     * Get all spells available to this enemy.
+     */
+    public getSpells(): SpellDefinition[] {
+        return [...this.spells];
+    }
+
+    /**
+     * Get the current/selected spell.
+     */
+    public getCurrentSpell(): SpellDefinition | null {
+        return this.currentSpell;
+    }
+
+    /**
+     * Set the current spell.
+     */
+    public setCurrentSpell(spell: SpellDefinition): void {
+        this.currentSpell = spell;
+    }
+
+    /**
+     * Check if enemy can cast a specific spell (has enough AP).
+     */
+    public canCastSpell(spell: SpellDefinition): boolean {
+        const effectiveAP = this.getEffectiveActionPoints();
+        return effectiveAP !== undefined && effectiveAP >= spell.apCost;
+    }
+
+    /**
+     * Consume action points when casting a spell.
+     */
+    public consumeActionPoints(cost: number): void {
+        if (this.stats.actionPoints !== undefined) {
+            this.stats.actionPoints = Math.max(0, this.stats.actionPoints - cost);
+            console.log(`[Enemy] Consumed ${cost} AP. Remaining: ${this.stats.actionPoints}`);
+        }
+    }
+
+    /**
+     * Consume movement points when moving.
+     */
+    public consumeMovementPoints(cost: number): void {
+        if (this.stats.movementPoints !== undefined) {
+            this.stats.movementPoints = Math.max(0, this.stats.movementPoints - cost);
+            console.log(`[Enemy] Consumed ${cost} MP. Remaining: ${this.stats.movementPoints}`);
+        }
+    }
+
+    /**
+     * Get effective action points (base + buff modifiers).
+     */
+    public getEffectiveActionPoints(): number | undefined {
+        if (this.stats.actionPoints === undefined) return undefined;
+        const modifier = this.getBuffStatModifier("actionPoints");
+        return Math.max(0, this.stats.actionPoints + modifier);
+    }
+
+    /**
+     * Get effective max action points (base + buff modifiers).
+     */
+    public getEffectiveMaxActionPoints(): number | undefined {
+        if (this.stats.maxActionPoints === undefined) return undefined;
+        const modifier = this.getBuffStatModifier("maxActionPoints");
+        return Math.max(1, this.stats.maxActionPoints + modifier);
+    }
+
+    /**
+     * Get effective movement points (base + buff modifiers).
+     */
+    public getEffectiveMovementPoints(): number | undefined {
+        if (this.stats.movementPoints === undefined) return undefined;
+        const modifier = this.getBuffStatModifier("movementPoints");
+        return Math.max(0, this.stats.movementPoints + modifier);
+    }
+
+    /**
+     * Get effective max movement points (base + buff modifiers).
+     */
+    public getEffectiveMaxMovementPoints(): number | undefined {
+        if (this.stats.maxMovementPoints === undefined) return undefined;
+        const modifier = this.getBuffStatModifier("maxMovementPoints");
+        return Math.max(1, this.stats.maxMovementPoints + modifier);
+    }
+
+    /**
+     * Reset turn stats (called at start of enemy turn).
+     * Resets AP and MP to their max values.
+     */
+    public resetTurnStats(): void {
+        super.resetTurnStats();
+        
+        // Reset AP to max
+        if (this.stats.maxActionPoints !== undefined) {
+            this.stats.actionPoints = this.stats.maxActionPoints;
+        }
+        
+        // Reset MP to max
+        if (this.stats.maxMovementPoints !== undefined) {
+            this.stats.movementPoints = this.stats.maxMovementPoints;
+        }
+        
+        console.log(`[Enemy] ${this.enemyType} turn reset - AP: ${this.stats.actionPoints}, MP: ${this.stats.movementPoints}`);
+    }
+
+    /**
+     * Calculate spell damage based on spell type and enemy stats.
+     */
+    public calculateSpellDamage(spell: SpellDefinition): number {
+        const baseDamage = spell.damage;
+        let statBonus = 0;
+
+        // Determine stat bonus based on spell type
+        if (spell.type === "melee") {
+            statBonus = this.force;
+        } else if (spell.type === "ranged") {
+            statBonus = this.dexterity;
+        } else if (spell.type === "magic") {
+            statBonus = this.intelligence;
+        }
+
+        // Add some randomness (80% to 120%)
+        const randomFactor = 0.8 + Math.random() * 0.4;
+        return Math.round((baseDamage + statBonus) * randomFactor);
+    }
+
+    /**
+     * Get the best spell to use against a target at a given distance.
+     */
+    public getBestSpellForDistance(distance: number): SpellDefinition | null {
+        // Filter spells we can afford and that are in range
+        const usableSpells = this.spells.filter(spell => {
+            if (!this.canCastSpell(spell)) return false;
+            
+            // Check range
+            const minRange = spell.minRange || 0;
+            if (distance < minRange || distance > spell.range) return false;
+            
+            return true;
+        });
+
+        if (usableSpells.length === 0) return null;
+
+        // Prefer damaging spells over buffs when in range
+        const attackSpells = usableSpells.filter(s => s.damage > 0);
+        if (attackSpells.length > 0) {
+            // Sort by damage potential (damage + stat bonus)
+            return attackSpells.sort((a, b) => {
+                const damageA = a.damage + (a.type === "melee" ? this.force : a.type === "ranged" ? this.dexterity : this.intelligence);
+                const damageB = b.damage + (b.type === "melee" ? this.force : b.type === "ranged" ? this.dexterity : this.intelligence);
+                return damageB - damageA;
+            })[0];
+        }
+
+        // If no attack spells, return a buff spell (like Troll regenerate)
+        return usableSpells[0];
+    }
+
+    /**
+     * Apply a self-buff from a spell's buff effect.
+     */
+    public applySelfBuff(spell: SpellDefinition): void {
+        if (!spell.buffEffect || !spell.buffEffect.targetSelf) return;
+
+        const buffEffect = spell.buffEffect;
+
+        // Handle instant effects
+        if (buffEffect.type === "instant" || buffEffect.duration === 0) {
+            if (buffEffect.stat === "health") {
+                this.heal(buffEffect.value);
+            } else if (buffEffect.stat === "actionPoints") {
+                if (this.stats.actionPoints !== undefined) {
+                    this.stats.actionPoints = Math.min(
+                        this.stats.maxActionPoints || this.stats.actionPoints + buffEffect.value,
+                        this.stats.actionPoints + buffEffect.value
+                    );
+                }
+            } else if (buffEffect.stat === "movementPoints") {
+                if (this.stats.movementPoints !== undefined) {
+                    this.stats.movementPoints = Math.min(
+                        this.stats.maxMovementPoints || this.stats.movementPoints + buffEffect.value,
+                        this.stats.movementPoints + buffEffect.value
+                    );
+                }
+            }
+            return;
+        }
+
+        // Create a temporary buff
+        const buff: ActiveBuff = {
+            id: `${spell.id}_${Date.now()}`,
+            buffType: buffEffect.type,
+            remainingTurns: buffEffect.duration,
+            stat: buffEffect.stat,
+            value: buffEffect.value,
+            sourceSpellId: spell.id,
+        };
+
+        this.addBuff(buff);
+    }
+
+    /**
+     * Heal the enemy.
+     */
+    public heal(amount: number): void {
+        const oldHealth = this.stats.health;
+        this.stats.health = Math.min(this.stats.maxHealth, this.stats.health + amount);
+        const actualHeal = this.stats.health - oldHealth;
+        
+        if (actualHeal > 0) {
+            console.log(`[Enemy] ${this.enemyType} healed ${actualHeal} HP (${oldHealth} -> ${this.stats.health})`);
+            
+            // Visual feedback - show healing number
+            const healText = this.scene.add
+                .text(this.sprite.x, this.sprite.y - 40, `+${actualHeal}`, {
+                    fontSize: "20px",
+                    color: "#00ff00",
+                    stroke: "#000000",
+                    strokeThickness: 3,
+                })
+                .setOrigin(0.5);
+
+            this.scene.tweens.add({
+                targets: healText,
+                y: healText.y - 30,
+                alpha: 0,
+                duration: 1000,
+                onComplete: () => {
+                    healText.destroy();
+                },
+            });
+
+            this.updateHealthBar();
+            this.refreshTooltip();
+        }
     }
 }
 

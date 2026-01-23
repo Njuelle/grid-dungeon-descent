@@ -13,6 +13,10 @@ export class Troll extends Enemy {
             dexterity: 0, // No ranged
             armor: 1, // Some physical protection
             magicResistance: 3, // Very high magic resistance (higher than necromancer's 2)
+            actionPoints: 2,
+            maxActionPoints: 2,
+            movementPoints: 2,
+            maxMovementPoints: 2,
         };
 
         super(scene, gridX, gridY, stats, "Troll");

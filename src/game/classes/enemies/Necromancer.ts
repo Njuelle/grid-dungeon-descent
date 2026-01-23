@@ -14,6 +14,10 @@ export class Necromancer extends Enemy {
             intelligence: 5, // High magic damage (more than Magician's 3)
             armor: 0, // No physical armor
             magicResistance: 2, // Good magic resistance (unique trait)
+            actionPoints: 2,
+            maxActionPoints: 2,
+            movementPoints: 2,
+            maxMovementPoints: 2,
         };
 
         super(scene, gridX, gridY, stats, "Necromancer");

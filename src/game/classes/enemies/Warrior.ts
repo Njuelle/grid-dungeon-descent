@@ -12,6 +12,10 @@ export class Warrior extends Enemy {
             force: 2, // Strong melee
             dexterity: 0, // No ranged
             armor: 0, // No armor
+            actionPoints: 2,
+            maxActionPoints: 2,
+            movementPoints: 3,
+            maxMovementPoints: 3,
         };
 
         super(scene, gridX, gridY, stats, "Warrior");

@@ -6,6 +6,8 @@ export interface DifficultyModifiers {
     enemyArmorBonus: number;
     enemyCount: number;
     enemyMoveRangeBonus: number;
+    enemyAPBonus: number;
+    enemyMPBonus: number;
 }
 
 export class DifficultyScaling {
@@ -22,6 +24,8 @@ export class DifficultyScaling {
                 enemyArmorBonus: 0,
                 enemyCount: 3,
                 enemyMoveRangeBonus: 0,
+                enemyAPBonus: 0,
+                enemyMPBonus: 0,
             };
         }
 
@@ -40,6 +44,8 @@ export class DifficultyScaling {
             enemyArmorBonus: Math.floor(scaleFactor / 6), // +1 armor every 6 wins
             enemyCount: Math.min(3 + Math.floor(scaleFactor / 4), 7), // Max 7 enemies
             enemyMoveRangeBonus: Math.floor(scaleFactor / 7), // +1 move range every 7 wins
+            enemyAPBonus: Math.floor(scaleFactor / 8), // +1 AP every 8 wins
+            enemyMPBonus: Math.floor(scaleFactor / 10), // +1 MP every 10 wins
         };
     }
 

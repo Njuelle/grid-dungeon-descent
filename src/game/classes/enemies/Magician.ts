@@ -16,6 +16,10 @@ export class Magician extends Enemy {
             dexterity: 1,
             intelligence: 2, // This will be used by the getter in Enemy class
             armor: 0,
+            actionPoints: 2,
+            maxActionPoints: 2,
+            movementPoints: 3,
+            maxMovementPoints: 3,
         };
         super(scene, gridX, gridY, baseStats, "Magician"); // Pass "Magician" as enemyType
     }

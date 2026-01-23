@@ -131,3 +131,25 @@ export { WARRIOR_STARTING_SPELLS, WARRIOR_ARTIFACT_SPELLS } from "./warrior-spel
 export { RANGER_STARTING_SPELLS, RANGER_ARTIFACT_SPELLS } from "./ranger-spells";
 export { MAGICIAN_STARTING_SPELLS, MAGICIAN_ARTIFACT_SPELLS } from "./magician-spells";
 export { GENERIC_ARTIFACT_SPELLS } from "./generic-spells";
+
+// =============================================================================
+// Enemy Spells Re-exports
+// =============================================================================
+
+export {
+    ENEMY_SPELLS_BY_TYPE,
+    ALL_ENEMY_SPELLS,
+    ENEMY_SPELL_REGISTRY,
+    getEnemySpellsByType,
+    getEnemySpellById,
+    getDefaultEnemySpell,
+    WARRIOR_ENEMY_SPELLS,
+    ARCHER_ENEMY_SPELLS,
+    MAGICIAN_ENEMY_SPELLS,
+    NECROMANCER_ENEMY_SPELLS,
+    TANK_ENEMY_SPELLS,
+    GOBELIN_ENEMY_SPELLS,
+    OGRE_ENEMY_SPELLS,
+    TROLL_ENEMY_SPELLS,
+} from "./enemy-spells";
+export type { EnemyType } from "./enemy-spells";

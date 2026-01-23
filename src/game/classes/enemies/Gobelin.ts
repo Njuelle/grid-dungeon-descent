@@ -12,6 +12,10 @@ export class Gobelin extends Enemy {
             force: 1, // Weak attack (weaker than Warrior's 2)
             dexterity: 1, // Some agility
             armor: 0, // No armor (glass cannon)
+            actionPoints: 2,
+            maxActionPoints: 2,
+            movementPoints: 5,
+            maxMovementPoints: 5,
         };
 
         super(scene, gridX, gridY, stats, "Gobelin");

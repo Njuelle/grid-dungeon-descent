@@ -12,6 +12,10 @@ export class Tank extends Enemy {
             force: 1, // Average melee
             dexterity: 0, // No ranged
             armor: 2, // Heavy armor
+            actionPoints: 2,
+            maxActionPoints: 2,
+            movementPoints: 1,
+            maxMovementPoints: 1,
         };
 
         super(scene, gridX, gridY, stats, "Tank");

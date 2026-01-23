@@ -262,13 +262,28 @@ export class ArtifactSelectionUI {
             .setOrigin(0.5);
 
         const spell = getSpellById(artifact.grantedSpellId);
+        
+        // Spell icon as image
+        let spellIconDisplay: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
+        if (spell && spell.icon.startsWith("icon_")) {
+            spellIconDisplay = this.scene.add.image(0, 70, spell.icon);
+            spellIconDisplay.setOrigin(0.5);
+            spellIconDisplay.setDisplaySize(32, 32);
+        } else {
+            // Fallback for emoji icons or unknown spells
+            spellIconDisplay = this.scene.add
+                .text(0, 70, spell?.icon || "?", { fontSize: "32px" })
+                .setOrigin(0.5);
+        }
+        
+        // Spell name and details as text
         let spellInfo = "Unknown spell";
         if (spell) {
-            spellInfo = `${spell.icon} ${spell.name}\n${spell.description}\nAP: ${spell.apCost} | Range: ${spell.range} | Dmg: ${spell.damage}`;
+            spellInfo = `${spell.name}\n${spell.description}\nAP: ${spell.apCost} | Range: ${spell.range} | Dmg: ${spell.damage}`;
         }
 
         const spellText = this.scene.add
-            .text(0, 100, spellInfo, {
+            .text(0, 115, spellInfo, {
                 fontSize: "13px",
                 color: "#c0c0c0",
                 fontFamily: "serif",
@@ -299,6 +314,7 @@ export class ArtifactSelectionUI {
             nameText,
             descText,
             spellTitle,
+            spellIconDisplay,
             spellText,
             selectHint,
             hitArea,
@@ -473,9 +489,22 @@ export class ArtifactSelectionUI {
 
         // Spell info
         const spell = getSpellById(artifact.grantedSpellId);
-        const spellName = spell ? `${spell.icon} ${spell.name}` : "Unknown";
+        
+        // Spell icon as image
+        let spellIconDisplay2: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
+        if (spell && spell.icon.startsWith("icon_")) {
+            spellIconDisplay2 = this.scene.add.image(-40, 30, spell.icon);
+            spellIconDisplay2.setOrigin(0.5);
+            spellIconDisplay2.setDisplaySize(20, 20);
+        } else {
+            spellIconDisplay2 = this.scene.add
+                .text(-40, 30, spell?.icon || "?", { fontSize: "18px" })
+                .setOrigin(0.5);
+        }
+        
+        const spellName = spell ? spell.name : "Unknown";
         const spellText = this.scene.add
-            .text(0, 30, spellName, {
+            .text(10, 30, spellName, {
                 fontSize: "14px",
                 color: "#c0c0c0",
                 fontFamily: "serif",
@@ -496,7 +525,7 @@ export class ArtifactSelectionUI {
         const hitArea = this.scene.add.rectangle(0, 0, cardWidth, cardHeight, 0x000000, 0);
         hitArea.setInteractive();
 
-        card.add([cardBg, hoverBg, iconDisplay, nameText, spellText, replaceHint, hitArea]);
+        card.add([cardBg, hoverBg, iconDisplay, nameText, spellIconDisplay2, spellText, replaceHint, hitArea]);
 
         // Events
         hitArea.on("pointerover", () => {
