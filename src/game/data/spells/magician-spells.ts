@@ -12,7 +12,8 @@ export const MAGICIAN_STARTING_SPELLS: SpellDefinition[] = [
     {
         id: "arcane_bolt",
         name: "Arcane Bolt",
-        icon: "✨",
+        icon: "icon_arcane_bolt",
+        iconDescription: "a glowing purple arcane energy bolt",
         apCost: 1,
         range: 3,
         minRange: 1,
@@ -23,7 +24,8 @@ export const MAGICIAN_STARTING_SPELLS: SpellDefinition[] = [
     {
         id: "magic_missile",
         name: "Magic Missile",
-        icon: "💫",
+        icon: "icon_magic_missile",
+        iconDescription: "a spinning magical star projectile with trail",
         apCost: 2,
         range: 4,
         minRange: 2,
@@ -34,7 +36,8 @@ export const MAGICIAN_STARTING_SPELLS: SpellDefinition[] = [
     {
         id: "arcane_shield",
         name: "Arcane Shield",
-        icon: "🔮",
+        icon: "icon_arcane_shield",
+        iconDescription: "a crystal ball glowing with protective magic",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -59,7 +62,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "fireball",
         name: "Fireball",
-        icon: "🔥",
+        icon: "icon_fireball",
+        iconDescription: "a blazing ball of fire with flames trailing",
         apCost: 3,
         range: 3,
         minRange: 2,
@@ -72,7 +76,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "ice_shard",
         name: "Ice Shard",
-        icon: "❄️",
+        icon: "icon_ice_shard",
+        iconDescription: "a sharp pointed ice crystal shard",
         apCost: 2,
         range: 3,
         minRange: 1,
@@ -90,7 +95,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "lightning_bolt",
         name: "Lightning Bolt",
-        icon: "⚡",
+        icon: "icon_lightning_bolt",
+        iconDescription: "a crackling yellow lightning bolt",
         apCost: 2,
         range: 4,
         minRange: 1,
@@ -101,7 +107,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "teleport",
         name: "Teleport",
-        icon: "🌀",
+        icon: "icon_teleport",
+        iconDescription: "a swirling magical portal vortex",
         apCost: 2,
         range: 0,
         damage: 0,
@@ -119,7 +126,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "mana_shield",
         name: "Mana Shield",
-        icon: "🛡️",
+        icon: "icon_mana_shield",
+        iconDescription: "a glowing blue magical energy shield",
         apCost: 2,
         range: 0,
         damage: 0,
@@ -137,7 +145,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "chain_lightning",
         name: "Chain Lightning",
-        icon: "⛓️",
+        icon: "icon_chain_lightning",
+        iconDescription: "lightning bolts connected in a chain pattern",
         apCost: 3,
         range: 3,
         minRange: 1,
@@ -150,7 +159,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "meteor",
         name: "Meteor",
-        icon: "☄️",
+        icon: "icon_meteor",
+        iconDescription: "a flaming meteor rock falling from sky",
         apCost: 4,
         range: 4,
         minRange: 2,
@@ -163,7 +173,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "frost_nova",
         name: "Frost Nova",
-        icon: "💠",
+        icon: "icon_frost_nova",
+        iconDescription: "an exploding ice crystal with frost radiating outward",
         apCost: 2,
         range: 0,
         damage: 2,
@@ -182,7 +193,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "blink",
         name: "Blink",
-        icon: "💨",
+        icon: "icon_blink",
+        iconDescription: "a puff of smoke with magical sparkles",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -200,7 +212,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "mind_control",
         name: "Weaken Mind",
-        icon: "🧠",
+        icon: "icon_mind_control",
+        iconDescription: "a glowing brain with psychic waves",
         apCost: 2,
         range: 3,
         minRange: 1,
@@ -219,7 +232,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "arcane_barrage",
         name: "Arcane Barrage",
-        icon: "✨",
+        icon: "icon_arcane_barrage",
+        iconDescription: "multiple magical projectiles firing in spread pattern",
         apCost: 3,
         range: 4,
         minRange: 2,
@@ -232,7 +246,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "thunder_strike",
         name: "Thunder Strike",
-        icon: "⛈️",
+        icon: "icon_thunder_strike",
+        iconDescription: "a storm cloud with lightning striking down",
         apCost: 2,
         range: 3,
         minRange: 1,
@@ -250,7 +265,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "deep_freeze",
         name: "Deep Freeze",
-        icon: "🧊",
+        icon: "icon_deep_freeze",
+        iconDescription: "a solid ice cube with frozen mist",
         apCost: 2,
         range: 3,
         minRange: 1,
@@ -268,7 +284,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "flame_shield",
         name: "Flame Shield",
-        icon: "🔥",
+        icon: "icon_flame_shield",
+        iconDescription: "a circular ring of protective flames",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -286,7 +303,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "phase_shift",
         name: "Phase Shift",
-        icon: "🌀",
+        icon: "icon_phase_shift",
+        iconDescription: "a ghostly silhouette phasing through space",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -305,7 +323,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "gravity_well",
         name: "Gravity Well",
-        icon: "🕳️",
+        icon: "icon_gravity_well",
+        iconDescription: "a dark hole with swirling gravity distortion",
         apCost: 2,
         range: 3,
         minRange: 1,
@@ -325,7 +344,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "mana_surge",
         name: "Mana Surge",
-        icon: "💠",
+        icon: "icon_mana_surge",
+        iconDescription: "a burst of blue magical mana energy",
         apCost: 2,
         range: 0,
         damage: 0,
@@ -343,7 +363,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "absolute_zero",
         name: "Absolute Zero",
-        icon: "❄️",
+        icon: "icon_absolute_zero",
+        iconDescription: "a frozen snowflake with extreme cold aura",
         apCost: 3,
         range: 3,
         minRange: 1,
@@ -361,7 +382,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "rebirth_flame",
         name: "Rebirth Flame",
-        icon: "🔥",
+        icon: "icon_rebirth_flame",
+        iconDescription: "a phoenix bird rising from flames",
         apCost: 2,
         range: 0,
         damage: 0,
@@ -379,7 +401,8 @@ export const MAGICIAN_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "static_field",
         name: "Static Field",
-        icon: "⚡",
+        icon: "icon_static_field",
+        iconDescription: "electric sparks forming a circular field",
         apCost: 2,
         range: 3,
         minRange: 1,

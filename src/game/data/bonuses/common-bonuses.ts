@@ -14,7 +14,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Vitality",
         description: "+2 Max Health",
-        icon: "❤️",
+        icon: "icon_health_boost",
+        iconDescription: "a glowing red heart symbol",
         stackable: true,
         tags: ["defensive", "health"],
         effects: [
@@ -33,7 +34,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Toughness",
         description: "+1 Armor",
-        icon: "🛡️",
+        icon: "icon_armor_boost",
+        iconDescription: "a sturdy metal shield",
         stackable: true,
         tags: ["defensive"],
         effects: [
@@ -48,7 +50,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Mystic Ward",
         description: "+1 Magic Resistance",
-        icon: "✨",
+        icon: "icon_magic_resistance_boost",
+        iconDescription: "sparkling magical ward energy",
         stackable: true,
         tags: ["defensive", "magic"],
         effects: [
@@ -63,7 +66,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Swiftness",
         description: "+1 Movement Point",
-        icon: "👟",
+        icon: "icon_movement_boost",
+        iconDescription: "a running shoe with speed lines",
         stackable: true,
         tags: ["mobility"],
         effects: [
@@ -86,7 +90,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Energy",
         description: "+1 Action Point",
-        icon: "⚡",
+        icon: "icon_action_boost",
+        iconDescription: "a crackling lightning bolt of energy",
         stackable: true,
         tags: ["offensive", "utility"],
         effects: [
@@ -109,7 +114,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Balanced Defense",
         description: "+1 Armor, +1 Magic Resistance",
-        icon: "⚖️",
+        icon: "icon_balanced_defense",
+        iconDescription: "balanced scales of protection",
         stackable: true,
         tags: ["defensive"],
         effects: [
@@ -128,7 +134,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Balanced Warrior",
         description: "+1 Force, +1 Dexterity, +1 Intelligence",
-        icon: "⚖️",
+        icon: "icon_balanced_warrior",
+        iconDescription: "balanced scales with three orbs",
         stackable: false,
         tags: ["offensive"],
         effects: [
@@ -151,7 +158,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Fortress",
         description: "+2 Armor, +2 Health, -2 Movement",
-        icon: "🏰",
+        icon: "icon_tank_build",
+        iconDescription: "a fortified stone castle tower",
         stackable: false,
         tags: ["defensive", "health"],
         effects: [
@@ -186,7 +194,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Mobility Master",
         description: "+3 Movement, -1 Force, -1 Dexterity",
-        icon: "🏃‍♂️",
+        icon: "icon_mobility_master",
+        iconDescription: "a running figure in motion",
         stackable: false,
         tags: ["mobility"],
         effects: [
@@ -217,7 +226,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Reckless Charge",
         description: "+2 Movement, -1 Armor",
-        icon: "🌪️",
+        icon: "icon_reckless_charge",
+        iconDescription: "a spinning tornado whirlwind",
         stackable: false,
         tags: ["mobility", "risky"],
         effects: [
@@ -244,7 +254,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Iron Will",
         description: "+3 Max Health, -1 Movement Point",
-        icon: "🧘",
+        icon: "icon_iron_will",
+        iconDescription: "a meditating figure with inner strength aura",
         stackable: false,
         tags: ["defensive", "health"],
         effects: [
@@ -275,7 +286,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Arcane Battery",
         description: "+2 Action Points, -1 Movement",
-        icon: "🔋",
+        icon: "icon_arcane_battery",
+        iconDescription: "a glowing magical battery cell",
         stackable: false,
         tags: ["offensive", "utility"],
         effects: [
@@ -306,7 +318,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Defensive Stance",
         description: "+3 Armor, -1 AP",
-        icon: "🛡️",
+        icon: "icon_defensive_stance",
+        iconDescription: "a shield raised in defensive position",
         stackable: false,
         tags: ["defensive"],
         effects: [
@@ -329,7 +342,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Anti-Magic Shield",
         description: "+3 Magic Resistance, -1 Movement",
-        icon: "🔮",
+        icon: "icon_anti_magic_shield",
+        iconDescription: "a crystal orb deflecting magic",
         stackable: false,
         tags: ["defensive", "magic"],
         effects: [
@@ -360,7 +374,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Critical Striker",
         description: "10% chance for attacks to deal double damage",
-        icon: "⚔️",
+        icon: "icon_critical_striker",
+        iconDescription: "crossed swords with critical hit spark",
         stackable: false,
         tags: ["offensive", "chance"],
         effects: [
@@ -376,7 +391,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Thorns",
         description: "Melee attackers take 1 damage",
-        icon: "🌹",
+        icon: "icon_thorns",
+        iconDescription: "a rose with sharp thorny vines",
         stackable: false,
         tags: ["defensive", "melee"],
         effects: [
@@ -392,7 +408,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Spell Shield",
         description: "Block first magic attack each battle",
-        icon: "🛡️",
+        icon: "icon_spell_shield",
+        iconDescription: "a shield with magical runes glowing",
         stackable: false,
         tags: ["defensive", "magic"],
         effects: [
@@ -408,7 +425,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Tactical Retreat",
         description: "+2 Movement after taking damage",
-        icon: "🏃",
+        icon: "icon_tactical_retreat",
+        iconDescription: "a figure running with retreat arrow",
         stackable: false,
         tags: ["defensive", "mobility"],
         effects: [
@@ -423,7 +441,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Nimble Fighter",
         description: "+1 Movement after dodging an attack (25% chance)",
-        icon: "🤸",
+        icon: "icon_nimble_fighter",
+        iconDescription: "an acrobat doing a flip dodge",
         stackable: false,
         tags: ["defensive", "mobility", "chance"],
         effects: [
@@ -439,7 +458,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Adaptive Armor",
         description: "+1 Armor/Magic Resistance based on last damage taken",
-        icon: "🛡️",
+        icon: "icon_adaptive_armor",
+        iconDescription: "a morphing adaptive shield",
         stackable: false,
         tags: ["defensive"],
         effects: [
@@ -454,7 +474,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Last Stand",
         description: "+2 to all combat stats when below 25% HP",
-        icon: "🛡️",
+        icon: "icon_last_stand",
+        iconDescription: "a shield with last stand emblem glowing",
         stackable: false,
         tags: ["offensive", "defensive", "conditional"],
         effects: [
@@ -490,7 +511,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Combat Medic",
         description: "Heal 2 HP at the start of each turn",
-        icon: "🏥",
+        icon: "icon_combat_medic",
+        iconDescription: "a medical cross with healing glow",
         stackable: false,
         tags: ["sustain"],
         effects: [
@@ -505,7 +527,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Adrenaline Rush",
         description: "+2 AP on first turn of battle",
-        icon: "💉",
+        icon: "icon_adrenaline_rush",
+        iconDescription: "a syringe with adrenaline fluid",
         stackable: false,
         tags: ["offensive", "utility"],
         effects: [
@@ -520,7 +543,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Shadow Step",
         description: "First movement each turn costs 0 MP",
-        icon: "👤",
+        icon: "icon_shadow_step",
+        iconDescription: "a shadowy silhouette figure",
         stackable: false,
         tags: ["mobility"],
         effects: [
@@ -535,7 +559,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Momentum",
         description: "+1 Movement after defeating an enemy",
-        icon: "💨",
+        icon: "icon_momentum",
+        iconDescription: "a wind gust with forward momentum",
         stackable: false,
         tags: ["mobility"],
         effects: [
@@ -550,7 +575,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Spell Sniper",
         description: "All ranged/magic spells: +1 Range",
-        icon: "🎯",
+        icon: "icon_spell_sniper",
+        iconDescription: "a magical target crosshair",
         stackable: false,
         tags: ["ranged", "magic", "range"],
         effects: [
@@ -571,7 +597,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Giant Slayer",
         description: "+3 damage vs enemies with more max HP than you",
-        icon: "🗡️",
+        icon: "icon_giant_slayer",
+        iconDescription: "a dagger striking a giant silhouette",
         stackable: false,
         tags: ["offensive", "conditional"],
         effects: [
@@ -587,7 +614,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Perfect Balance",
         description: "All stats minimum 3 (raises low stats)",
-        icon: "⚖️",
+        icon: "icon_perfect_balance",
+        iconDescription: "perfectly balanced golden scales",
         stackable: false,
         tags: ["utility"],
         effects: [
@@ -601,7 +629,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Gambler's Luck",
         description: "Can reroll bonus choices once per victory",
-        icon: "🎲",
+        icon: "icon_gamblers_luck",
+        iconDescription: "lucky dice showing high numbers",
         stackable: false,
         tags: ["utility"],
         effects: [],
@@ -615,7 +644,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Resilience",
         description: "+3 Max Health, +1 Magic Resistance",
-        icon: "💚",
+        icon: "icon_resilience",
+        iconDescription: "a green glowing heart of resilience",
         stackable: false,
         tags: ["defensive", "health", "magic"],
         effects: [
@@ -638,7 +668,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Veteran",
         description: "+1 Force, +1 Armor",
-        icon: "🎖️",
+        icon: "icon_veteran",
+        iconDescription: "a military medal of honor",
         stackable: true,
         tags: ["offensive", "defensive"],
         effects: [
@@ -657,7 +688,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Agile Fighter",
         description: "+2 Movement, +1 Dexterity, -1 Health",
-        icon: "🦎",
+        icon: "icon_agile_fighter",
+        iconDescription: "an agile lizard in motion",
         stackable: false,
         tags: ["mobility", "offensive", "risky"],
         effects: [
@@ -692,7 +724,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Prepared",
         description: "+2 AP on battle start",
-        icon: "📋",
+        icon: "icon_prepared",
+        iconDescription: "a clipboard with battle checklist",
         stackable: false,
         tags: ["offensive", "utility"],
         effects: [
@@ -711,7 +744,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Killing Spree",
         description: "+1 AP after defeating an enemy",
-        icon: "💀",
+        icon: "icon_killing_spree",
+        iconDescription: "a skull with fiery eyes",
         stackable: false,
         tags: ["offensive", "utility"],
         effects: [
@@ -726,7 +760,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Second Strike",
         description: "15% chance to gain +1 AP on hit",
-        icon: "🎰",
+        icon: "icon_second_strike",
+        iconDescription: "a slot machine with lucky sevens",
         stackable: false,
         tags: ["offensive", "chance"],
         effects: [
@@ -743,6 +778,7 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         name: "Survivor",
         description: "Heal 3 HP when dropping below 30% health",
         icon: "🩹",
+        iconDescription: "a bandage with healing cross",
         stackable: false,
         tags: ["defensive", "sustain", "conditional"],
         effects: [
@@ -758,7 +794,8 @@ export const COMMON_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Opportunist",
         description: "+2 damage vs enemies below 50% HP",
-        icon: "🎯",
+        icon: "icon_opportunist",
+        iconDescription: "a target with weak point highlighted",
         stackable: false,
         tags: ["offensive", "conditional"],
         effects: [

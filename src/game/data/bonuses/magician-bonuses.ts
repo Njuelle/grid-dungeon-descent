@@ -14,7 +14,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Arcane Mind",
         description: "+1 Intelligence",
-        icon: "🧠",
+        icon: "icon_intelligence_boost",
+        iconDescription: "a glowing magical brain",
         stackable: true,
         tags: ["offensive", "magic"],
         effects: [
@@ -29,7 +30,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Glass Cannon (Int)",
         description: "+3 Intelligence, -1 Armor",
-        icon: "💎",
+        icon: "icon_glass_cannon_int",
+        iconDescription: "a fragile glowing gemstone",
         stackable: false,
         tags: ["offensive", "magic", "risky"],
         effects: [
@@ -48,7 +50,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Scholar's Focus",
         description: "+2 Intelligence, -1 Force",
-        icon: "📚",
+        icon: "icon_scholar_build",
+        iconDescription: "a stack of magical spell books",
         stackable: false,
         tags: ["offensive", "magic"],
         effects: [
@@ -67,7 +70,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Battle Mage",
         description: "+1 Intelligence, +1 Armor",
-        icon: "🔮",
+        icon: "icon_battle_mage",
+        iconDescription: "a crystal ball with battle energy",
         stackable: false,
         tags: ["offensive", "defensive", "magic"],
         effects: [
@@ -86,7 +90,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Mystic Armor",
         description: "+1 Intelligence, +1 Magic Resistance",
-        icon: "🌟",
+        icon: "icon_mystic_armor",
+        iconDescription: "a shining star with protective aura",
         stackable: false,
         tags: ["offensive", "defensive", "magic"],
         effects: [
@@ -105,7 +110,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Mystic Endurance",
         description: "+2 Intelligence, +1 Movement",
-        icon: "✨",
+        icon: "icon_mystic_endurance",
+        iconDescription: "sparkling magical endurance energy",
         stackable: false,
         tags: ["offensive", "mobility", "magic"],
         effects: [
@@ -132,7 +138,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Elemental Affinity",
         description: "+2 Intelligence, +2 Magic Resistance, -2 Force",
-        icon: "🌊",
+        icon: "icon_elemental_affinity",
+        iconDescription: "a wave of elemental water energy",
         stackable: false,
         tags: ["offensive", "defensive", "magic"],
         effects: [
@@ -160,6 +167,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Efficient Casting",
         description: "Magic Missile: -1 AP cost",
         icon: "icon_magic_missile",
+        iconDescription: "a glowing magic missile with efficiency glow",
         stackable: false,
         tags: ["magic", "efficiency"],
         effects: [
@@ -176,6 +184,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Scatter Missiles",
         description: "Magic Missile: -1 Damage, -1 AP Cost",
         icon: "icon_magic_missile",
+        iconDescription: "multiple magic missiles scattering",
         stackable: false,
         tags: ["magic", "efficiency"],
         effects: [
@@ -197,6 +206,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Scattering Missiles",
         description: "Magic Missile: Small AoE (Radius 1), -1 Damage",
         icon: "icon_magic_missile",
+        iconDescription: "magic missiles exploding in area",
         stackable: false,
         tags: ["magic", "aoe"],
         effects: [
@@ -223,6 +233,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Extended Missiles",
         description: "Magic Missile: +2 Range",
         icon: "icon_magic_missile",
+        iconDescription: "a long-range magic missile with trail",
         stackable: false,
         tags: ["magic", "range"],
         effects: [
@@ -243,6 +254,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Inferno",
         description: "Fireball: +3 damage",
         icon: "icon_fire_ball",
+        iconDescription: "a massive inferno fire explosion",
         stackable: false,
         tags: ["magic", "damage"],
         effects: [
@@ -259,6 +271,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Far Reach",
         description: "Fireball: +1 range",
         icon: "icon_fire_ball",
+        iconDescription: "a fireball with extended range trail",
         stackable: false,
         tags: ["magic", "range"],
         effects: [
@@ -275,6 +288,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Explosive Fireball",
         description: "Fireball: Gains a circular AoE (Radius 1), -1 Damage",
         icon: "icon_fire_ball",
+        iconDescription: "an exploding fireball with circular blast",
         stackable: false,
         tags: ["magic", "aoe"],
         effects: [
@@ -301,6 +315,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Fire Line",
         description: "Fireball: Becomes a line AoE (Length 3), -1 Damage",
         icon: "icon_fire_ball",
+        iconDescription: "a line of fire spreading forward",
         stackable: false,
         tags: ["magic", "aoe"],
         effects: [
@@ -327,6 +342,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Efficient AoE (Fireball)",
         description: "Fireball: If AoE, -1 AP Cost",
         icon: "icon_fire_ball",
+        iconDescription: "an efficient glowing fireball",
         stackable: false,
         tags: ["magic", "efficiency", "conditional"],
         effects: [
@@ -344,6 +360,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Unstable Fireball",
         description: "Fireball: +4 Damage, -1 Range",
         icon: "icon_fire_ball",
+        iconDescription: "an unstable crackling fireball",
         stackable: false,
         tags: ["magic", "damage", "risky"],
         effects: [
@@ -365,6 +382,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Mega Fireball",
         description: "Fireball: +1 AoE Radius",
         icon: "icon_fire_ball",
+        iconDescription: "a massive mega fireball",
         stackable: false,
         tags: ["magic", "aoe", "conditional"],
         effects: [
@@ -385,7 +403,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Spell Thief",
         description: "Gain 1 AP when killing with magic",
-        icon: "🎭",
+        icon: "icon_spell_thief",
+        iconDescription: "a theater mask with magical aura",
         stackable: false,
         tags: ["magic", "utility"],
         effects: [
@@ -401,7 +420,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Spell Echo",
         description: "25% chance to not consume AP on magic spells",
-        icon: "🔄",
+        icon: "icon_spell_echo",
+        iconDescription: "a circular repeating echo symbol",
         stackable: false,
         tags: ["magic", "efficiency", "chance"],
         effects: [
@@ -417,7 +437,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Magic Mastery",
         description: "All magic spells: -1 AP Cost (min 1)",
-        icon: "🎭",
+        icon: "icon_magic_mastery",
+        iconDescription: "a mastery crown with magic energy",
         stackable: false,
         tags: ["magic", "efficiency"],
         effects: [
@@ -433,7 +454,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Overload",
         description: "+1 to all spell damage, spells cost 1 more AP",
-        icon: "⚡",
+        icon: "icon_overload",
+        iconDescription: "an overloaded lightning bolt crackling",
         stackable: false,
         tags: ["offensive", "risky"],
         effects: [
@@ -452,7 +474,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Explosive Glass",
         description: "All AoE +1 radius, -2 Armor",
-        icon: "💥",
+        icon: "icon_glass_aoe",
+        iconDescription: "shattering glass explosion",
         stackable: false,
         tags: ["aoe", "risky"],
         effects: [
@@ -472,7 +495,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Mage Armor",
         description: "Intelligence also adds to Armor (50% rate)",
-        icon: "🧙",
+        icon: "icon_mage_armor",
+        iconDescription: "a wizard with protective magical shield",
         stackable: false,
         tags: ["defensive", "magic"],
         effects: [
@@ -491,7 +515,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Arcane Power",
         description: "+2 Intelligence, +1 AP",
-        icon: "⚡",
+        icon: "icon_arcane_power",
+        iconDescription: "a bolt of arcane power energy",
         stackable: false,
         tags: ["offensive", "magic", "utility"],
         effects: [
@@ -514,7 +539,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Spell Weaver",
         description: "+2 Intelligence, +1 Range on magic spells, -1 Health",
-        icon: "🕸️",
+        icon: "icon_spell_weaver",
+        iconDescription: "a magical web of woven spells",
         stackable: false,
         tags: ["offensive", "magic", "range", "risky"],
         effects: [
@@ -542,7 +568,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Fortified Mind",
         description: "+2 Intelligence, +2 Magic Resistance, -1 Movement",
-        icon: "🧠",
+        icon: "icon_fortified_mind",
+        iconDescription: "a fortified brain with shield",
         stackable: false,
         tags: ["offensive", "defensive", "magic"],
         effects: [
@@ -578,6 +605,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Homing Missiles",
         description: "Magic Missile: +1 Damage, +1 Range",
         icon: "icon_magic_missile",
+        iconDescription: "a homing magic missile seeking target",
         stackable: false,
         tags: ["magic", "damage", "range"],
         effects: [
@@ -599,6 +627,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Rapid Missiles",
         description: "Magic Missile: -1 AP Cost",
         icon: "icon_magic_missile",
+        iconDescription: "rapid fire magic missiles",
         stackable: false,
         tags: ["magic", "efficiency"],
         effects: [
@@ -619,6 +648,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Scorching Flames",
         description: "Fireball: +2 Damage, burns target (-1 Force)",
         icon: "icon_fire_ball",
+        iconDescription: "scorching hot flames burning",
         stackable: false,
         tags: ["magic", "damage", "debuff"],
         effects: [
@@ -640,6 +670,7 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         name: "Concentrated Flame",
         description: "Fireball: +4 Damage (single target focus)",
         icon: "icon_fire_ball",
+        iconDescription: "a concentrated beam of fire",
         stackable: false,
         tags: ["magic", "damage"],
         effects: [
@@ -659,7 +690,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "spell",
         name: "Empowered Bolt",
         description: "Arcane Bolt: +2 Damage",
-        icon: "✨",
+        icon: "icon_empowered_bolt",
+        iconDescription: "an empowered glowing arcane bolt",
         stackable: false,
         tags: ["magic", "damage"],
         effects: [
@@ -675,7 +707,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "spell",
         name: "Reinforced Shield",
         description: "Arcane Shield: +1 Range (can cast on allies)",
-        icon: "🔮",
+        icon: "icon_reinforced_shield",
+        iconDescription: "a reinforced magical shield barrier",
         stackable: false,
         tags: ["magic", "defensive", "utility"],
         effects: [
@@ -695,7 +728,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Mana Surge",
         description: "+1 Intelligence when casting magic (stacking)",
-        icon: "🌊",
+        icon: "icon_mana_surge",
+        iconDescription: "a surging wave of mana energy",
         stackable: false,
         tags: ["offensive", "magic"],
         effects: [
@@ -711,7 +745,8 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Arcane Reflexes",
         description: "20% chance to gain +2 MP when taking damage",
-        icon: "💫",
+        icon: "icon_arcane_reflexes",
+        iconDescription: "quick magical reflex sparkles",
         stackable: false,
         tags: ["defensive", "mobility", "chance"],
         effects: [

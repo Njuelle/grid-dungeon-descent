@@ -783,19 +783,20 @@ export class UIManager {
         if (isImageKey) {
             // Use image for preloaded icons
             iconDisplay = this.scene.add.image(0, 0, spell.icon);
-            iconDisplay.setDisplaySize(48, 48);
+            iconDisplay.setOrigin(0.5);
+            iconDisplay.setDisplaySize(56, 56);
         } else {
             // Use text for emoji icons
             iconDisplay = this.scene.add
                 .text(0, 0, spell.icon, {
-                    fontSize: "36px",
+                    fontSize: "42px",
                 })
                 .setOrigin(0.5);
         }
 
         // AP cost - positioned at top-right corner of icon
         const apCostText = this.scene.add
-            .text(20, -20, `${spell.apCost}`, {
+            .text(24, -24, `${spell.apCost}`, {
                 fontSize: "14px",
                 color: "#ffff00",
                 backgroundColor: "#000000",
@@ -816,7 +817,7 @@ export class UIManager {
         container.setData("apCostText", apCostText);
         container.setData("selectionBorder", selectionBorder);
         container.setInteractive(
-            new Phaser.Geom.Rectangle(-24, -24, 48, 48),
+            new Phaser.Geom.Rectangle(-28, -28, 56, 56),
             Phaser.Geom.Rectangle.Contains
         );
 
@@ -947,7 +948,12 @@ export class UIManager {
         const tooltipY =
             this.scene.scale.height - bottomBarHeight - totalHeight / 2 - 10; // 10px gap above bottom bar
 
-        this.spellTooltip = this.scene.add.container(x, tooltipY, [
+        // Clamp x position to keep tooltip within screen bounds
+        const minX = maxWidth / 2 + 10; // 10px padding from left edge
+        const maxX = this.scene.scale.width - maxWidth / 2 - 10; // 10px padding from right edge
+        const tooltipX = Math.max(minX, Math.min(x, maxX));
+
+        this.spellTooltip = this.scene.add.container(tooltipX, tooltipY, [
             bg,
             titleText,
             descText,
@@ -972,8 +978,8 @@ export class UIManager {
         this.currentPlayer = player;
         const spells = player.getSpells();
         const buttonY = this.scene.scale.height - 50; // Adjusted for larger bar
-        const startX = 100;
-        const spacing = 70; // Spacing between spell buttons
+        const startX = 50; // Moved left
+        const spacing = 75; // Spacing between spell buttons
 
         spells.forEach((spell, index) => {
             const button = this.createSpellButton(
@@ -1033,19 +1039,19 @@ export class UIManager {
             ) as Phaser.GameObjects.Graphics;
 
             if (buttonSpell === spell) {
-                // Selected state - green border and larger
+                // Selected state - green border, same size icon
                 if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
                     iconDisplay.clearTint();
                     iconDisplay.setDisplaySize(56, 56);
                 } else if (iconDisplay instanceof Phaser.GameObjects.Text) {
-                    iconDisplay.setFontSize(44); // Larger when selected
+                    iconDisplay.setFontSize(42);
                 }
-                iconDisplay.setScale(1.1);
+                iconDisplay.setAlpha(1);
 
                 // Draw green border
                 selectionBorder.clear();
                 selectionBorder.lineStyle(3, 0x00ff00, 1);
-                selectionBorder.strokeRoundedRect(-30, -30, 60, 60, 8);
+                selectionBorder.strokeRoundedRect(-31, -31, 62, 62, 8);
                 selectionBorder.setVisible(true);
             } else if (
                 this.currentPlayer &&
@@ -1054,23 +1060,21 @@ export class UIManager {
                 // Disabled state
                 if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
                     iconDisplay.setTint(0x666666);
-                    iconDisplay.setDisplaySize(48, 48);
+                    iconDisplay.setDisplaySize(56, 56);
                 } else if (iconDisplay instanceof Phaser.GameObjects.Text) {
-                    iconDisplay.setFontSize(36);
+                    iconDisplay.setFontSize(42);
                 }
                 iconDisplay.setAlpha(0.5);
-                iconDisplay.setScale(1);
                 selectionBorder.setVisible(false);
             } else {
                 // Normal state
                 if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
                     iconDisplay.clearTint();
-                    iconDisplay.setDisplaySize(48, 48);
+                    iconDisplay.setDisplaySize(56, 56);
                 } else if (iconDisplay instanceof Phaser.GameObjects.Text) {
-                    iconDisplay.setFontSize(36);
+                    iconDisplay.setFontSize(42);
                 }
                 iconDisplay.setAlpha(1);
-                iconDisplay.setScale(1);
                 selectionBorder.setVisible(false);
             }
         });
@@ -2615,11 +2619,12 @@ export class UIManager {
             let iconDisplay: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
             if (bonus.icon.startsWith("icon_")) {
                 iconDisplay = this.scene.add.image(0, -100, bonus.icon);
-                iconDisplay.setDisplaySize(48, 48);
+                iconDisplay.setOrigin(0.5);
+                iconDisplay.setDisplaySize(64, 64);
             } else {
                 iconDisplay = this.scene.add
                     .text(0, -100, bonus.icon, {
-                        fontSize: "48px",
+                        fontSize: "64px",
                     })
                     .setOrigin(0.5);
             }
@@ -2815,11 +2820,12 @@ export class UIManager {
                                 -100,
                                 bonus.icon
                             );
-                            iconDisplay.setDisplaySize(48, 48);
+                            iconDisplay.setOrigin(0.5);
+                            iconDisplay.setDisplaySize(64, 64);
                         } else {
                             iconDisplay = this.scene.add
                                 .text(0, -100, bonus.icon, {
-                                    fontSize: "48px",
+                                    fontSize: "64px",
                                 })
                                 .setOrigin(0.5);
                         }

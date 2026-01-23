@@ -183,10 +183,11 @@ export class BonusSelectionUI {
         let iconDisplay: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
         if (bonus.icon.startsWith("icon_")) {
             iconDisplay = this.scene.add.image(0, -100, bonus.icon);
-            iconDisplay.setDisplaySize(48, 48);
+            iconDisplay.setOrigin(0.5);
+            iconDisplay.setDisplaySize(64, 64);
         } else {
             iconDisplay = this.scene.add
-                .text(0, -100, bonus.icon, { fontSize: "48px" })
+                .text(0, -100, bonus.icon, { fontSize: "64px" })
                 .setOrigin(0.5);
         }
 

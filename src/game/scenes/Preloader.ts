@@ -1,4 +1,7 @@
 import { Scene, GameObjects } from "phaser";
+import { PLAYER_SPELLS } from "../data/spells";
+import { ALL_BONUSES } from "../data/bonuses";
+import { ALL_ARTIFACTS } from "../data/artifacts";
 
 export class Preloader extends Scene {
     background: GameObjects.Image;
@@ -305,22 +308,8 @@ export class Preloader extends Scene {
         this.load.image("hero_ranger", "heros/ranger/hero_ranger_idle.png");
         this.load.image("hero_magician", "heros/magician/hero_magician_idle.png");
 
-        // Load spell icons
-        this.load.image("icon_slash", "icons/spells/icon_slash.png");
-        this.load.image(
-            "icon_power_strike",
-            "icons/spells/icon_power_strike.png"
-        );
-        this.load.image("icon_arrow_shot", "icons/spells/icon_arrow_shot.png");
-        this.load.image(
-            "icon_magic_missile",
-            "icons/spells/icon_magic_missile.png"
-        );
-        this.load.image("icon_fire_ball", "icons/spells/icon_fire_ball.png");
-        this.load.image(
-            "icon_bone_piercer",
-            "icons/spells/icon_bone_piercer.png"
-        );
+        // Load all icons dynamically from game data
+        this.loadAllIcons();
 
         // Load background music
         this.load.audio("battle_music", "music/battle-of-the-dragons-8037.mp3");
@@ -331,6 +320,39 @@ export class Preloader extends Scene {
         this.load.audio("magic_attack", "sound/magic_attack.wav");
         this.load.audio("walk", "sound/walk.wav");
         this.load.audio("victory", "sound/victory.wav");
+    }
+
+    /**
+     * Dynamically load all icons from game data (spells, bonuses, artifacts)
+     */
+    private loadAllIcons(): void {
+        const loadedIcons = new Set<string>();
+
+        // Load spell icons
+        for (const spell of PLAYER_SPELLS) {
+            if (spell.icon.startsWith("icon_") && !loadedIcons.has(spell.icon)) {
+                loadedIcons.add(spell.icon);
+                this.load.image(spell.icon, `icons/spells/${spell.icon}.png`);
+            }
+        }
+
+        // Load bonus icons
+        for (const bonus of ALL_BONUSES) {
+            if (bonus.icon.startsWith("icon_") && !loadedIcons.has(bonus.icon)) {
+                loadedIcons.add(bonus.icon);
+                this.load.image(bonus.icon, `icons/bonuses/${bonus.icon}.png`);
+            }
+        }
+
+        // Load artifact icons
+        for (const artifact of ALL_ARTIFACTS) {
+            if (artifact.icon.startsWith("icon_") && !loadedIcons.has(artifact.icon)) {
+                loadedIcons.add(artifact.icon);
+                this.load.image(artifact.icon, `icons/artifacts/${artifact.icon}.png`);
+            }
+        }
+
+        console.log(`Loaded ${loadedIcons.size} icons`);
     }
 
     create() {

@@ -12,7 +12,8 @@ export const RANGER_STARTING_SPELLS: SpellDefinition[] = [
     {
         id: "arrow_shot",
         name: "Arrow Shot",
-        icon: "🏹",
+        icon: "icon_arrow_shot",
+        iconDescription: "a bow with arrow drawn back ready to fire",
         apCost: 1,
         range: 3,
         minRange: 2,
@@ -23,7 +24,8 @@ export const RANGER_STARTING_SPELLS: SpellDefinition[] = [
     {
         id: "piercing_arrow",
         name: "Piercing Arrow",
-        icon: "➳",
+        icon: "icon_piercing_arrow",
+        iconDescription: "a sharp pointed arrow with glowing tip",
         apCost: 2,
         range: 4,
         minRange: 2,
@@ -34,7 +36,8 @@ export const RANGER_STARTING_SPELLS: SpellDefinition[] = [
     {
         id: "hunters_mark",
         name: "Hunter's Mark",
-        icon: "🎯",
+        icon: "icon_hunters_mark",
+        iconDescription: "a red target mark with crosshairs",
         apCost: 1,
         range: 4,
         minRange: 1,
@@ -59,7 +62,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "bone_piercer",
         name: "Bone Piercer",
-        icon: "🦴",
+        icon: "icon_bone_piercer",
+        iconDescription: "a sharpened bone shaped like an arrow",
         apCost: 2,
         range: 4,
         minRange: 2,
@@ -70,7 +74,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "multi_shot",
         name: "Multi-Shot",
-        icon: "🎯",
+        icon: "icon_multi_shot",
+        iconDescription: "three arrows spreading out in flight",
         apCost: 2,
         range: 3,
         minRange: 2,
@@ -83,7 +88,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "poison_arrow",
         name: "Poison Arrow",
-        icon: "☣️",
+        icon: "icon_poison_arrow",
+        iconDescription: "an arrow with dripping green poison",
         apCost: 2,
         range: 4,
         minRange: 2,
@@ -102,6 +108,7 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
         id: "trap",
         name: "Bear Trap",
         icon: "🪤",
+        iconDescription: "a metal bear trap with sharp teeth",
         apCost: 1,
         range: 2,
         damage: 1,
@@ -119,7 +126,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "camouflage",
         name: "Camouflage",
-        icon: "🌿",
+        icon: "icon_camouflage",
+        iconDescription: "green leaves and foliage for hiding",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -137,7 +145,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "snipe",
         name: "Snipe",
-        icon: "🔭",
+        icon: "icon_snipe",
+        iconDescription: "a telescope or sniper scope with crosshairs",
         apCost: 3,
         range: 6,
         minRange: 3,
@@ -148,7 +157,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "volley",
         name: "Volley",
-        icon: "🌧️",
+        icon: "icon_volley",
+        iconDescription: "multiple arrows raining down from above",
         apCost: 3,
         range: 4,
         minRange: 2,
@@ -161,7 +171,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "marked_for_death",
         name: "Marked for Death",
-        icon: "💀",
+        icon: "icon_marked_for_death",
+        iconDescription: "a skull with a target mark on forehead",
         apCost: 1,
         range: 5,
         damage: 0,
@@ -178,7 +189,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "evasive_roll",
         name: "Evasive Roll",
-        icon: "🎲",
+        icon: "icon_evasive_roll",
+        iconDescription: "a rolling dice with motion blur",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -196,7 +208,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "net_shot",
         name: "Net Shot",
-        icon: "🕸️",
+        icon: "icon_net_shot",
+        iconDescription: "a spider web net being thrown",
         apCost: 1,
         range: 3,
         minRange: 1,
@@ -215,7 +228,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "wind_step",
         name: "Wind Step",
-        icon: "💨",
+        icon: "icon_wind_step",
+        iconDescription: "swift wind gust with speed lines",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -233,7 +247,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "headshot",
         name: "Headshot",
-        icon: "🎯",
+        icon: "icon_headshot",
+        iconDescription: "a bullseye target with arrow in center",
         apCost: 3,
         range: 5,
         minRange: 3,
@@ -244,7 +259,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "barbed_arrow",
         name: "Barbed Arrow",
-        icon: "🏹",
+        icon: "icon_barbed_arrow",
+        iconDescription: "an arrow with sharp barbed hooks",
         apCost: 2,
         range: 4,
         minRange: 2,
@@ -262,7 +278,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "true_sight",
         name: "True Sight",
-        icon: "👁️",
+        icon: "icon_true_sight",
+        iconDescription: "an all-seeing mystical eye",
         apCost: 1,
         range: 5,
         minRange: 1,
@@ -280,7 +297,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "venom_strike",
         name: "Venom Strike",
-        icon: "🐍",
+        icon: "icon_venom_strike",
+        iconDescription: "a coiled snake with fangs dripping venom",
         apCost: 2,
         range: 3,
         minRange: 2,
@@ -299,7 +317,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "phantom_arrow",
         name: "Phantom Arrow",
-        icon: "👻",
+        icon: "icon_phantom_arrow",
+        iconDescription: "a ghostly translucent arrow with ethereal glow",
         apCost: 2,
         range: 4,
         minRange: 2,
@@ -317,7 +336,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "hamstring_bolt",
         name: "Hamstring Bolt",
-        icon: "🦵",
+        icon: "icon_hamstring_bolt",
+        iconDescription: "a leg being struck by an arrow",
         apCost: 2,
         range: 4,
         minRange: 2,
@@ -335,7 +355,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "expose_weakness",
         name: "Expose Weakness",
-        icon: "🔍",
+        icon: "icon_expose_weakness",
+        iconDescription: "a magnifying glass revealing a weak point",
         apCost: 1,
         range: 5,
         minRange: 1,
@@ -353,7 +374,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "gale_step",
         name: "Gale Step",
-        icon: "🌬️",
+        icon: "icon_gale_step",
+        iconDescription: "a powerful wind blowing with swirl patterns",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -371,7 +393,8 @@ export const RANGER_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "ambush",
         name: "Ambush",
-        icon: "🎭",
+        icon: "icon_ambush",
+        iconDescription: "a theater mask half in shadow",
         apCost: 2,
         range: 5,
         minRange: 2,

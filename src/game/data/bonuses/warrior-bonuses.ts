@@ -14,7 +14,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Strength",
         description: "+1 Force",
-        icon: "💪",
+        icon: "icon_force_boost",
+        iconDescription: "a muscular flexing arm",
         stackable: true,
         tags: ["offensive", "melee"],
         effects: [
@@ -29,7 +30,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Glass Cannon (Force)",
         description: "+3 Force, -1 Armor",
-        icon: "💥",
+        icon: "icon_glass_cannon_force",
+        iconDescription: "an exploding cannon ball",
         stackable: false,
         tags: ["offensive", "melee", "risky"],
         effects: [
@@ -48,7 +50,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Berserker's Stance",
         description: "+2 Force, -1 Dexterity",
-        icon: "😡",
+        icon: "icon_berserkers_stance",
+        iconDescription: "an angry red face in fury",
         stackable: false,
         tags: ["offensive", "melee"],
         effects: [
@@ -67,7 +70,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Frenzied Warrior",
         description: "+2 Force, +1 AP, -2 Armor",
-        icon: "💀",
+        icon: "icon_frenzied_warrior",
+        iconDescription: "a skull with wild battle energy",
         stackable: false,
         tags: ["offensive", "melee", "risky"],
         effects: [
@@ -99,6 +103,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Sharper Blade",
         description: "Slash: +2 damage",
         icon: "icon_slash",
+        iconDescription: "a sharpened sword blade with gleam",
         stackable: false,
         tags: ["melee", "damage"],
         effects: [
@@ -115,6 +120,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Swift Slash",
         description: "Slash: -2 Damage, +1 Range",
         icon: "icon_slash",
+        iconDescription: "a fast sword slash with speed lines",
         stackable: false,
         tags: ["melee", "utility"],
         effects: [
@@ -136,6 +142,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Whirlwind Slash",
         description: "Slash: Circle AoE (Radius 1), -1 Damage",
         icon: "icon_slash",
+        iconDescription: "a spinning sword creating whirlwind",
         stackable: false,
         tags: ["melee", "aoe"],
         effects: [
@@ -162,6 +169,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Bloodthirsty Blade",
         description: "Slash: Heal 1 HP per enemy hit",
         icon: "icon_slash",
+        iconDescription: "a blood-red sword dripping",
         stackable: false,
         tags: ["melee", "sustain"],
         effects: [
@@ -182,6 +190,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Crushing Blow",
         description: "Power Strike: +2 damage",
         icon: "icon_power_strike",
+        iconDescription: "a massive fist crushing down",
         stackable: false,
         tags: ["melee", "damage"],
         effects: [
@@ -198,6 +207,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Risky Power Strike",
         description: "Power Strike: +4 Damage, +1 AP Cost",
         icon: "icon_power_strike",
+        iconDescription: "a glowing fist with danger aura",
         stackable: false,
         tags: ["melee", "damage", "risky"],
         effects: [
@@ -219,6 +229,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Sweeping Strike",
         description: "Power Strike: Cone AoE (Radius 2), -1 Damage",
         icon: "icon_power_strike",
+        iconDescription: "a sweeping arm motion with arc",
         stackable: false,
         tags: ["melee", "aoe"],
         effects: [
@@ -245,6 +256,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Execute",
         description: "Power Strike: Instant kill enemies below 20% HP",
         icon: "icon_power_strike",
+        iconDescription: "an executioner axe falling",
         stackable: false,
         tags: ["melee", "execute"],
         effects: [
@@ -266,6 +278,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Vampiric Strikes",
         description: "Melee attacks heal 1 HP on hit",
         icon: "🩸",
+        iconDescription: "blood drops being absorbed",
         stackable: false,
         tags: ["melee", "sustain"],
         effects: [
@@ -281,7 +294,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Power Through Pain",
         description: "+1 Force for each missing HP (max +3)",
-        icon: "💪",
+        icon: "icon_power_through_pain",
+        iconDescription: "a muscular arm with pain marks",
         stackable: false,
         tags: ["offensive", "melee", "conditional"],
         effects: [
@@ -296,7 +310,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Fortified Position",
         description: "+3 Armor when you don't move for a turn",
-        icon: "🏰",
+        icon: "icon_fortified_position",
+        iconDescription: "a fortified castle with walls",
         stackable: false,
         tags: ["defensive", "conditional"],
         effects: [
@@ -312,7 +327,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Berserker Rage",
         description: "+1 Force per enemy defeated (max +5)",
-        icon: "💀",
+        icon: "icon_berserker_rage",
+        iconDescription: "a raging skull with fire eyes",
         stackable: false,
         tags: ["offensive", "melee"],
         effects: [
@@ -331,7 +347,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Brute Force",
         description: "+2 Force, +1 Health",
-        icon: "🦍",
+        icon: "icon_brute_force",
+        iconDescription: "a powerful gorilla silhouette",
         stackable: false,
         tags: ["offensive", "melee", "health"],
         effects: [
@@ -354,7 +371,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Unstoppable",
         description: "+2 Force, +2 Movement, -2 Magic Resistance",
-        icon: "🚂",
+        icon: "icon_unstoppable",
+        iconDescription: "a charging train locomotive",
         stackable: false,
         tags: ["offensive", "melee", "mobility", "risky"],
         effects: [
@@ -386,6 +404,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Iron Skin",
         description: "+2 Armor, +1 Force, -1 Movement",
         icon: "🪨",
+        iconDescription: "a solid rock surface",
         stackable: false,
         tags: ["defensive", "offensive", "melee"],
         effects: [
@@ -421,6 +440,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Heavy Slash",
         description: "Slash: +3 Damage, +1 AP Cost",
         icon: "icon_slash",
+        iconDescription: "a heavy sword swinging down",
         stackable: false,
         tags: ["melee", "damage", "risky"],
         effects: [
@@ -442,6 +462,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Bleeding Slash",
         description: "Slash: Target loses 1 Force for 2 turns",
         icon: "icon_slash",
+        iconDescription: "a sword leaving bloody wound",
         stackable: false,
         tags: ["melee", "debuff"],
         effects: [
@@ -462,6 +483,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Shattering Strike",
         description: "Power Strike: +2 Damage (armor piercing)",
         icon: "icon_power_strike",
+        iconDescription: "a fist shattering armor",
         stackable: false,
         tags: ["melee", "damage"],
         effects: [
@@ -478,6 +500,7 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         name: "Quick Strike",
         description: "Power Strike: -1 AP Cost, -1 Damage",
         icon: "icon_power_strike",
+        iconDescription: "a fast punch with motion blur",
         stackable: false,
         tags: ["melee", "efficiency"],
         effects: [
@@ -502,7 +525,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "spell",
         name: "Stunning Bash",
         description: "Shield Bash: +1 Damage",
-        icon: "🛡️",
+        icon: "icon_stunning_bash",
+        iconDescription: "a shield with stun stars",
         stackable: false,
         tags: ["melee", "damage", "control"],
         effects: [
@@ -518,7 +542,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "spell",
         name: "Inspiring Cry",
         description: "Battle Cry: Also grants +1 Armor",
-        icon: "📣",
+        icon: "icon_inspiring_cry",
+        iconDescription: "a megaphone with inspiring sound waves",
         stackable: false,
         tags: ["melee", "buff", "defensive"],
         effects: [
@@ -538,7 +563,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Juggernaut",
         description: "+2 Armor when above 75% HP",
-        icon: "🦏",
+        icon: "icon_juggernaut",
+        iconDescription: "a charging rhinoceros",
         stackable: false,
         tags: ["defensive", "conditional"],
         effects: [
@@ -554,7 +580,8 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Revenge",
         description: "+2 Force after taking damage",
-        icon: "😤",
+        icon: "icon_revenge",
+        iconDescription: "an angry face with steam coming out",
         stackable: false,
         tags: ["offensive", "melee", "reactive"],
         effects: [

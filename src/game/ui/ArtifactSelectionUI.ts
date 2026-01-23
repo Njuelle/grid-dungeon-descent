@@ -216,9 +216,16 @@ export class ArtifactSelectionUI {
         hoverBg.setVisible(false);
 
         // Artifact icon
-        const iconText = this.scene.add
-            .text(0, -140, artifact.icon, { fontSize: "64px" })
-            .setOrigin(0.5);
+        let iconDisplay: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
+        if (artifact.icon.startsWith("icon_")) {
+            iconDisplay = this.scene.add.image(0, -140, artifact.icon);
+            iconDisplay.setOrigin(0.5);
+            iconDisplay.setDisplaySize(64, 64);
+        } else {
+            iconDisplay = this.scene.add
+                .text(0, -140, artifact.icon, { fontSize: "64px" })
+                .setOrigin(0.5);
+        }
 
         // Artifact name
         const nameText = this.scene.add
@@ -288,7 +295,7 @@ export class ArtifactSelectionUI {
         card.add([
             cardBg,
             hoverBg,
-            iconText,
+            iconDisplay,
             nameText,
             descText,
             spellTitle,
@@ -441,9 +448,16 @@ export class ArtifactSelectionUI {
         hoverBg.setVisible(false);
 
         // Icon
-        const iconText = this.scene.add
-            .text(0, -80, artifact.icon, { fontSize: "48px" })
-            .setOrigin(0.5);
+        let iconDisplay: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
+        if (artifact.icon.startsWith("icon_")) {
+            iconDisplay = this.scene.add.image(0, -80, artifact.icon);
+            iconDisplay.setOrigin(0.5);
+            iconDisplay.setDisplaySize(48, 48);
+        } else {
+            iconDisplay = this.scene.add
+                .text(0, -80, artifact.icon, { fontSize: "48px" })
+                .setOrigin(0.5);
+        }
 
         // Name
         const nameText = this.scene.add
@@ -482,7 +496,7 @@ export class ArtifactSelectionUI {
         const hitArea = this.scene.add.rectangle(0, 0, cardWidth, cardHeight, 0x000000, 0);
         hitArea.setInteractive();
 
-        card.add([cardBg, hoverBg, iconText, nameText, spellText, replaceHint, hitArea]);
+        card.add([cardBg, hoverBg, iconDisplay, nameText, spellText, replaceHint, hitArea]);
 
         // Events
         hitArea.on("pointerover", () => {

@@ -12,7 +12,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "health_potion",
         name: "Health Potion",
-        icon: "🧪",
+        icon: "icon_health_potion",
+        iconDescription: "a red healing potion in a glass bottle",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -30,7 +31,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "speed_boost",
         name: "Speed Boost",
-        icon: "⚡",
+        icon: "icon_speed_boost",
+        iconDescription: "a lightning bolt with motion speed lines",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -48,7 +50,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "damage_aura",
         name: "Damage Aura",
-        icon: "💥",
+        icon: "icon_damage_aura",
+        iconDescription: "an explosion of fiery energy with red flames",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -65,7 +68,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "thorns_aura",
         name: "Thorns Aura",
-        icon: "🌵",
+        icon: "icon_thorns_aura",
+        iconDescription: "a cactus covered with sharp magical thorns",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -84,6 +88,7 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
         id: "life_steal",
         name: "Life Steal",
         icon: "🩸",
+        iconDescription: "drops of blood being magically absorbed",
         apCost: 2,
         range: 1,
         damage: 3,
@@ -100,7 +105,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "barrier",
         name: "Barrier",
-        icon: "🔰",
+        icon: "icon_barrier",
+        iconDescription: "a magical blue protective energy shield",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -117,7 +123,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "haste",
         name: "Haste",
-        icon: "🏃",
+        icon: "icon_haste",
+        iconDescription: "a running figure silhouette with speed lines",
         apCost: 2,
         range: 0,
         damage: 0,
@@ -135,7 +142,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "focus",
         name: "Focus",
-        icon: "🎯",
+        icon: "icon_focus",
+        iconDescription: "a bullseye target with crosshairs",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -153,7 +161,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "regeneration",
         name: "Regeneration",
-        icon: "💚",
+        icon: "icon_regeneration",
+        iconDescription: "a glowing green heart with healing sparkles",
         apCost: 2,
         range: 0,
         damage: 0,
@@ -171,7 +180,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "lucky_strike",
         name: "Lucky Strike",
-        icon: "🍀",
+        icon: "icon_lucky_strike",
+        iconDescription: "a four leaf clover with golden sparkles",
         apCost: 1,
         range: 1,
         damage: 2,
@@ -187,7 +197,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "elixir",
         name: "Elixir",
-        icon: "🧪",
+        icon: "icon_elixir",
+        iconDescription: "a magical purple elixir in an ornate bottle",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -205,7 +216,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "rally",
         name: "Rally",
-        icon: "🥁",
+        icon: "icon_rally",
+        iconDescription: "a war drum with sound wave energy",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -223,7 +235,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "empower",
         name: "Empower",
-        icon: "⚡",
+        icon: "icon_empower",
+        iconDescription: "a fist surrounded by crackling lightning energy",
         apCost: 2,
         range: 0,
         damage: 0,
@@ -240,7 +253,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "soul_rip",
         name: "Soul Rip",
-        icon: "👻",
+        icon: "icon_soul_rip",
+        iconDescription: "a ghostly spectral hand reaching out",
         apCost: 2,
         range: 1,
         damage: 5,
@@ -257,7 +271,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "quicken",
         name: "Quicken",
-        icon: "⏱️",
+        icon: "icon_quicken",
+        iconDescription: "a stopwatch with motion blur effect",
         apCost: 2,
         range: 0,
         damage: 0,
@@ -276,7 +291,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "adrenaline_rush",
         name: "Adrenaline Rush",
-        icon: "💉",
+        icon: "icon_adrenaline_rush",
+        iconDescription: "a syringe filled with glowing red liquid",
         apCost: 2,
         range: 0,
         damage: 0,
@@ -294,7 +310,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "chilling_touch",
         name: "Chilling Touch",
-        icon: "🥶",
+        icon: "icon_chilling_touch",
+        iconDescription: "an icy blue hand with frost crystals",
         apCost: 2,
         range: 1,
         damage: 2,
@@ -311,7 +328,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "iron_will",
         name: "Iron Will",
-        icon: "🛡️",
+        icon: "icon_iron_will",
+        iconDescription: "a metal shield with iron reinforcements",
         apCost: 1,
         range: 0,
         damage: 0,
@@ -329,7 +347,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "essence_drain",
         name: "Essence Drain",
-        icon: "💜",
+        icon: "icon_essence_drain",
+        iconDescription: "purple magical energy being siphoned",
         apCost: 2,
         range: 1,
         damage: 4,
@@ -346,7 +365,8 @@ export const GENERIC_ARTIFACT_SPELLS: SpellDefinition[] = [
     {
         id: "tactical_retreat",
         name: "Tactical Retreat",
-        icon: "🗺️",
+        icon: "icon_tactical_retreat",
+        iconDescription: "a compass with an escape route arrow",
         apCost: 1,
         range: 0,
         damage: 0,

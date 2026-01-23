@@ -14,7 +14,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Precision",
         description: "+1 Dexterity",
-        icon: "🎯",
+        icon: "icon_dexterity_boost",
+        iconDescription: "a precise target crosshair",
         stackable: true,
         tags: ["offensive", "ranged"],
         effects: [
@@ -29,7 +30,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Glass Cannon (Dex)",
         description: "+3 Dexterity, -1 Armor",
-        icon: "🎯",
+        icon: "icon_glass_cannon_dex",
+        iconDescription: "a fragile target with power glow",
         stackable: false,
         tags: ["offensive", "ranged", "risky"],
         effects: [
@@ -48,7 +50,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Evasive Maneuvers",
         description: "+2 Dexterity, -1 Force",
-        icon: "🤸",
+        icon: "icon_evasive_maneuvers",
+        iconDescription: "an acrobat doing evasive flip",
         stackable: false,
         tags: ["offensive", "ranged"],
         effects: [
@@ -67,7 +70,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Quick Reflexes",
         description: "+2 Dexterity, +1 Movement",
-        icon: "⚡",
+        icon: "icon_quick_reflexes",
+        iconDescription: "a lightning bolt reflex symbol",
         stackable: false,
         tags: ["offensive", "ranged", "mobility"],
         effects: [
@@ -99,6 +103,7 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         name: "Eagle Eye",
         description: "Arrow Shot: +1 range",
         icon: "icon_arrow_shot",
+        iconDescription: "an eagle eye with far sight",
         stackable: false,
         tags: ["ranged", "range"],
         effects: [
@@ -115,6 +120,7 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         name: "Piercing Arrow",
         description: "Arrow Shot: Line AoE (Length 2), -1 Damage",
         icon: "icon_arrow_shot",
+        iconDescription: "a sharp arrow piercing through",
         stackable: false,
         tags: ["ranged", "aoe"],
         effects: [
@@ -141,6 +147,7 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         name: "Triple Shot",
         description: "Arrow Shot: Add cone AoE",
         icon: "icon_arrow_shot",
+        iconDescription: "three arrows spreading outward",
         stackable: false,
         tags: ["ranged", "aoe"],
         effects: [
@@ -166,6 +173,7 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         name: "Serrated Bone",
         description: "Bone Piercer: +2 damage",
         icon: "icon_bone_piercer",
+        iconDescription: "a serrated bone with jagged edges",
         stackable: false,
         tags: ["ranged", "damage"],
         effects: [
@@ -182,6 +190,7 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         name: "Splintering Bone",
         description: "Bone Piercer: Gains a small circular AoE (Radius 1), -1 Damage",
         icon: "icon_bone_piercer",
+        iconDescription: "a bone splintering into fragments",
         stackable: false,
         tags: ["ranged", "aoe"],
         effects: [
@@ -208,6 +217,7 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         name: "Balanced Bone",
         description: "Bone Piercer: +1 Damage, +1 Range",
         icon: "icon_bone_piercer",
+        iconDescription: "a well-balanced bone projectile",
         stackable: false,
         tags: ["ranged", "utility"],
         effects: [
@@ -229,6 +239,7 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         name: "Bone Sharpshooter",
         description: "Bone Piercer: +1 range",
         icon: "icon_bone_piercer",
+        iconDescription: "a long-range bone arrow",
         stackable: false,
         tags: ["ranged", "range"],
         effects: [
@@ -245,6 +256,7 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         name: "Quick Piercer",
         description: "Bone Piercer: -1 AP Cost",
         icon: "icon_bone_piercer",
+        iconDescription: "a quick flying bone dart",
         stackable: false,
         tags: ["ranged", "efficiency"],
         effects: [
@@ -264,7 +276,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Double Tap",
         description: "Ranged attacks have 20% chance to attack twice",
-        icon: "🏹",
+        icon: "icon_double_tap",
+        iconDescription: "a bow with double arrow notch",
         stackable: false,
         tags: ["ranged", "chance"],
         effects: [
@@ -280,7 +293,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Guerrilla Tactics",
         description: "+2 damage when attacking from max range",
-        icon: "🎯",
+        icon: "icon_guerrilla_tactics",
+        iconDescription: "a distant target with precision mark",
         stackable: false,
         tags: ["ranged", "damage", "conditional"],
         effects: [
@@ -300,7 +314,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Sharpshooter",
         description: "+2 Dexterity, +1 Range on ranged spells",
-        icon: "🔭",
+        icon: "icon_sharpshooter",
+        iconDescription: "a telescope scope for sniping",
         stackable: false,
         tags: ["offensive", "ranged", "range"],
         effects: [
@@ -320,7 +335,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Scout",
         description: "+3 Movement, +1 Dexterity, -1 Armor",
-        icon: "🦅",
+        icon: "icon_scout",
+        iconDescription: "an eagle soaring as scout",
         stackable: false,
         tags: ["offensive", "ranged", "mobility", "risky"],
         effects: [
@@ -351,7 +367,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "stat",
         name: "Survivalist",
         description: "+2 Dexterity, +2 Health, -1 Force",
-        icon: "🏕️",
+        icon: "icon_survivalist",
+        iconDescription: "a camping tent in wilderness",
         stackable: false,
         tags: ["offensive", "ranged", "health"],
         effects: [
@@ -383,6 +400,7 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         name: "Heavy Arrow",
         description: "Arrow Shot: +2 Damage, -1 Range",
         icon: "icon_arrow_shot",
+        iconDescription: "a heavy weighted arrow head",
         stackable: false,
         tags: ["ranged", "damage"],
         effects: [
@@ -404,6 +422,7 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         name: "Swift Arrow",
         description: "Arrow Shot: -1 AP Cost",
         icon: "icon_arrow_shot",
+        iconDescription: "a swift arrow with speed lines",
         stackable: false,
         tags: ["ranged", "efficiency"],
         effects: [
@@ -424,6 +443,7 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         name: "Lethal Piercer",
         description: "Bone Piercer: +3 Damage, +1 AP Cost",
         icon: "icon_bone_piercer",
+        iconDescription: "a lethal sharpened bone spike",
         stackable: false,
         tags: ["ranged", "damage", "risky"],
         effects: [
@@ -445,6 +465,7 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         name: "Long Piercer",
         description: "Bone Piercer: +2 Range",
         icon: "icon_bone_piercer",
+        iconDescription: "a long extended bone projectile",
         stackable: false,
         tags: ["ranged", "range"],
         effects: [
@@ -464,7 +485,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "spell",
         name: "Armor Piercing",
         description: "Piercing Arrow: +2 Damage",
-        icon: "➳",
+        icon: "icon_armor_piercing",
+        iconDescription: "an arrow piercing through metal",
         stackable: false,
         tags: ["ranged", "damage"],
         effects: [
@@ -480,7 +502,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "spell",
         name: "Extended Mark",
         description: "Hunter's Mark: +1 Range",
-        icon: "🎯",
+        icon: "icon_extended_mark",
+        iconDescription: "a distant target mark symbol",
         stackable: false,
         tags: ["ranged", "utility"],
         effects: [
@@ -500,7 +523,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Hit and Run",
         description: "+2 Movement after attacking",
-        icon: "🏃",
+        icon: "icon_hit_and_run",
+        iconDescription: "a running figure escaping fast",
         stackable: false,
         tags: ["ranged", "mobility"],
         effects: [
@@ -515,7 +539,8 @@ export const RANGER_BONUSES: BonusDefinition[] = [
         category: "passive",
         name: "Predator",
         description: "+1 Dexterity per enemy defeated (max +3)",
-        icon: "🐆",
+        icon: "icon_predator",
+        iconDescription: "a hunting leopard predator",
         stackable: false,
         tags: ["offensive", "ranged"],
         effects: [

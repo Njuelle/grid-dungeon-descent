@@ -60,6 +60,8 @@ export interface ArtifactDefinition {
     name: string;
     description: string;
     icon: string;
+    /** Visual description for AI icon generation */
+    iconDescription?: string;
     /** If defined, only this class can use this artifact */
     classRestriction?: PlayerClass;
     /** The spell ID this artifact grants */
@@ -137,6 +139,8 @@ export interface SpellDefinition {
     minRange?: number;
     damage: number;
     description: string;
+    /** Visual description for AI icon generation */
+    iconDescription?: string;
     type: AttackType;
     effect?: string;
     duration?: number;
@@ -210,6 +214,8 @@ export interface BonusDefinition {
     name: string;
     description: string;
     icon: string;
+    /** Visual description for AI icon generation */
+    iconDescription?: string;
     effects: BonusEffect[];
     /** If true, this bonus can be picked multiple times */
     stackable?: boolean;

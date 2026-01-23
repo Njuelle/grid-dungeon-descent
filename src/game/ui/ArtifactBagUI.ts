@@ -129,10 +129,17 @@ export class ArtifactBagUI {
 
         if (artifact) {
             // Artifact icon
-            const iconText = this.scene.add
-                .text(0, 0, artifact.icon, { fontSize: "28px" })
-                .setOrigin(0.5);
-            slot.add(iconText);
+            let iconDisplay: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
+            if (artifact.icon.startsWith("icon_")) {
+                iconDisplay = this.scene.add.image(0, 0, artifact.icon);
+                iconDisplay.setOrigin(0.5);
+                iconDisplay.setDisplaySize(28, 28);
+            } else {
+                iconDisplay = this.scene.add
+                    .text(0, 0, artifact.icon, { fontSize: "28px" })
+                    .setOrigin(0.5);
+            }
+            slot.add(iconDisplay);
 
             // Hit area for tooltip
             const hitArea = this.scene.add.rectangle(0, 0, size, size, 0x000000, 0);
