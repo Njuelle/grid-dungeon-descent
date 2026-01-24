@@ -10,7 +10,6 @@
 import { Scene } from "phaser";
 import { ClassDefinition, PlayerClass } from "../core/types";
 import { PLAYER_CLASSES } from "../data/classes";
-import { getSpellsByIds } from "../data/spells/index";
 
 // =============================================================================
 // Types
@@ -192,7 +191,7 @@ export class ClassSelectionUI {
 
         // Class description
         const descText = this.scene.add
-            .text(0, -30, classDef.description, {
+            .text(0, -10, classDef.description, {
                 fontSize: "14px",
                 color: "#f5deb3",
                 fontFamily: "serif",
@@ -203,7 +202,7 @@ export class ClassSelectionUI {
             .setOrigin(0.5);
 
         // Stats section
-        const statsY = 50;
+        const statsY = 90;
         const statsTitle = this.scene.add
             .text(0, statsY, "~ Stats ~", {
                 fontSize: "16px",
@@ -229,29 +228,6 @@ export class ClassSelectionUI {
             )
             .setOrigin(0.5);
 
-        // Spells section
-        const spellsY = 130;
-        const spellsTitle = this.scene.add
-            .text(0, spellsY, "~ Starting Spells ~", {
-                fontSize: "16px",
-                color: "#d4af37",
-                fontFamily: "serif",
-                fontStyle: "italic",
-            })
-            .setOrigin(0.5);
-
-        const spells = getSpellsByIds(classDef.startingSpellIds);
-        const spellNames = spells.map((s) => `${s.icon} ${s.name}`).join("\n");
-        const spellsText = this.scene.add
-            .text(0, spellsY + 40, spellNames, {
-                fontSize: "14px",
-                color: "#c0c0c0",
-                fontFamily: "serif",
-                align: "center",
-                lineSpacing: 8,
-            })
-            .setOrigin(0.5);
-
         // Select hint
         const selectHint = this.scene.add
             .text(0, cardHeight / 2 - 30, "Click to Select", {
@@ -274,8 +250,6 @@ export class ClassSelectionUI {
             descText,
             statsTitle,
             statsText,
-            spellsTitle,
-            spellsText,
             selectHint,
             hitArea,
         ]);
