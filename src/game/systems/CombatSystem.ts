@@ -203,13 +203,15 @@ export class CombatSystem {
 
     /**
      * Executes an attack and returns the result.
+     * @param vulnerableMultiplier - Damage multiplier if target is vulnerable (default 1.0)
      */
     public executeAttack(
         attacker: UnitState,
         target: UnitState,
         spell: SpellDefinition,
         appliedBonuses: string[],
-        spellShieldUsed: boolean = false
+        spellShieldUsed: boolean = false,
+        vulnerableMultiplier: number = 1.0
     ): AttackResult {
         const result: AttackResult = {
             success: true,
@@ -256,14 +258,15 @@ export class CombatSystem {
             return result;
         }
 
-        // Calculate damage
+        // Calculate damage (with vulnerable multiplier applied)
         const damageCalc = calculateAttackDamage(
             spell,
             attacker.stats,
             target.stats,
             distance,
             appliedBonuses,
-            this.bonusSystem
+            this.bonusSystem,
+            vulnerableMultiplier
         );
 
         result.damage = damageCalc.finalDamage;
@@ -501,20 +504,29 @@ export class CombatSystem {
 
     /**
      * Executes an AoE attack on multiple targets.
+     * @param getVulnerableMultiplier - Function to get vulnerable multiplier for a target by ID
      */
     public executeAoeAttack(
         attacker: UnitState,
         primaryTarget: UnitState,
         allTargets: UnitState[],
         spell: SpellDefinition,
-        appliedBonuses: string[]
+        appliedBonuses: string[],
+        getVulnerableMultiplier?: (targetId: string) => number
     ): AttackResult {
+        // Get primary target's vulnerable multiplier
+        const primaryVulnerable = getVulnerableMultiplier 
+            ? getVulnerableMultiplier(primaryTarget.id) 
+            : 1.0;
+
         // Execute attack on primary target
         const result = this.executeAttack(
             attacker,
             primaryTarget,
             spell,
-            appliedBonuses
+            appliedBonuses,
+            false,
+            primaryVulnerable
         );
 
         // Execute on secondary targets (excluding primary)
@@ -530,13 +542,19 @@ export class CombatSystem {
                 target.position.y
             );
 
+            // Get target's vulnerable multiplier
+            const targetVulnerable = getVulnerableMultiplier 
+                ? getVulnerableMultiplier(target.id) 
+                : 1.0;
+
             const damageCalc = calculateAttackDamage(
                 spell,
                 attacker.stats,
                 target.stats,
                 distance,
                 appliedBonuses,
-                this.bonusSystem
+                this.bonusSystem,
+                targetVulnerable
             );
 
             const newHealth = target.stats.health - damageCalc.finalDamage;
@@ -574,12 +592,14 @@ export class CombatSystem {
 
     /**
      * Executes an enemy attack (simpler, no spell system).
+     * @param vulnerableMultiplier - Damage multiplier if target is vulnerable (default 1.0)
      */
     public executeEnemyAttack(
         attacker: UnitState,
         target: UnitState,
         appliedBonuses: string[],
-        spellShieldUsed: boolean = false
+        spellShieldUsed: boolean = false,
+        vulnerableMultiplier: number = 1.0
     ): { damage: number; blocked: boolean; movementGained: number } {
         this.emitEvent({
             type: "attack_start",
@@ -605,10 +625,15 @@ export class CombatSystem {
         }
 
         // Calculate damage
-        const rawDamage = calculateEnemyDamage(
+        let rawDamage = calculateEnemyDamage(
             attacker.stats,
             attacker.stats.attackRange
         );
+
+        // Apply vulnerable multiplier
+        if (vulnerableMultiplier > 1.0) {
+            rawDamage = Math.round(rawDamage * vulnerableMultiplier);
+        }
 
         // Apply resistance
         const actualDamage = calculateDamageTaken(

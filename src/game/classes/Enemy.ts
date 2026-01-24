@@ -163,6 +163,9 @@ export abstract class Enemy extends Unit {
         // Check if enemy has active debuffs
         const hasDebuffs = this.activeBuffs.length > 0;
 
+        // Check if enemy has active status effects
+        const hasStatusEffects = this.hasAnyStatusEffect();
+
         // Check if enemy has AP/MP stats
         const hasAPMP = this.getEffectiveActionPoints() !== undefined;
 
@@ -173,6 +176,7 @@ export abstract class Enemy extends Unit {
         let tooltipHeight = 132;
         if (hasAPMP) tooltipHeight += 28; // AP/MP row
         if (hasDebuffs) tooltipHeight += 40; // Debuff status row
+        if (hasStatusEffects) tooltipHeight += 40; // Status effects row
         if (shouldShowDamagePreview || shouldShowDebuffPreview) tooltipHeight += 42; // Spell preview
         
         const tooltipOffset = 140;
@@ -416,6 +420,49 @@ export abstract class Enemy extends Unit {
                 })
                 .setOrigin(0, 0.5);
             container.add(debuffText);
+            yPos += 40;
+        }
+
+        // Show active status effects on this enemy
+        if (hasStatusEffects) {
+            const statusSeparator = this.scene.add.graphics();
+            statusSeparator.lineStyle(2, 0x9932cc); // Purple for status effects
+            statusSeparator.moveTo(-160, yPos);
+            statusSeparator.lineTo(160, yPos);
+            statusSeparator.strokePath();
+            container.add(statusSeparator);
+
+            // Build status effect display with icons
+            const statusEffects = this.getStatusEffects();
+            const statusParts: string[] = [];
+            for (const effect of statusEffects) {
+                let icon = "";
+                switch (effect.type) {
+                    case "poison":
+                        icon = "☠️";
+                        break;
+                    case "stun":
+                        icon = "⚡";
+                        break;
+                    case "root":
+                        icon = "🌿";
+                        break;
+                    case "vulnerable":
+                        icon = "💔";
+                        break;
+                }
+                statusParts.push(`${icon} ${effect.type} (${effect.remainingTurns}t)`);
+            }
+
+            const statusText = this.scene.add
+                .text(-160, yPos + 20, statusParts.join("  "), {
+                    fontSize: "12px",
+                    color: "#cc66ff", // Purple for status effects
+                    fontStyle: "bold",
+                    wordWrap: { width: 320 },
+                })
+                .setOrigin(0, 0.5);
+            container.add(statusText);
             yPos += 40;
         }
 

@@ -37,6 +37,34 @@ export type AoeShape = "circle" | "line" | "cone";
 export type Team = "player" | "enemy";
 
 // =============================================================================
+// Status Effect Types
+// =============================================================================
+
+export type StatusEffectType = "poison" | "stun" | "root" | "vulnerable";
+
+export interface StatusEffect {
+    /** Unique ID for this status effect instance */
+    id: string;
+    /** Type of status effect */
+    type: StatusEffectType;
+    /** Remaining turns before effect expires */
+    remainingTurns: number;
+    /** Value of the effect (damage for poison, multiplier for vulnerable) */
+    value: number;
+    /** ID of the unit/spell that applied this effect */
+    sourceId: string;
+}
+
+export interface StatusEffectDefinition {
+    /** Type of status effect to apply */
+    type: StatusEffectType;
+    /** Duration in turns */
+    duration: number;
+    /** Value of the effect (damage per turn for poison, damage multiplier for vulnerable) */
+    value?: number;
+}
+
+// =============================================================================
 // Player Class Types
 // =============================================================================
 
@@ -65,7 +93,14 @@ export type CurseType =
     | "no_buff_spells"       // Cannot use buff spells
     | "no_move_after_cast"   // Cannot move after casting
     | "self_pull"            // Pulled toward target when casting
-    | "ap_penalty_on_miss";  // Lose AP if spell doesn't kill
+    | "ap_penalty_on_miss"   // Lose AP if spell doesn't kill
+    // Status effect related curses
+    | "start_battle_poisoned"   // Start each battle with Poison
+    | "start_battle_rooted"     // Start each battle Rooted
+    | "self_status_on_apply"    // Chance to apply status to yourself when applying to enemy
+    | "status_on_attack"        // Every attack applies a status to yourself
+    | "damage_on_status_apply"  // Take damage when applying status effects
+    | "min_attack_range";       // Cannot attack enemies within X tiles
 
 export interface CurseEffect {
     type: CurseType;
@@ -75,6 +110,10 @@ export interface CurseEffect {
     stat?: StatName;
     /** Turn threshold (for turn_limit_damage) */
     turnThreshold?: number;
+    /** Status effect type for status-related curses */
+    statusType?: StatusEffectType;
+    /** Duration for status effect curses */
+    statusDuration?: number;
     /** Human-readable description of the curse */
     description: string;
 }
@@ -176,6 +215,8 @@ export interface SpellDefinition {
     spellCategory?: SpellCategory;
     /** Buff effect configuration (for buff spells) */
     buffEffect?: BuffEffect;
+    /** Status effect to apply on hit */
+    statusEffect?: StatusEffectDefinition;
     /** VFX animation key to play when spell is cast */
     animation?: string;
 }
@@ -203,7 +244,14 @@ export type BonusEffectType =
     | "chance_on_hit"        // Random chance effect on hit
     | "chance_on_cast"       // Random chance effect on spell cast
     | "chance_on_damage"     // Random chance when taking damage
-    | "chance_on_battle_start"; // Random effect at battle start
+    | "chance_on_battle_start" // Random effect at battle start
+    // Status effect related
+    | "on_status_apply"      // Triggers when applying a status effect
+    | "on_status_receive"    // Triggers when receiving a status effect
+    | "status_duration_mod"  // Modifies duration of status effects
+    | "status_damage_mod"    // Modifies damage from status effects (poison)
+    | "status_immunity"      // Grants immunity to specific status
+    | "conditional_status";  // Bonus activates based on target's status
 
 export interface StatModifier {
     stat: StatName;
@@ -232,9 +280,18 @@ export interface TriggerCondition {
         | "is_first_attack_battle"  // First attack of the battle
         | "adjacent_enemies"        // Number of adjacent enemies
         | "distance_from_start"     // Distance from starting position
-        | "consecutive_attacks";    // Number of attacks without moving
+        | "consecutive_attacks"     // Number of attacks without moving
+        // Status effect conditions
+        | "target_has_status"       // Target has specific status effect
+        | "target_has_any_status"   // Target has any status effect
+        | "self_has_status"         // Self has specific status effect
+        | "self_has_no_status"      // Self has no status effects
+        | "on_status_expire"        // When a status effect expires
+        | "multiple_statuses";      // Target has 2+ different statuses
     value?: number; // percentage for health checks, chance for random, count for adjacents
     targetSpell?: string; // for spell-specific conditions
+    /** Status effect type for status-related conditions */
+    statusType?: StatusEffectType;
 }
 
 export interface BonusEffect {
@@ -243,15 +300,21 @@ export interface BonusEffect {
     statModifier?: StatModifier;
     spellModifier?: SpellModifier;
     trigger?: {
-        effect: "heal" | "damage" | "add_mp" | "add_ap" | "add_stat" | "refund_ap" | "damage_multiplier" | "negate_damage";
+        effect: "heal" | "damage" | "add_mp" | "add_ap" | "add_stat" | "refund_ap" | "damage_multiplier" | "negate_damage" | "apply_status" | "remove_status" | "spread_status";
         value: number;
         stat?: StatName;
         /** For scaling effects: max stacks or max bonus */
         maxValue?: number;
         /** For chance effects: percentage chance (0-100) */
         chance?: number;
+        /** For status effect triggers */
+        statusType?: StatusEffectType;
+        /** Duration for status effects */
+        statusDuration?: number;
     };
     condition?: TriggerCondition;
+    /** For status immunity bonuses */
+    immuneToStatus?: StatusEffectType;
 }
 
 export interface BonusDefinition {
@@ -309,6 +372,8 @@ export interface UnitState {
     enemyType?: string;
     /** Active buffs on this unit */
     activeBuffs?: ActiveBuff[];
+    /** Active status effects on this unit */
+    statusEffects?: StatusEffect[];
 }
 
 export interface GameStateSnapshot {

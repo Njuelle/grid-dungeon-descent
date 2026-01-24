@@ -246,12 +246,16 @@ export class Player extends Unit {
         // Check if player has active buffs/debuffs
         const hasBuffs = this.activeBuffs.length > 0;
 
+        // Check if player has active status effects
+        const hasStatusEffects = this.hasAnyStatusEffect();
+
         const x = this.sprite.x;
 
         // Calculate tooltip height based on content
         // Title: 22px + Health bar: 40px + Stats: 22px + AP/MP: 28px + padding: 28px = 140px base
         let tooltipHeight = 140;
         if (hasBuffs) tooltipHeight += 40; // Buff/debuff status row
+        if (hasStatusEffects) tooltipHeight += 40; // Status effects row
         
         const tooltipOffset = 140;
 
@@ -485,6 +489,49 @@ export class Player extends Unit {
                 })
                 .setOrigin(0, 0.5);
             container.add(buffText);
+            yPos += 40;
+        }
+
+        // Show active status effects on the player
+        if (hasStatusEffects) {
+            const statusSeparator = this.scene.add.graphics();
+            statusSeparator.lineStyle(2, 0x9932cc); // Purple for status effects
+            statusSeparator.moveTo(-160, yPos);
+            statusSeparator.lineTo(160, yPos);
+            statusSeparator.strokePath();
+            container.add(statusSeparator);
+
+            // Build status effect display with icons
+            const statusEffects = this.getStatusEffects();
+            const statusParts: string[] = [];
+            for (const effect of statusEffects) {
+                let icon = "";
+                switch (effect.type) {
+                    case "poison":
+                        icon = "☠️";
+                        break;
+                    case "stun":
+                        icon = "⚡";
+                        break;
+                    case "root":
+                        icon = "🌿";
+                        break;
+                    case "vulnerable":
+                        icon = "💔";
+                        break;
+                }
+                statusParts.push(`${icon} ${effect.type} (${effect.remainingTurns}t)`);
+            }
+
+            const statusText = this.scene.add
+                .text(-160, yPos + 20, statusParts.join("  "), {
+                    fontSize: "12px",
+                    color: "#cc66ff", // Purple for status effects
+                    fontStyle: "bold",
+                    wordWrap: { width: 320 },
+                })
+                .setOrigin(0, 0.5);
+            container.add(statusText);
         }
 
         this.statsTooltip = container;

@@ -20,6 +20,7 @@ import { BonusSystem } from "../systems/BonusSystem";
 
 /**
  * Calculates attack damage with all modifiers.
+ * @param vulnerableMultiplier - Damage multiplier from vulnerable status (default 1.0)
  */
 export function calculateAttackDamage(
     spell: SpellDefinition,
@@ -27,7 +28,8 @@ export function calculateAttackDamage(
     targetStats: UnitStats,
     distance: number,
     appliedBonuses: string[],
-    bonusSystem: BonusSystem
+    bonusSystem: BonusSystem,
+    vulnerableMultiplier: number = 1.0
 ): DamageCalculation {
     // Base damage from spell
     const baseDamage = spell.damage;
@@ -69,6 +71,11 @@ export function calculateAttackDamage(
     // Apply critical hit (double damage)
     if (isCritical) {
         totalRaw *= 2;
+    }
+
+    // Apply vulnerable multiplier (damage taken increase)
+    if (vulnerableMultiplier > 1.0) {
+        totalRaw = Math.round(totalRaw * vulnerableMultiplier);
     }
 
     // Determine resistance based on damage type

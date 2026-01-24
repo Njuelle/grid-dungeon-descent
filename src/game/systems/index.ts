@@ -12,3 +12,4 @@ export * from "./AISystem";
 export * from "./ArtifactSystem";
 export * from "./BuffSystem";
 export * from "./CurseSystem";
+export * from "./StatusEffectSystem";

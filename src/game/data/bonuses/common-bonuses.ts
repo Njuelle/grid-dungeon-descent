@@ -1364,4 +1364,273 @@ export const COMMON_BONUSES: BonusDefinition[] = [
             },
         ],
     },
+
+    // ==========================================================================
+    // STATUS EFFECT BONUSES - Application
+    // ==========================================================================
+    {
+        id: "toxic_touch",
+        category: "passive",
+        name: "Toxic Touch",
+        description: "20% chance to poison enemies on hit (2 dmg/turn, 2 turns)",
+        icon: "icon_toxic_touch",
+        iconDescription: "a hand dripping with green poison",
+        stackable: false,
+        tags: ["status", "poison", "chance"],
+        effects: [
+            {
+                type: "chance_on_hit",
+                trigger: { effect: "apply_status", value: 2, statusType: "poison", statusDuration: 2, chance: 20 },
+            },
+        ],
+    },
+    {
+        id: "stunning_blows",
+        category: "passive",
+        name: "Stunning Blows",
+        description: "Melee attacks have 15% chance to stun for 1 turn",
+        icon: "icon_stunning_blows",
+        iconDescription: "a fist with stars around it",
+        stackable: false,
+        tags: ["status", "stun", "chance", "melee"],
+        effects: [
+            {
+                type: "chance_on_hit",
+                trigger: { effect: "apply_status", value: 0, statusType: "stun", statusDuration: 1, chance: 15 },
+                condition: { type: "is_melee_attack" },
+            },
+        ],
+    },
+    {
+        id: "crippling_shots",
+        category: "passive",
+        name: "Crippling Shots",
+        description: "Ranged attacks have 20% chance to root for 1 turn",
+        icon: "icon_crippling_shots",
+        iconDescription: "an arrow hitting legs with root effect",
+        stackable: false,
+        tags: ["status", "root", "chance", "ranged"],
+        effects: [
+            {
+                type: "chance_on_hit",
+                trigger: { effect: "apply_status", value: 0, statusType: "root", statusDuration: 1, chance: 20 },
+                condition: { type: "is_ranged_spell" },
+            },
+        ],
+    },
+    {
+        id: "armor_piercer",
+        category: "passive",
+        name: "Armor Piercer",
+        description: "Critical hits make target vulnerable for 2 turns",
+        icon: "icon_armor_piercer",
+        iconDescription: "an arrow piercing through armor",
+        stackable: false,
+        tags: ["status", "vulnerable", "offensive"],
+        effects: [
+            {
+                type: "on_hit",
+                trigger: { effect: "apply_status", value: 1.5, statusType: "vulnerable", statusDuration: 2 },
+                condition: { type: "random_chance", value: 10 }, // Only on crits
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // STATUS EFFECT BONUSES - Synergy/Combo
+    // ==========================================================================
+    {
+        id: "predator_instinct",
+        category: "passive",
+        name: "Predator Instinct",
+        description: "+3 damage vs enemies with any status effect",
+        icon: "icon_predator_instinct",
+        iconDescription: "a wolf stalking weakened prey",
+        stackable: false,
+        tags: ["status", "offensive", "conditional"],
+        effects: [
+            {
+                type: "conditional",
+                trigger: { effect: "damage", value: 3 },
+                condition: { type: "target_has_any_status" },
+            },
+        ],
+    },
+    {
+        id: "opportunistic_strike",
+        category: "passive",
+        name: "Opportunistic Strike",
+        description: "+4 damage vs stunned or rooted enemies",
+        icon: "icon_opportunistic_strike",
+        iconDescription: "a dagger striking an immobilized target",
+        stackable: false,
+        tags: ["status", "offensive", "conditional"],
+        effects: [
+            {
+                type: "conditional",
+                trigger: { effect: "damage", value: 4 },
+                condition: { type: "target_has_status", statusType: "stun" },
+            },
+            {
+                type: "conditional",
+                trigger: { effect: "damage", value: 4 },
+                condition: { type: "target_has_status", statusType: "root" },
+            },
+        ],
+    },
+    {
+        id: "venom_synergy",
+        category: "passive",
+        name: "Venom Synergy",
+        description: "+2 damage vs poisoned enemies",
+        icon: "icon_venom_synergy",
+        iconDescription: "a snake venom enhancing attack",
+        stackable: false,
+        tags: ["status", "poison", "offensive"],
+        effects: [
+            {
+                type: "conditional",
+                trigger: { effect: "damage", value: 2 },
+                condition: { type: "target_has_status", statusType: "poison" },
+            },
+        ],
+    },
+    {
+        id: "combo_master",
+        category: "passive",
+        name: "Combo Master",
+        description: "If target has 2+ status effects: +5 damage",
+        icon: "icon_combo_master",
+        iconDescription: "a glowing fist with chain links wrapped around it",
+        stackable: false,
+        tags: ["status", "offensive", "conditional"],
+        effects: [
+            {
+                type: "conditional",
+                trigger: { effect: "damage", value: 5 },
+                condition: { type: "multiple_statuses", value: 2 },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // STATUS EFFECT BONUSES - Duration/Power
+    // ==========================================================================
+    {
+        id: "lingering_afflictions",
+        category: "passive",
+        name: "Lingering Afflictions",
+        description: "Status effects you apply last 1 turn longer",
+        icon: "icon_lingering_afflictions",
+        iconDescription: "an hourglass with extended sand",
+        stackable: false,
+        tags: ["status", "utility"],
+        effects: [
+            {
+                type: "status_duration_mod",
+                trigger: { effect: "add_stat", value: 1 },
+            },
+        ],
+    },
+    {
+        id: "potent_venom",
+        category: "passive",
+        name: "Potent Venom",
+        description: "Poison effects deal +1 damage per turn",
+        icon: "icon_potent_venom",
+        iconDescription: "a bubbling green venom vial",
+        stackable: false,
+        tags: ["status", "poison", "offensive"],
+        effects: [
+            {
+                type: "status_damage_mod",
+                trigger: { effect: "damage", value: 1, statusType: "poison" },
+            },
+        ],
+    },
+    {
+        id: "overwhelming_force",
+        category: "passive",
+        name: "Overwhelming Force",
+        description: "Vulnerable enemies take +25% additional damage",
+        icon: "icon_overwhelming_force",
+        iconDescription: "a hammer crushing a cracked shield",
+        stackable: false,
+        tags: ["status", "vulnerable", "offensive"],
+        effects: [
+            {
+                type: "conditional",
+                trigger: { effect: "damage_multiplier", value: 1.25 },
+                condition: { type: "target_has_status", statusType: "vulnerable" },
+            },
+        ],
+    },
+
+    // ==========================================================================
+    // STATUS EFFECT BONUSES - Defense
+    // ==========================================================================
+    {
+        id: "poison_immunity",
+        category: "passive",
+        name: "Poison Immunity",
+        description: "Immune to poison effects",
+        icon: "icon_poison_immunity",
+        iconDescription: "a green skull with X mark",
+        stackable: false,
+        tags: ["status", "poison", "defensive"],
+        effects: [
+            {
+                type: "status_immunity",
+                immuneToStatus: "poison",
+            },
+        ],
+    },
+    {
+        id: "iron_mind",
+        category: "passive",
+        name: "Iron Mind",
+        description: "Immune to stun effects",
+        icon: "icon_iron_mind",
+        iconDescription: "a brain with iron plating",
+        stackable: false,
+        tags: ["status", "stun", "defensive"],
+        effects: [
+            {
+                type: "status_immunity",
+                immuneToStatus: "stun",
+            },
+        ],
+    },
+    {
+        id: "unshakeable",
+        category: "passive",
+        name: "Unshakeable",
+        description: "Immune to root effects",
+        icon: "icon_unshakeable",
+        iconDescription: "a figure breaking free from chains",
+        stackable: false,
+        tags: ["status", "root", "defensive"],
+        effects: [
+            {
+                type: "status_immunity",
+                immuneToStatus: "root",
+            },
+        ],
+    },
+    {
+        id: "cleansing_aura",
+        category: "passive",
+        name: "Cleansing Aura",
+        description: "Remove one random status effect at turn start",
+        icon: "icon_cleansing_aura",
+        iconDescription: "a white purifying aura around a figure",
+        stackable: false,
+        tags: ["status", "defensive", "utility"],
+        effects: [
+            {
+                type: "on_turn_start",
+                trigger: { effect: "remove_status", value: 1 },
+            },
+        ],
+    },
 ];

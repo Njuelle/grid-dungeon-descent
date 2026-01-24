@@ -78,14 +78,26 @@ export class MovementSystem {
 
     /**
      * Checks if a unit can move to a position.
+     * @param isRooted - Optional flag indicating if unit is rooted (cannot move)
      */
     public canMoveTo(
         unit: UnitState,
         targetPos: GridPosition,
         gridSize: number,
         isWall: (x: number, y: number) => boolean,
-        isOccupied: (x: number, y: number) => boolean
+        isOccupied: (x: number, y: number) => boolean,
+        isRooted: boolean = false
     ): { valid: boolean; reason?: string; cost?: number } {
+        // Check if unit is rooted
+        if (isRooted) {
+            return { valid: false, reason: "Cannot move while rooted!" };
+        }
+
+        // Check if unit has rooted status effect
+        if (unit.statusEffects?.some(e => e.type === "root")) {
+            return { valid: false, reason: "Cannot move while rooted!" };
+        }
+
         // Check if target is within grid bounds
         if (
             targetPos.x < 0 ||
@@ -297,14 +309,21 @@ export class MovementSystem {
 
     /**
      * Gets all reachable tiles from a position within a range.
+     * @param isRooted - Optional flag indicating if unit is rooted (cannot move)
      */
     public getReachableTiles(
         from: GridPosition,
         maxRange: number,
         gridSize: number,
         isWall: (x: number, y: number) => boolean,
-        isOccupied: (x: number, y: number) => boolean
+        isOccupied: (x: number, y: number) => boolean,
+        isRooted: boolean = false
     ): GridPosition[] {
+        // If rooted, no tiles are reachable
+        if (isRooted || maxRange <= 0) {
+            return [];
+        }
+
         const reachable: GridPosition[] = [];
         const visited: boolean[][] = [];
         const distances: number[][] = [];

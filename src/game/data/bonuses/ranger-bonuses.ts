@@ -774,4 +774,63 @@ export const RANGER_BONUSES: BonusDefinition[] = [
             },
         ],
     },
+
+    // ==========================================================================
+    // Ranger Status Effect Bonuses
+    // ==========================================================================
+    {
+        id: "venomous_arrows",
+        category: "passive",
+        name: "Venomous Arrows",
+        description: "Ranged attacks have 30% chance to poison (2 dmg/turn, 2 turns)",
+        icon: "icon_venomous_arrows",
+        iconDescription: "an arrow dripping with green venom",
+        stackable: false,
+        tags: ["offensive", "ranged", "status", "poison"],
+        effects: [
+            {
+                type: "chance_on_hit",
+                trigger: { effect: "apply_status", value: 2, statusType: "poison", statusDuration: 2, chance: 30 },
+                condition: { type: "is_ranged_spell" },
+            },
+        ],
+    },
+    {
+        id: "hunters_mark_bonus",
+        category: "passive",
+        name: "Hunter's Instinct",
+        description: "+3 damage vs poisoned enemies",
+        icon: "icon_hunters_instinct",
+        iconDescription: "a wolf tracking poisoned prey",
+        stackable: false,
+        tags: ["offensive", "ranged", "status", "conditional"],
+        effects: [
+            {
+                type: "conditional",
+                trigger: { effect: "damage", value: 3 },
+                condition: { type: "target_has_status", statusType: "poison" },
+            },
+        ],
+    },
+    {
+        id: "nimble_escape",
+        category: "passive",
+        name: "Nimble Escape",
+        description: "Immune to root effects, +1 MP when rooted would be applied",
+        icon: "icon_nimble_escape",
+        iconDescription: "a ranger leaping free from vines",
+        stackable: false,
+        tags: ["defensive", "mobility", "status", "immunity"],
+        effects: [
+            {
+                type: "status_immunity",
+                immuneToStatus: "root",
+            },
+            {
+                type: "on_status_receive",
+                trigger: { effect: "add_mp", value: 1 },
+                condition: { type: "target_has_status", statusType: "root" },
+            },
+        ],
+    },
 ];

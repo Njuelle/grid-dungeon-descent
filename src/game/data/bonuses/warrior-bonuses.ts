@@ -761,4 +761,62 @@ export const WARRIOR_BONUSES: BonusDefinition[] = [
             },
         ],
     },
+
+    // ==========================================================================
+    // Warrior Status Effect Bonuses
+    // ==========================================================================
+    {
+        id: "crushing_force",
+        category: "passive",
+        name: "Crushing Force",
+        description: "Melee attacks have 25% chance to stun for 1 turn",
+        icon: "icon_crushing_force",
+        iconDescription: "a warhammer causing shockwave",
+        stackable: false,
+        tags: ["offensive", "melee", "status", "stun"],
+        effects: [
+            {
+                type: "chance_on_hit",
+                trigger: { effect: "apply_status", value: 0, statusType: "stun", statusDuration: 1, chance: 25 },
+                condition: { type: "is_melee_attack" },
+            },
+        ],
+    },
+    {
+        id: "overwhelming_presence",
+        category: "passive",
+        name: "Overwhelming Presence",
+        description: "+4 damage vs stunned enemies",
+        icon: "icon_overwhelming_presence",
+        iconDescription: "a warrior towering over stunned foe",
+        stackable: false,
+        tags: ["offensive", "melee", "status", "conditional"],
+        effects: [
+            {
+                type: "conditional",
+                trigger: { effect: "damage", value: 4 },
+                condition: { type: "target_has_status", statusType: "stun" },
+            },
+        ],
+    },
+    {
+        id: "warriors_tenacity",
+        category: "passive",
+        name: "Warrior's Tenacity",
+        description: "Immune to stun and root effects",
+        icon: "icon_warriors_tenacity",
+        iconDescription: "a warrior breaking free from bonds",
+        stackable: false,
+        tags: ["defensive", "status", "immunity"],
+        effects: [
+            {
+                type: "status_immunity",
+                immuneToStatus: "stun",
+            },
+            {
+                type: "status_immunity",
+                immuneToStatus: "root",
+            },
+        ],
+    },
 ];

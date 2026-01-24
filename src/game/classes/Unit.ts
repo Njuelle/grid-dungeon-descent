@@ -1,5 +1,7 @@
 import { Scene } from "phaser";
 import { GameProgress } from "./GameProgress";
+import { StatusEffect, StatusEffectType, StatusEffectDefinition } from "../core/types";
+import { statusEffectSystem, STATUS_EFFECT_COLORS } from "../systems/StatusEffectSystem";
 
 export interface UnitStats {
     health: number;
@@ -34,6 +36,10 @@ export abstract class Unit {
     private lastDamageType?: "physical" | "magic";
     public hasMovedThisTurn: boolean = false;
     private spellShieldUsed: boolean = false;
+
+    // Status effects
+    protected statusEffects: StatusEffect[] = [];
+    protected statusEffectIcons: Phaser.GameObjects.Container | null = null;
 
     constructor(
         scene: Scene,
@@ -101,6 +107,11 @@ export abstract class Unit {
                 : 0xff0000;
         this.healthBar.fillStyle(color);
         this.healthBar.fillRect(x - 19, y - 34, 38 * healthPercent, 4);
+
+        // Update status effect icons position
+        if (this.statusEffectIcons) {
+            this.statusEffectIcons.setPosition(x, y - 45);
+        }
     }
 
     protected gridToWorld(
@@ -564,6 +575,12 @@ export abstract class Unit {
         // Stop any playing walking sounds
         this.stopWalkingSound();
 
+        // Destroy status effect icons
+        if (this.statusEffectIcons) {
+            this.statusEffectIcons.destroy();
+            this.statusEffectIcons = null;
+        }
+
         this.sprite.destroy();
         this.healthBar.destroy();
         if (this.labelText) {
@@ -718,6 +735,327 @@ export abstract class Unit {
             this.walkSound.destroy();
             this.walkSound = undefined;
         }
+    }
+
+    // =========================================================================
+    // Status Effect Methods
+    // =========================================================================
+
+    /**
+     * Apply a status effect to this unit.
+     */
+    public applyStatusEffect(definition: StatusEffectDefinition, sourceId: string): boolean {
+        const result = statusEffectSystem.applyStatusEffect(
+            this.statusEffects,
+            definition,
+            this.getUnitId(),
+            sourceId
+        );
+
+        if (result.success && result.effect) {
+            if (result.wasRefreshed) {
+                // Update existing effect
+                const index = this.statusEffects.findIndex(e => e.type === result.effect!.type);
+                if (index !== -1) {
+                    this.statusEffects[index] = result.effect;
+                }
+            } else {
+                // Add new effect
+                this.statusEffects.push(result.effect);
+            }
+
+            // Show visual feedback
+            this.showStatusEffectApplied(result.effect.type);
+            this.updateStatusEffectVisuals();
+        }
+
+        return result.success;
+    }
+
+    /**
+     * Remove a status effect by type.
+     */
+    public removeStatusEffect(statusType: StatusEffectType): void {
+        this.statusEffects = statusEffectSystem.removeStatusEffectByType(
+            this.statusEffects,
+            statusType,
+            this.getUnitId()
+        );
+        this.updateStatusEffectVisuals();
+    }
+
+    /**
+     * Clear all status effects.
+     */
+    public clearAllStatusEffects(): void {
+        this.statusEffects = statusEffectSystem.clearAllStatusEffects(
+            this.statusEffects,
+            this.getUnitId()
+        );
+        this.updateStatusEffectVisuals();
+    }
+
+    /**
+     * Process status effects at turn start.
+     * Returns the amount of poison damage taken.
+     */
+    public processStatusEffectsOnTurnStart(): { poisonDamage: number; wasStunned: boolean; wasRooted: boolean } {
+        const result = statusEffectSystem.processEffectsOnTurnStart(
+            this.statusEffects,
+            this.getUnitId()
+        );
+
+        // Apply poison damage
+        if (result.poisonDamage > 0) {
+            this.takePoisonDamage(result.poisonDamage);
+        }
+
+        // Handle stun (set AP to 0)
+        if (result.wasStunned && this.stats.actionPoints !== undefined) {
+            console.log(`[Unit] ${this.getUnitId()} is stunned! AP set to 0`);
+            this.stats.actionPoints = 0;
+        }
+
+        // Handle root (set MP to 0)
+        if (result.wasRooted && this.stats.movementPoints !== undefined) {
+            console.log(`[Unit] ${this.getUnitId()} is rooted! MP set to 0`);
+            this.stats.movementPoints = 0;
+        }
+
+        return {
+            poisonDamage: result.poisonDamage,
+            wasStunned: result.wasStunned,
+            wasRooted: result.wasRooted,
+        };
+    }
+
+    /**
+     * Process status effects at turn end.
+     */
+    public processStatusEffectsOnTurnEnd(): void {
+        const result = statusEffectSystem.processEffectsOnTurnEnd(
+            this.statusEffects,
+            this.getUnitId()
+        );
+
+        this.statusEffects = result.updatedEffects;
+
+        // Show expired effects
+        for (const expired of result.expiredEffects) {
+            this.showStatusEffectExpired(expired.type);
+        }
+
+        this.updateStatusEffectVisuals();
+    }
+
+    /**
+     * Take poison damage (bypasses armor).
+     */
+    protected takePoisonDamage(damage: number): void {
+        this.stats.health = Math.max(0, this.stats.health - damage);
+
+        // Visual feedback
+        const gameManager = (this.scene as any).gameManager;
+        if (gameManager && gameManager.startDamageAnimation) {
+            gameManager.startDamageAnimation();
+        }
+
+        const poisonText = this.scene.add
+            .text(this.sprite.x, this.sprite.y - 40, `-${damage}`, {
+                fontSize: "20px",
+                color: "#00ff00", // Green for poison
+                stroke: "#000000",
+                strokeThickness: 3,
+            })
+            .setOrigin(0.5);
+
+        this.scene.tweens.add({
+            targets: poisonText,
+            y: poisonText.y - 30,
+            alpha: 0,
+            duration: 1000,
+            onComplete: () => {
+                poisonText.destroy();
+                if (gameManager && gameManager.endDamageAnimation) {
+                    gameManager.endDamageAnimation();
+                }
+            },
+        });
+
+        this.updateHealthBar();
+    }
+
+    /**
+     * Show visual feedback when status effect is applied.
+     */
+    protected showStatusEffectApplied(statusType: StatusEffectType): void {
+        const messages: Record<StatusEffectType, string> = {
+            poison: "POISONED!",
+            stun: "STUNNED!",
+            root: "ROOTED!",
+            vulnerable: "VULNERABLE!",
+        };
+
+        const colors: Record<StatusEffectType, string> = {
+            poison: "#00ff00",
+            stun: "#ffff00",
+            root: "#8b4513",
+            vulnerable: "#ff0000",
+        };
+
+        const text = this.scene.add
+            .text(this.sprite.x, this.sprite.y - 50, messages[statusType], {
+                fontSize: "18px",
+                color: colors[statusType],
+                stroke: "#000000",
+                strokeThickness: 3,
+            })
+            .setOrigin(0.5);
+
+        this.scene.tweens.add({
+            targets: text,
+            y: text.y - 30,
+            alpha: 0,
+            duration: 1200,
+            onComplete: () => text.destroy(),
+        });
+    }
+
+    /**
+     * Show visual feedback when status effect expires.
+     */
+    protected showStatusEffectExpired(statusType: StatusEffectType): void {
+        const messages: Record<StatusEffectType, string> = {
+            poison: "Poison faded",
+            stun: "No longer stunned",
+            root: "Can move again",
+            vulnerable: "Defense restored",
+        };
+
+        const text = this.scene.add
+            .text(this.sprite.x, this.sprite.y - 50, messages[statusType], {
+                fontSize: "14px",
+                color: "#aaaaaa",
+                stroke: "#000000",
+                strokeThickness: 2,
+            })
+            .setOrigin(0.5);
+
+        this.scene.tweens.add({
+            targets: text,
+            y: text.y - 20,
+            alpha: 0,
+            duration: 800,
+            onComplete: () => text.destroy(),
+        });
+    }
+
+    /**
+     * Update visual indicators for status effects.
+     * Only applies sprite tint - detailed info shown in tooltips.
+     */
+    protected updateStatusEffectVisuals(): void {
+        // Destroy existing icons container (if any from previous version)
+        if (this.statusEffectIcons) {
+            this.statusEffectIcons.destroy();
+            this.statusEffectIcons = null;
+        }
+
+        if (this.statusEffects.length === 0) {
+            // Reset sprite tint
+            this.sprite.clearTint();
+            return;
+        }
+
+        // Apply tint based on most severe status effect
+        const priority: StatusEffectType[] = ["stun", "vulnerable", "root", "poison"];
+        for (const type of priority) {
+            if (this.hasStatusEffect(type)) {
+                this.sprite.setTint(STATUS_EFFECT_COLORS[type]);
+                break;
+            }
+        }
+    }
+
+    // =========================================================================
+    // Status Effect Queries
+    // =========================================================================
+
+    /**
+     * Check if unit has a specific status effect.
+     */
+    public hasStatusEffect(statusType: StatusEffectType): boolean {
+        return statusEffectSystem.hasStatusEffect(this.statusEffects, statusType);
+    }
+
+    /**
+     * Check if unit has any status effect.
+     */
+    public hasAnyStatusEffect(): boolean {
+        return statusEffectSystem.hasAnyStatusEffect(this.statusEffects);
+    }
+
+    /**
+     * Check if unit is stunned.
+     */
+    public isStunned(): boolean {
+        return statusEffectSystem.isStunned(this.statusEffects);
+    }
+
+    /**
+     * Check if unit is rooted.
+     */
+    public isRooted(): boolean {
+        return statusEffectSystem.isRooted(this.statusEffects);
+    }
+
+    /**
+     * Check if unit is poisoned.
+     */
+    public isPoisoned(): boolean {
+        return statusEffectSystem.isPoisoned(this.statusEffects);
+    }
+
+    /**
+     * Check if unit is vulnerable.
+     */
+    public isVulnerable(): boolean {
+        return statusEffectSystem.isVulnerable(this.statusEffects);
+    }
+
+    /**
+     * Get vulnerable damage multiplier (1.0 if not vulnerable).
+     */
+    public getVulnerableMultiplier(): number {
+        return statusEffectSystem.getVulnerableMultiplier(this.statusEffects);
+    }
+
+    /**
+     * Get all active status effects.
+     */
+    public getStatusEffects(): StatusEffect[] {
+        return [...this.statusEffects];
+    }
+
+    /**
+     * Get status effect count.
+     */
+    public getStatusEffectCount(): number {
+        return statusEffectSystem.getStatusEffectCount(this.statusEffects);
+    }
+
+    /**
+     * Get status effect descriptions for UI.
+     */
+    public getStatusEffectDescriptions(): string[] {
+        return statusEffectSystem.getStatusEffectDescriptions(this.statusEffects);
+    }
+
+    /**
+     * Get unique ID for this unit.
+     */
+    public getUnitId(): string {
+        return `${this.team}_${this.gridX}_${this.gridY}`;
     }
 }
 

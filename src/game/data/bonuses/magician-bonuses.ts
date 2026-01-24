@@ -757,4 +757,65 @@ export const MAGICIAN_BONUSES: BonusDefinition[] = [
             },
         ],
     },
+
+    // ==========================================================================
+    // Magician Status Effect Bonuses
+    // ==========================================================================
+    {
+        id: "curse_amplifier",
+        category: "passive",
+        name: "Curse Amplifier",
+        description: "Status effects you apply last +1 turn and deal +1 damage",
+        icon: "icon_curse_amplifier",
+        iconDescription: "a dark curse symbol amplifying",
+        stackable: false,
+        tags: ["offensive", "magic", "status"],
+        effects: [
+            {
+                type: "status_duration_mod",
+                trigger: { effect: "add_stat", value: 1 },
+            },
+            {
+                type: "status_damage_mod",
+                trigger: { effect: "damage", value: 1, statusType: "poison" },
+            },
+        ],
+    },
+    {
+        id: "arcane_weakness",
+        category: "passive",
+        name: "Arcane Weakness",
+        description: "Magic spells make target vulnerable for 1 turn",
+        icon: "icon_arcane_weakness",
+        iconDescription: "magic breaking through defenses",
+        stackable: false,
+        tags: ["offensive", "magic", "status", "vulnerable"],
+        effects: [
+            {
+                type: "on_hit",
+                trigger: { effect: "apply_status", value: 1.25, statusType: "vulnerable", statusDuration: 1 },
+                condition: { type: "is_magic_spell" },
+            },
+        ],
+    },
+    {
+        id: "mental_fortress",
+        category: "passive",
+        name: "Mental Fortress",
+        description: "Immune to stun effects, +2 Magic Resistance",
+        icon: "icon_mental_fortress",
+        iconDescription: "a protected mind with magical barrier",
+        stackable: false,
+        tags: ["defensive", "magic", "status", "immunity"],
+        effects: [
+            {
+                type: "status_immunity",
+                immuneToStatus: "stun",
+            },
+            {
+                type: "stat_modifier",
+                statModifier: { stat: "magicResistance", value: 2 },
+            },
+        ],
+    },
 ];

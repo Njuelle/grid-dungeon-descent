@@ -1,4 +1,4 @@
-import { BuffEffect, SpellCategory, BuffType } from "../core/types";
+import { BuffEffect, SpellCategory, BuffType, StatusEffectDefinition } from "../core/types";
 
 export type { BuffType, SpellCategory, BuffEffect };
 
@@ -20,6 +20,8 @@ export interface Spell {
     spellCategory?: SpellCategory;
     /** Buff effect configuration (for buff spells) */
     buffEffect?: BuffEffect;
+    /** Status effect to apply on hit */
+    statusEffect?: StatusEffectDefinition;
     /** VFX animation key to play when spell is cast */
     animation?: string;
 }

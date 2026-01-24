@@ -1525,6 +1525,34 @@ export class GameManager {
         if (spell.buffEffect && spell.buffEffect.targetSelf === false && target instanceof Enemy) {
             this.applyDebuffToEnemy(target as Enemy, spell);
         }
+
+        // Apply status effects to enemy if spell has statusEffect
+        if (spell.statusEffect && target instanceof Enemy && target.isAlive()) {
+            this.applyStatusEffectToTarget(target, spell, attacker);
+        }
+    }
+
+    /**
+     * Apply a status effect from a spell to a target unit.
+     */
+    private applyStatusEffectToTarget(target: Unit, spell: Spell, source: Unit): void {
+        if (!spell.statusEffect) return;
+
+        const statusEffect = spell.statusEffect;
+        const success = target.applyStatusEffect(statusEffect, source.getUnitId());
+
+        if (success && this.uiManager) {
+            const effectNames: Record<string, string> = {
+                poison: "Poisoned",
+                stun: "Stunned",
+                root: "Rooted",
+                vulnerable: "Vulnerable",
+            };
+            const effectName = effectNames[statusEffect.type] || statusEffect.type;
+            this.uiManager.addCombatLogMessage(
+                `${spell.name}: Enemy ${effectName} for ${statusEffect.duration} turn(s)!`
+            );
+        }
     }
 
     /**
@@ -1595,6 +1623,11 @@ export class GameManager {
                     this.initializeCurses();
                 }
 
+                // Process status effects at turn start (not on first turn)
+                if (!this.isFirstTurn) {
+                    this.processPlayerStatusEffectsOnTurnStart(player);
+                }
+
                 // Tick player buffs at start of player turn (not on first turn)
                 if (!this.isFirstTurn) {
                     const tickEffects = player.tickBuffs();
@@ -1648,11 +1681,86 @@ export class GameManager {
                 }
 
                 this.selectUnit(player);
+
+                // Check if player died from poison damage
+                if (!player.isAlive()) {
+                    this.checkVictory();
+                }
             }
         }
         // Simple AI for enemy turn
         else if (this.currentTeam === "enemy") {
+            // Process status effects for all enemies at start of their turn
+            this.processEnemyStatusEffectsOnTurnStart();
             this.scene.time.delayedCall(500, () => this.playEnemyTurn());
+        }
+    }
+
+    /**
+     * Process player status effects at turn start.
+     */
+    private processPlayerStatusEffectsOnTurnStart(player: Player): void {
+        const result = player.processStatusEffectsOnTurnStart();
+
+        if (result.poisonDamage > 0) {
+            console.log(`[GameManager] Player took ${result.poisonDamage} poison damage`);
+            if (this.uiManager) {
+                this.uiManager.addCombatLogMessage(
+                    `Poison: -${result.poisonDamage} HP`
+                );
+                this.uiManager.updatePointsDisplay(player);
+            }
+        }
+
+        if (result.wasStunned) {
+            console.log("[GameManager] Player is stunned! Cannot act this turn.");
+            if (this.uiManager) {
+                this.uiManager.addCombatLogMessage("Stunned! Cannot act.");
+                this.uiManager.updatePointsDisplay(player);
+            }
+        }
+
+        if (result.wasRooted) {
+            console.log("[GameManager] Player is rooted! Cannot move this turn.");
+            if (this.uiManager) {
+                this.uiManager.addCombatLogMessage("Rooted! Cannot move.");
+                this.uiManager.updatePointsDisplay(player);
+            }
+        }
+    }
+
+    /**
+     * Process status effects for all enemies at their turn start.
+     */
+    private processEnemyStatusEffectsOnTurnStart(): void {
+        const enemies = this.units.filter(unit => unit.team === "enemy" && unit.isAlive());
+
+        for (const enemy of enemies) {
+            const result = enemy.processStatusEffectsOnTurnStart();
+
+            if (result.poisonDamage > 0) {
+                console.log(`[GameManager] Enemy took ${result.poisonDamage} poison damage`);
+                if (this.uiManager) {
+                    this.uiManager.addCombatLogMessage(
+                        `Enemy poisoned: -${result.poisonDamage} HP`
+                    );
+                }
+
+                // Check if enemy died from poison
+                if (!enemy.isAlive()) {
+                    console.log("[GameManager] Enemy died from poison!");
+                    this.removeUnit(enemy);
+                    this.checkVictory();
+                }
+            }
+
+            if (result.wasStunned) {
+                console.log("[GameManager] Enemy is stunned! Will skip action.");
+            }
+
+            if (result.wasRooted) {
+                console.log("[GameManager] Enemy is rooted! Cannot move.");
+            }
         }
     }
 
@@ -2067,6 +2175,24 @@ export class GameManager {
                 enemy.applySelfBuff(spell);
             }
 
+            // Apply status effects to player if spell has statusEffect
+            if (spell.statusEffect && target.isAlive()) {
+                const success = target.applyStatusEffect(spell.statusEffect, enemy.getUnitId());
+                
+                if (success && this.uiManager) {
+                    const effectNames: Record<string, string> = {
+                        poison: "Poisoned",
+                        stun: "Stunned",
+                        root: "Rooted",
+                        vulnerable: "Vulnerable",
+                    };
+                    const effectName = effectNames[spell.statusEffect.type] || spell.statusEffect.type;
+                    this.uiManager.addCombatLogMessage(
+                        `${spell.name}: Player ${effectName} for ${spell.statusEffect.duration} turn(s)!`
+                    );
+                }
+            }
+
             // Emit player damaged event
             this.scene.events.emit("playerDamaged", target);
 
@@ -2477,10 +2603,27 @@ export class GameManager {
     }
 
     public endTurn(): void {
+        // Process status effects at end of current team's turn (tick down durations)
+        this.processStatusEffectsOnTurnEnd();
+
         this.currentTeam = this.currentTeam === "player" ? "enemy" : "player";
         this.selectedUnit = null;
         this.clearHighlights();
         this.startTurn();
+    }
+
+    /**
+     * Process status effects at the end of the current team's turn.
+     * Decrements durations and removes expired effects.
+     */
+    private processStatusEffectsOnTurnEnd(): void {
+        const unitsToProcess = this.units.filter(
+            unit => unit.team === this.currentTeam && unit.isAlive()
+        );
+
+        for (const unit of unitsToProcess) {
+            unit.processStatusEffectsOnTurnEnd();
+        }
     }
 
     public checkVictory(): void {
