@@ -11,7 +11,9 @@ import { UIManager } from "./UIManager";
 import { Spell } from "./Spell";
 import { GameProgress } from "./GameProgress";
 import { buffSystem } from "../systems/BuffSystem";
+import { curseSystem } from "../systems/CurseSystem";
 import { SpellDefinition } from "../core/types";
+import { getArtifactById } from "../data/artifacts";
 
 export class GameManager {
     private scene: Scene;
@@ -31,6 +33,7 @@ export class GameManager {
     private hoverPreviewEnabled: boolean = true;
     private activeDamageAnimations: number = 0;
     private pendingVictoryCheck: boolean = false;
+    private turnNumber: number = 0;
 
     constructor(scene: Scene, grid: Grid) {
         this.scene = scene;
@@ -1061,6 +1064,9 @@ export class GameManager {
 
         const spell = attacker.getCurrentSpell();
 
+        // Apply curse damage on cast (for cursed artifact spells)
+        this.applyCurseOnCastDamage(attacker, spell.id);
+
         // Calculate distance for guerrilla tactics
         const distance = this.grid.getDistance(
             attacker.gridX,
@@ -1239,6 +1245,9 @@ export class GameManager {
         }
 
         (player as any).isCasting = true;
+
+        // Apply curse damage on cast (for cursed artifact spells)
+        this.applyCurseOnCastDamage(player, spell.id);
 
         // Play a buff animation with VFX (simple glow effect)
         this.playBuffAnimation(player, () => {
@@ -1581,6 +1590,11 @@ export class GameManager {
         if (this.currentTeam === "player") {
             const player = this.getPlayer();
             if (player) {
+                // Initialize curses on first turn
+                if (this.isFirstTurn) {
+                    this.initializeCurses();
+                }
+
                 // Tick player buffs at start of player turn (not on first turn)
                 if (!this.isFirstTurn) {
                     const tickEffects = player.tickBuffs();
@@ -1601,6 +1615,9 @@ export class GameManager {
                     if (activeBuffs.length > 0) {
                         console.log(`[GameManager] Player has ${activeBuffs.length} active buff(s)`);
                     }
+
+                    // Apply curse damage at turn start (damage_per_turn curses)
+                    this.applyCurseTurnDamage(player);
                 }
 
                 // Apply adrenaline rush on first turn
@@ -1636,6 +1653,103 @@ export class GameManager {
         // Simple AI for enemy turn
         else if (this.currentTeam === "enemy") {
             this.scene.time.delayedCall(500, () => this.playEnemyTurn());
+        }
+    }
+
+    /**
+     * Initialize curses from equipped artifacts at battle start.
+     */
+    private initializeCurses(): void {
+        curseSystem.clearAllCurses();
+
+        const progress = GameProgress.getInstance();
+        const equippedArtifacts = progress.getEquippedArtifacts();
+
+        for (const artifactId of equippedArtifacts) {
+            const artifact = getArtifactById(artifactId);
+            if (artifact && artifact.curse) {
+                curseSystem.addCurse(artifact);
+                console.log(`[GameManager] Curse added from artifact: ${artifact.name} - ${artifact.curse.description}`);
+            }
+        }
+
+        if (curseSystem.hasAnyCurse()) {
+            const curseCount = curseSystem.getActiveCurses().length;
+            console.log(`[GameManager] Player has ${curseCount} active curse(s)`);
+            
+            if (this.uiManager) {
+                this.uiManager.addCombatLogMessage(`${curseCount} curse(s) active!`);
+            }
+        }
+    }
+
+    /**
+     * Apply curse damage at the start of player's turn.
+     */
+    private applyCurseTurnDamage(player: Player): void {
+        // Damage from damage_per_turn curses
+        const turnDamage = curseSystem.getTurnStartDamage();
+        if (turnDamage > 0) {
+            player.takeDamage(turnDamage, "magic", undefined);
+            console.log(`[GameManager] Curse damage: ${turnDamage} HP`);
+            
+            if (this.uiManager) {
+                this.uiManager.addCombatLogMessage(`Curse: -${turnDamage} HP!`);
+            }
+
+            // Check if player died from curse damage
+            if (!player.isAlive()) {
+                this.removeUnit(player);
+                this.checkVictory();
+            }
+        }
+
+        // Check for turn limit damage (e.g., Hourglass of Doom after turn 10)
+        // We need to track turn number - for now, use a simple counter
+        if (!this.turnNumber) {
+            this.turnNumber = 1;
+        } else {
+            this.turnNumber++;
+        }
+
+        const turnLimitDamage = curseSystem.getTurnLimitDamage(this.turnNumber);
+        if (turnLimitDamage > 0) {
+            player.takeDamage(turnLimitDamage, "magic", undefined);
+            console.log(`[GameManager] Turn limit curse damage: ${turnLimitDamage} HP (turn ${this.turnNumber})`);
+            
+            if (this.uiManager) {
+                this.uiManager.addCombatLogMessage(`Hourglass of Doom: -${turnLimitDamage} HP!`);
+            }
+
+            // Check if player died
+            if (!player.isAlive()) {
+                this.removeUnit(player);
+                this.checkVictory();
+            }
+        }
+    }
+
+    /**
+     * Apply curse damage when casting a spell (for damage_on_cast curses).
+     */
+    private applyCurseOnCastDamage(player: Player, spellId: string): void {
+        const curseDamage = curseSystem.getOnCastDamage(spellId);
+        if (curseDamage > 0) {
+            player.takeDamage(curseDamage, "magic", undefined);
+            console.log(`[GameManager] Curse on-cast damage: ${curseDamage} HP for spell ${spellId}`);
+            
+            if (this.uiManager) {
+                this.uiManager.addCombatLogMessage(`Curse: -${curseDamage} HP to cast!`);
+            }
+
+            // Update player health display
+            this.scene.events.emit("playerDamaged", player);
+
+            // Check if player died from curse damage
+            if (!player.isAlive()) {
+                this.removeUnit(player);
+                this.checkVictory();
+            }
         }
     }
 

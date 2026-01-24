@@ -12,6 +12,7 @@ import { ArtifactDefinition } from "../core/types";
 import { artifactSystem } from "../systems/ArtifactSystem";
 import { getSpellById } from "../data/spells/index";
 import { GameProgress } from "../classes/GameProgress";
+import { CurseSystem } from "../systems/CurseSystem";
 
 // =============================================================================
 // ArtifactBagUI Class
@@ -114,16 +115,19 @@ export class ArtifactBagUI {
         _index: number
     ): Phaser.GameObjects.Container {
         const slot = this.scene.add.container(x + size / 2, y + size / 2);
+        const isCursed = artifact ? CurseSystem.isCursedArtifact(artifact) : false;
 
-        // Slot background
+        // Slot background - purple for cursed artifacts
         const slotBg = this.scene.add.graphics();
         if (artifact) {
-            slotBg.fillStyle(0x3e2723, 1);
+            slotBg.fillStyle(isCursed ? 0x2d1f3d : 0x3e2723, 1);
         } else {
             slotBg.fillStyle(0x1a1a1a, 0.8);
         }
         slotBg.fillRoundedRect(-size / 2, -size / 2, size, size, 6);
-        slotBg.lineStyle(2, artifact ? 0xd4af37 : 0x4a4a4a, 0.8);
+        // Purple border for cursed, gold for normal, gray for empty
+        const borderColor = artifact ? (isCursed ? 0x9932cc : 0xd4af37) : 0x4a4a4a;
+        slotBg.lineStyle(2, borderColor, 0.8);
         slotBg.strokeRoundedRect(-size / 2, -size / 2, size, size, 6);
         slot.add(slotBg);
 
@@ -134,6 +138,10 @@ export class ArtifactBagUI {
                 iconDisplay = this.scene.add.image(0, 0, artifact.icon);
                 iconDisplay.setOrigin(0.5);
                 iconDisplay.setDisplaySize(28, 28);
+                // Add purple tint for cursed artifacts
+                if (isCursed) {
+                    iconDisplay.setTint(0xcc88ff);
+                }
             } else {
                 iconDisplay = this.scene.add
                     .text(0, 0, artifact.icon, { fontSize: "28px" })
@@ -148,18 +156,18 @@ export class ArtifactBagUI {
 
             hitArea.on("pointerover", () => {
                 slotBg.clear();
-                slotBg.fillStyle(0x4a332a, 1);
+                slotBg.fillStyle(isCursed ? 0x3d2a4d : 0x4a332a, 1);
                 slotBg.fillRoundedRect(-size / 2, -size / 2, size, size, 6);
-                slotBg.lineStyle(2, 0xffd700, 1);
+                slotBg.lineStyle(2, isCursed ? 0xda70d6 : 0xffd700, 1);
                 slotBg.strokeRoundedRect(-size / 2, -size / 2, size, size, 6);
                 this.showTooltip(artifact, x + size / 2, y - 10);
             });
 
             hitArea.on("pointerout", () => {
                 slotBg.clear();
-                slotBg.fillStyle(0x3e2723, 1);
+                slotBg.fillStyle(isCursed ? 0x2d1f3d : 0x3e2723, 1);
                 slotBg.fillRoundedRect(-size / 2, -size / 2, size, size, 6);
-                slotBg.lineStyle(2, 0xd4af37, 0.8);
+                slotBg.lineStyle(2, isCursed ? 0x9932cc : 0xd4af37, 0.8);
                 slotBg.strokeRoundedRect(-size / 2, -size / 2, size, size, 6);
                 this.hideTooltip();
             });
@@ -187,6 +195,7 @@ export class ArtifactBagUI {
         const tooltipWidth = 250;
         const spell = getSpellById(artifact.grantedSpellId);
         const padding = 15;
+        const isCursed = CurseSystem.isCursedArtifact(artifact);
 
         // Measure description text height
         const tempDescText = this.scene.add
@@ -203,6 +212,10 @@ export class ArtifactBagUI {
         let tooltipHeight = padding + 22 + 8 + descHeight + padding; // padding + name + gap + desc + padding
         if (spell) {
             tooltipHeight += 10 + 20 + 18; // separator gap + spell name + spell stats
+        }
+        // Add space for curse description
+        if (isCursed && artifact.curse) {
+            tooltipHeight += 25; // curse text height
         }
 
         // Calculate position - ensure tooltip stays on screen
@@ -221,18 +234,18 @@ export class ArtifactBagUI {
         this.tooltip = this.scene.add.container(tooltipX, tooltipY);
         this.tooltip.setDepth(100);
 
-        // Background
+        // Background - purple border for cursed
         const bg = this.scene.add.graphics();
-        bg.fillStyle(0x1a1a1a, 0.95);
+        bg.fillStyle(isCursed ? 0x1a1a2a : 0x1a1a1a, 0.95);
         bg.fillRoundedRect(-tooltipWidth / 2, 0, tooltipWidth, tooltipHeight, 8);
-        bg.lineStyle(2, 0xd4af37, 0.9);
+        bg.lineStyle(2, isCursed ? 0x9932cc : 0xd4af37, 0.9);
         bg.strokeRoundedRect(-tooltipWidth / 2, 0, tooltipWidth, tooltipHeight, 8);
 
-        // Name
+        // Name - purple for cursed
         const nameText = this.scene.add
             .text(0, padding, artifact.name, {
                 fontSize: "16px",
-                color: "#d4af37",
+                color: isCursed ? "#cc88ff" : "#d4af37",
                 fontStyle: "bold",
                 fontFamily: "serif",
             })
@@ -252,6 +265,7 @@ export class ArtifactBagUI {
         this.tooltip.add([bg, nameText, descText]);
 
         // Spell info
+        let spellEndY = padding + 22 + 8 + descHeight;
         if (spell) {
             const spellY = padding + 22 + 8 + descHeight + 10;
 
@@ -289,6 +303,22 @@ export class ArtifactBagUI {
                 .setOrigin(0.5, 0);
 
             this.tooltip.add([spellIcon, spellTitle, spellStats]);
+            spellEndY = spellY + 40;
+        }
+
+        // Curse info for cursed artifacts
+        if (isCursed && artifact.curse) {
+            const curseText = this.scene.add
+                .text(0, spellEndY + 5, `⚠ ${artifact.curse.description}`, {
+                    fontSize: "11px",
+                    color: "#ff6666",
+                    fontFamily: "serif",
+                    fontStyle: "bold",
+                    wordWrap: { width: tooltipWidth - padding * 2 },
+                    align: "center",
+                })
+                .setOrigin(0.5, 0);
+            this.tooltip.add(curseText);
         }
 
         // Add tooltip directly to scene, not container (to avoid clipping)

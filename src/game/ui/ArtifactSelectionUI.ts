@@ -195,7 +195,7 @@ export class ArtifactSelectionUI {
         card.setAlpha(0);
 
         const cardWidth = 300;
-        const cardHeight = 400;
+        const cardHeight = 450;
         const isCursed = CurseSystem.isCursedArtifact(artifact);
 
         // Card background - purple tint for cursed artifacts
@@ -264,18 +264,18 @@ export class ArtifactSelectionUI {
         // Artifact description
         const descText = this.scene.add
             .text(0, -15, artifact.description, {
-                fontSize: "13px",
+                fontSize: "15px",
                 color: "#f5deb3",
                 fontFamily: "serif",
                 align: "center",
                 wordWrap: { width: cardWidth - 30 },
-                lineSpacing: 3,
+                lineSpacing: 4,
             })
             .setOrigin(0.5);
 
         // Granted spell section
         const spellTitle = this.scene.add
-            .text(0, 30, "~ Grants Spell ~", {
+            .text(0, 35, "~ Grants Spell ~", {
                 fontSize: "14px",
                 color: isCursed ? "#cc88ff" : "#d4af37",
                 fontFamily: "serif",
@@ -288,30 +288,52 @@ export class ArtifactSelectionUI {
         // Spell icon as image
         let spellIconDisplay: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
         if (spell && spell.icon.startsWith("icon_")) {
-            spellIconDisplay = this.scene.add.image(0, 55, spell.icon);
+            spellIconDisplay = this.scene.add.image(0, 60, spell.icon);
             spellIconDisplay.setOrigin(0.5);
-            spellIconDisplay.setDisplaySize(28, 28);
+            spellIconDisplay.setDisplaySize(32, 32);
         } else {
             // Fallback for emoji icons or unknown spells
             spellIconDisplay = this.scene.add
-                .text(0, 55, spell?.icon || "?", { fontSize: "28px" })
+                .text(0, 60, spell?.icon || "?", { fontSize: "32px" })
                 .setOrigin(0.5);
         }
         
-        // Spell name and details as text
-        let spellInfo = "Unknown spell";
-        if (spell) {
-            spellInfo = `${spell.name}\nAP: ${spell.apCost} | Range: ${spell.range} | Dmg: ${spell.damage}`;
-        }
+        // Spell name
+        const spellNameText = this.scene.add
+            .text(0, 85, spell?.name || "Unknown spell", {
+                fontSize: "16px",
+                color: "#90ee90",
+                fontFamily: "serif",
+                fontStyle: "bold",
+                align: "center",
+            })
+            .setOrigin(0.5);
 
-        const spellText = this.scene.add
-            .text(0, 90, spellInfo, {
-                fontSize: "12px",
+        // Spell stats (AP, Range, Damage)
+        let spellStatsStr = "Unknown";
+        if (spell) {
+            const rangeStr = spell.minRange ? `${spell.minRange}-${spell.range}` : `${spell.range}`;
+            spellStatsStr = `AP: ${spell.apCost} | Range: ${rangeStr} | Dmg: ${spell.damage}`;
+        }
+        const spellStats = this.scene.add
+            .text(0, 105, spellStatsStr, {
+                fontSize: "13px",
                 color: "#c0c0c0",
                 fontFamily: "serif",
                 align: "center",
+            })
+            .setOrigin(0.5);
+
+        // Spell description
+        const spellDescText = this.scene.add
+            .text(0, 125, spell?.description || "", {
+                fontSize: "12px",
+                color: "#aaaaaa",
+                fontFamily: "serif",
+                align: "center",
                 wordWrap: { width: cardWidth - 30 },
-                lineSpacing: 4,
+                lineSpacing: 2,
+                fontStyle: "italic",
             })
             .setOrigin(0.5);
 
@@ -319,8 +341,8 @@ export class ArtifactSelectionUI {
         let curseText: Phaser.GameObjects.Text | null = null;
         if (isCursed && artifact.curse) {
             curseText = this.scene.add
-                .text(0, 135, `CURSE: ${artifact.curse.description}`, {
-                    fontSize: "12px",
+                .text(0, 165, `⚠ CURSE: ${artifact.curse.description}`, {
+                    fontSize: "13px",
                     color: "#ff6666",
                     fontFamily: "serif",
                     align: "center",
@@ -354,7 +376,9 @@ export class ArtifactSelectionUI {
             descText,
             spellTitle,
             spellIconDisplay,
-            spellText,
+            spellNameText,
+            spellStats,
+            spellDescText,
             selectHint,
             hitArea,
         ];
