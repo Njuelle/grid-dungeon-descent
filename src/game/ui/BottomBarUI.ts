@@ -197,18 +197,6 @@ export class BottomBarUI {
         this.createStatDisplay(this.playerStatsContainer, "🧠", 45, statsY, "intText", "#ff66ff", "Intelligence");
         this.createStatDisplay(this.playerStatsContainer, "🛡️", 100, statsY, "armorText", "#6666ff", "Armor");
         this.createStatDisplay(this.playerStatsContainer, "✨", 155, statsY, "mrText", "#cc99ff", "Magic Resistance");
-
-        // Buff indicator text (shown below the stats)
-        const buffText = this.scene.add
-            .text(0, 45, "", {
-                fontSize: "12px",
-                color: "#88ff88",
-                fontStyle: "italic",
-                align: "center",
-            })
-            .setOrigin(0.5);
-        this.playerStatsContainer.add(buffText);
-        this.playerStatsContainer.setData("buffText", buffText);
     }
 
     private createStatDisplay(
@@ -377,7 +365,6 @@ export class BottomBarUI {
         const intText = this.playerStatsContainer.getData("intText") as Phaser.GameObjects.Text;
         const armorText = this.playerStatsContainer.getData("armorText") as Phaser.GameObjects.Text;
         const mrText = this.playerStatsContainer.getData("mrText") as Phaser.GameObjects.Text;
-        const buffText = this.playerStatsContainer.getData("buffText") as Phaser.GameObjects.Text;
 
         // Update health bar
         healthBar.clear();
@@ -413,16 +400,6 @@ export class BottomBarUI {
         
         // Magic resistance
         this.updateStatWithBuff(mrText, data.magicResistance, buffMods?.get("magicResistance") || 0);
-
-        // Update buff display text
-        if (data.activeBuffs && data.activeBuffs.length > 0) {
-            const buffDescriptions = this.formatBuffsForDisplay(data.activeBuffs);
-            buffText.setText(buffDescriptions);
-            buffText.setVisible(true);
-        } else {
-            buffText.setText("");
-            buffText.setVisible(false);
-        }
     }
 
     /**
@@ -438,58 +415,6 @@ export class BottomBarUI {
             text.setColor("#ff4444"); // Red for negative buff/debuff
         } else {
             text.setColor("#ffffff"); // White for no buff
-        }
-    }
-
-    /**
-     * Formats active buffs for display.
-     */
-    private formatBuffsForDisplay(buffs: ActiveBuff[]): string {
-        if (!buffs || buffs.length === 0) return "";
-
-        const descriptions: string[] = [];
-        for (const buff of buffs) {
-            const sign = buff.value >= 0 ? "+" : "";
-            let desc = "";
-            
-            switch (buff.buffType) {
-                case "stat_boost":
-                    desc = `${sign}${buff.value} ${this.formatStatName(buff.stat)} (${buff.remainingTurns}t)`;
-                    break;
-                case "damage_boost":
-                    desc = `${sign}${buff.value} DMG (${buff.remainingTurns}t)`;
-                    break;
-                case "shield":
-                    desc = `Shield: ${buff.value} (${buff.remainingTurns}t)`;
-                    break;
-                case "mark":
-                    desc = `Marked: +${buff.value} dmg taken (${buff.remainingTurns}t)`;
-                    break;
-                default:
-                    desc = `Buff (${buff.remainingTurns}t)`;
-            }
-            descriptions.push(desc);
-        }
-        
-        return descriptions.join(" | ");
-    }
-
-    /**
-     * Formats a stat name for display.
-     */
-    private formatStatName(stat?: StatName): string {
-        if (!stat) return "???";
-        switch (stat) {
-            case "force": return "FOR";
-            case "dexterity": return "DEX";
-            case "intelligence": return "INT";
-            case "armor": return "ARM";
-            case "magicResistance": return "MR";
-            case "movementPoints": return "MP";
-            case "actionPoints": return "AP";
-            case "health": return "HP";
-            case "maxHealth": return "MaxHP";
-            default: return stat;
         }
     }
 

@@ -872,6 +872,16 @@ export class Player extends Unit {
         this.stats.force += points;
     }
 
+    public addDexterity(points: number): void {
+        this.stats.dexterity += points;
+    }
+
+    public addIntelligence(points: number): void {
+        if (this.stats.intelligence !== undefined) {
+            this.stats.intelligence += points;
+        }
+    }
+
     // =========================================================================
     // Class Methods
     // =========================================================================

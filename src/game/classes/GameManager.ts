@@ -1690,8 +1690,7 @@ export class GameManager {
         }
         // Simple AI for enemy turn
         else if (this.currentTeam === "enemy") {
-            // Process status effects for all enemies at start of their turn
-            this.processEnemyStatusEffectsOnTurnStart();
+            // Status effects are processed inside playEnemyTurn() AFTER resetTurnStats()
             this.scene.time.delayedCall(500, () => this.playEnemyTurn());
         }
     }
@@ -1725,41 +1724,6 @@ export class GameManager {
             if (this.uiManager) {
                 this.uiManager.addCombatLogMessage("Rooted! Cannot move.");
                 this.uiManager.updatePointsDisplay(player);
-            }
-        }
-    }
-
-    /**
-     * Process status effects for all enemies at their turn start.
-     */
-    private processEnemyStatusEffectsOnTurnStart(): void {
-        const enemies = this.units.filter(unit => unit.team === "enemy" && unit.isAlive());
-
-        for (const enemy of enemies) {
-            const result = enemy.processStatusEffectsOnTurnStart();
-
-            if (result.poisonDamage > 0) {
-                console.log(`[GameManager] Enemy took ${result.poisonDamage} poison damage`);
-                if (this.uiManager) {
-                    this.uiManager.addCombatLogMessage(
-                        `Enemy poisoned: -${result.poisonDamage} HP`
-                    );
-                }
-
-                // Check if enemy died from poison
-                if (!enemy.isAlive()) {
-                    console.log("[GameManager] Enemy died from poison!");
-                    this.removeUnit(enemy);
-                    this.checkVictory();
-                }
-            }
-
-            if (result.wasStunned) {
-                console.log("[GameManager] Enemy is stunned! Will skip action.");
-            }
-
-            if (result.wasRooted) {
-                console.log("[GameManager] Enemy is rooted! Cannot move.");
             }
         }
     }
@@ -1869,8 +1833,35 @@ export class GameManager {
             const allEnemies = this.units.filter((unit) => unit.team === "enemy");
             for (const enemy of allEnemies) {
                 if (enemy instanceof Enemy) {
-                    // Reset AP/MP to max values
+                    // Reset AP/MP to max values FIRST
                     enemy.resetTurnStats();
+                    
+                    // Process status effects AFTER reset (root sets MP to 0, stun sets AP to 0)
+                    const result = enemy.processStatusEffectsOnTurnStart();
+                    
+                    if (result.poisonDamage > 0) {
+                        console.log(`[GameManager] Enemy took ${result.poisonDamage} poison damage`);
+                        if (this.uiManager) {
+                            this.uiManager.addCombatLogMessage(
+                                `Enemy poisoned: -${result.poisonDamage} HP`
+                            );
+                        }
+
+                        // Check if enemy died from poison
+                        if (!enemy.isAlive()) {
+                            console.log("[GameManager] Enemy died from poison!");
+                            this.removeUnit(enemy);
+                            this.checkVictory();
+                        }
+                    }
+
+                    if (result.wasStunned) {
+                        console.log("[GameManager] Enemy is stunned! Will skip action.");
+                    }
+
+                    if (result.wasRooted) {
+                        console.log("[GameManager] Enemy is rooted! Cannot move.");
+                    }
                     
                     // Tick buffs and apply effects
                     const tickEffects = (enemy as Enemy).tickBuffs();
@@ -2814,6 +2805,67 @@ export class GameManager {
                         }/5)`
                     );
                     this.scene.events.emit("playerDamaged", attacker); // Refresh UI stats
+                }
+            }
+        }
+
+        // Killing Spree: +1 AP after defeating an enemy
+        if (appliedBonuses.includes("killing_spree")) {
+            attacker.addActionPoints(1);
+            console.log("[GameManager] Killing Spree: +1 AP for kill");
+
+            if (this.uiManager) {
+                this.uiManager.addCombatLogMessage(
+                    "Killing Spree: +1 action point!"
+                );
+                this.uiManager.updatePointsDisplay(attacker);
+            }
+        }
+
+        // Kill Streak: 1 kill: +1 AP, 2 kills: +1 MP, 3+ kills: +2 damage
+        if (appliedBonuses.includes("kill_streak")) {
+            // Track kills in the player's stats
+            if (!(attacker as any).killStreakCount) {
+                (attacker as any).killStreakCount = 0;
+            }
+            (attacker as any).killStreakCount++;
+            const count = (attacker as any).killStreakCount;
+
+            if (count === 1) {
+                attacker.addActionPoints(1);
+                if (this.uiManager) {
+                    this.uiManager.addCombatLogMessage("Kill Streak: +1 AP!");
+                    this.uiManager.updatePointsDisplay(attacker);
+                }
+            } else if (count === 2) {
+                attacker.addMovementPoints(1);
+                if (this.uiManager) {
+                    this.uiManager.addCombatLogMessage("Kill Streak: +1 MP!");
+                    this.uiManager.updatePointsDisplay(attacker);
+                }
+            } else if (count >= 3) {
+                attacker.addForce(2);
+                if (this.uiManager) {
+                    this.uiManager.addCombatLogMessage("Kill Streak: +2 Force!");
+                    this.scene.events.emit("playerDamaged", attacker);
+                }
+            }
+        }
+
+        // Predator: +1 Dexterity per enemy defeated (max +3)
+        if (appliedBonuses.includes("predator")) {
+            if (!(attacker as any).predatorKills) {
+                (attacker as any).predatorKills = 0;
+            }
+
+            if ((attacker as any).predatorKills < 3) {
+                (attacker as any).predatorKills++;
+                attacker.addDexterity(1);
+                if (this.uiManager) {
+                    this.uiManager.addCombatLogMessage(
+                        `Predator: +1 Dexterity! (${(attacker as any).predatorKills}/3)`
+                    );
+                    this.scene.events.emit("playerDamaged", attacker);
                 }
             }
         }
