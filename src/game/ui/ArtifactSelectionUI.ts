@@ -13,6 +13,7 @@ import { ArtifactDefinition } from "../core/types";
 import { artifactSystem } from "../systems/ArtifactSystem";
 import { GameProgress } from "../classes/GameProgress";
 import { getSpellById } from "../data/spells/index";
+import { CurseSystem } from "../systems/CurseSystem";
 
 // =============================================================================
 // Types
@@ -195,43 +196,64 @@ export class ArtifactSelectionUI {
 
         const cardWidth = 300;
         const cardHeight = 400;
+        const isCursed = CurseSystem.isCursedArtifact(artifact);
 
-        // Card background
+        // Card background - purple tint for cursed artifacts
         const cardBg = this.scene.add.graphics();
-        cardBg.fillStyle(0x3e2723, 0.95);
+        cardBg.fillStyle(isCursed ? 0x2d1f3d : 0x3e2723, 0.95);
         cardBg.fillRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 15);
-        cardBg.lineStyle(3, 0x8b7355, 0.9);
+        cardBg.lineStyle(3, isCursed ? 0x8b008b : 0x8b7355, 0.9);
         cardBg.strokeRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 15);
-        cardBg.lineStyle(1, 0xd4af37, 0.7);
+        cardBg.lineStyle(1, isCursed ? 0x9932cc : 0xd4af37, 0.7);
         cardBg.strokeRoundedRect(-cardWidth / 2 + 3, -cardHeight / 2 + 3, cardWidth - 6, cardHeight - 6, 13);
 
-        // Hover background
+        // Hover background - purple tint for cursed
         const hoverBg = this.scene.add.graphics();
-        hoverBg.fillStyle(0x4a332a, 0.95);
+        hoverBg.fillStyle(isCursed ? 0x3d2a4d : 0x4a332a, 0.95);
         hoverBg.fillRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 15);
-        hoverBg.lineStyle(3, 0xd4af37, 1);
+        hoverBg.lineStyle(3, isCursed ? 0x9932cc : 0xd4af37, 1);
         hoverBg.strokeRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 15);
-        hoverBg.lineStyle(1, 0xffd700, 0.8);
+        hoverBg.lineStyle(1, isCursed ? 0xda70d6 : 0xffd700, 0.8);
         hoverBg.strokeRoundedRect(-cardWidth / 2 + 3, -cardHeight / 2 + 3, cardWidth - 6, cardHeight - 6, 13);
         hoverBg.setVisible(false);
+
+        // Cursed label with skull (only for cursed artifacts)
+        let cursedLabel: Phaser.GameObjects.Text | null = null;
+        if (isCursed) {
+            cursedLabel = this.scene.add
+                .text(0, -cardHeight / 2 + 20, "CURSED", {
+                    fontSize: "16px",
+                    color: "#ff4444",
+                    fontStyle: "bold",
+                    fontFamily: "serif",
+                    stroke: "#000000",
+                    strokeThickness: 2,
+                })
+                .setOrigin(0.5);
+        }
 
         // Artifact icon
         let iconDisplay: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
         if (artifact.icon.startsWith("icon_")) {
-            iconDisplay = this.scene.add.image(0, -140, artifact.icon);
+            iconDisplay = this.scene.add.image(0, -130, artifact.icon);
             iconDisplay.setOrigin(0.5);
             iconDisplay.setDisplaySize(64, 64);
         } else {
             iconDisplay = this.scene.add
-                .text(0, -140, artifact.icon, { fontSize: "64px" })
+                .text(0, -130, artifact.icon, { fontSize: "64px" })
                 .setOrigin(0.5);
         }
 
-        // Artifact name
+        // Add purple tint to icon if cursed
+        if (isCursed && iconDisplay instanceof Phaser.GameObjects.Image) {
+            iconDisplay.setTint(0xcc88ff);
+        }
+
+        // Artifact name - purple for cursed
         const nameText = this.scene.add
-            .text(0, -70, artifact.name, {
-                fontSize: "24px",
-                color: "#d4af37",
+            .text(0, -60, artifact.name, {
+                fontSize: "22px",
+                color: isCursed ? "#cc88ff" : "#d4af37",
                 fontStyle: "bold",
                 fontFamily: "serif",
                 align: "center",
@@ -241,21 +263,21 @@ export class ArtifactSelectionUI {
 
         // Artifact description
         const descText = this.scene.add
-            .text(0, -20, artifact.description, {
-                fontSize: "14px",
+            .text(0, -15, artifact.description, {
+                fontSize: "13px",
                 color: "#f5deb3",
                 fontFamily: "serif",
                 align: "center",
                 wordWrap: { width: cardWidth - 30 },
-                lineSpacing: 4,
+                lineSpacing: 3,
             })
             .setOrigin(0.5);
 
         // Granted spell section
         const spellTitle = this.scene.add
-            .text(0, 40, "~ Grants Spell ~", {
-                fontSize: "16px",
-                color: "#d4af37",
+            .text(0, 30, "~ Grants Spell ~", {
+                fontSize: "14px",
+                color: isCursed ? "#cc88ff" : "#d4af37",
                 fontFamily: "serif",
                 fontStyle: "italic",
             })
@@ -266,32 +288,48 @@ export class ArtifactSelectionUI {
         // Spell icon as image
         let spellIconDisplay: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
         if (spell && spell.icon.startsWith("icon_")) {
-            spellIconDisplay = this.scene.add.image(0, 70, spell.icon);
+            spellIconDisplay = this.scene.add.image(0, 55, spell.icon);
             spellIconDisplay.setOrigin(0.5);
-            spellIconDisplay.setDisplaySize(32, 32);
+            spellIconDisplay.setDisplaySize(28, 28);
         } else {
             // Fallback for emoji icons or unknown spells
             spellIconDisplay = this.scene.add
-                .text(0, 70, spell?.icon || "?", { fontSize: "32px" })
+                .text(0, 55, spell?.icon || "?", { fontSize: "28px" })
                 .setOrigin(0.5);
         }
         
         // Spell name and details as text
         let spellInfo = "Unknown spell";
         if (spell) {
-            spellInfo = `${spell.name}\n${spell.description}\nAP: ${spell.apCost} | Range: ${spell.range} | Dmg: ${spell.damage}`;
+            spellInfo = `${spell.name}\nAP: ${spell.apCost} | Range: ${spell.range} | Dmg: ${spell.damage}`;
         }
 
         const spellText = this.scene.add
-            .text(0, 115, spellInfo, {
-                fontSize: "13px",
+            .text(0, 90, spellInfo, {
+                fontSize: "12px",
                 color: "#c0c0c0",
                 fontFamily: "serif",
                 align: "center",
                 wordWrap: { width: cardWidth - 30 },
-                lineSpacing: 6,
+                lineSpacing: 4,
             })
             .setOrigin(0.5);
+
+        // Curse description (for cursed artifacts)
+        let curseText: Phaser.GameObjects.Text | null = null;
+        if (isCursed && artifact.curse) {
+            curseText = this.scene.add
+                .text(0, 135, `CURSE: ${artifact.curse.description}`, {
+                    fontSize: "12px",
+                    color: "#ff6666",
+                    fontFamily: "serif",
+                    align: "center",
+                    wordWrap: { width: cardWidth - 30 },
+                    lineSpacing: 2,
+                    fontStyle: "bold",
+                })
+                .setOrigin(0.5);
+        }
 
         // Select hint
         const selectHint = this.scene.add
@@ -307,7 +345,8 @@ export class ArtifactSelectionUI {
         const hitArea = this.scene.add.rectangle(0, 0, cardWidth, cardHeight, 0x000000, 0);
         hitArea.setInteractive();
 
-        card.add([
+        // Build card contents
+        const cardContents: Phaser.GameObjects.GameObject[] = [
             cardBg,
             hoverBg,
             iconDisplay,
@@ -318,14 +357,23 @@ export class ArtifactSelectionUI {
             spellText,
             selectHint,
             hitArea,
-        ]);
+        ];
+
+        if (cursedLabel) {
+            cardContents.push(cursedLabel);
+        }
+        if (curseText) {
+            cardContents.push(curseText);
+        }
+
+        card.add(cardContents);
 
         // Events
         hitArea.on("pointerover", () => {
             cardBg.setVisible(false);
             hoverBg.setVisible(true);
             card.setScale(1.05);
-            selectHint.setColor("#d4af37");
+            selectHint.setColor(isCursed ? "#cc88ff" : "#d4af37");
             this.scene.input.setDefaultCursor("pointer");
         });
 
@@ -447,12 +495,13 @@ export class ArtifactSelectionUI {
 
         const cardWidth = 200;
         const cardHeight = 280;
+        const isCursed = CurseSystem.isCursedArtifact(artifact);
 
-        // Card background
+        // Card background - purple tint for cursed
         const cardBg = this.scene.add.graphics();
-        cardBg.fillStyle(0x3e2723, 0.95);
+        cardBg.fillStyle(isCursed ? 0x2d1f3d : 0x3e2723, 0.95);
         cardBg.fillRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 12);
-        cardBg.lineStyle(2, 0x8b7355, 0.9);
+        cardBg.lineStyle(2, isCursed ? 0x8b008b : 0x8b7355, 0.9);
         cardBg.strokeRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 12);
 
         // Hover background
@@ -463,23 +512,43 @@ export class ArtifactSelectionUI {
         hoverBg.strokeRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 12);
         hoverBg.setVisible(false);
 
+        // Cursed label
+        let cursedLabel: Phaser.GameObjects.Text | null = null;
+        if (isCursed) {
+            cursedLabel = this.scene.add
+                .text(0, -cardHeight / 2 + 15, "CURSED", {
+                    fontSize: "12px",
+                    color: "#ff4444",
+                    fontStyle: "bold",
+                    fontFamily: "serif",
+                    stroke: "#000000",
+                    strokeThickness: 2,
+                })
+                .setOrigin(0.5);
+        }
+
         // Icon
         let iconDisplay: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
         if (artifact.icon.startsWith("icon_")) {
-            iconDisplay = this.scene.add.image(0, -80, artifact.icon);
+            iconDisplay = this.scene.add.image(0, -70, artifact.icon);
             iconDisplay.setOrigin(0.5);
             iconDisplay.setDisplaySize(48, 48);
         } else {
             iconDisplay = this.scene.add
-                .text(0, -80, artifact.icon, { fontSize: "48px" })
+                .text(0, -70, artifact.icon, { fontSize: "48px" })
                 .setOrigin(0.5);
         }
 
-        // Name
+        // Add purple tint to icon if cursed
+        if (isCursed && iconDisplay instanceof Phaser.GameObjects.Image) {
+            iconDisplay.setTint(0xcc88ff);
+        }
+
+        // Name - purple for cursed
         const nameText = this.scene.add
-            .text(0, -20, artifact.name, {
-                fontSize: "18px",
-                color: "#d4af37",
+            .text(0, -15, artifact.name, {
+                fontSize: "16px",
+                color: isCursed ? "#cc88ff" : "#d4af37",
                 fontStyle: "bold",
                 fontFamily: "serif",
                 align: "center",
@@ -511,6 +580,20 @@ export class ArtifactSelectionUI {
             })
             .setOrigin(0.5);
 
+        // Curse info (small text for cursed artifacts)
+        let curseText: Phaser.GameObjects.Text | null = null;
+        if (isCursed && artifact.curse) {
+            curseText = this.scene.add
+                .text(0, 65, artifact.curse.description, {
+                    fontSize: "10px",
+                    color: "#ff6666",
+                    fontFamily: "serif",
+                    align: "center",
+                    wordWrap: { width: cardWidth - 20 },
+                })
+                .setOrigin(0.5);
+        }
+
         // Replace hint
         const replaceHint = this.scene.add
             .text(0, cardHeight / 2 - 25, "Click to Replace", {
@@ -525,7 +608,13 @@ export class ArtifactSelectionUI {
         const hitArea = this.scene.add.rectangle(0, 0, cardWidth, cardHeight, 0x000000, 0);
         hitArea.setInteractive();
 
-        card.add([cardBg, hoverBg, iconDisplay, nameText, spellIconDisplay2, spellText, replaceHint, hitArea]);
+        const cardContents: Phaser.GameObjects.GameObject[] = [
+            cardBg, hoverBg, iconDisplay, nameText, spellIconDisplay2, spellText, replaceHint, hitArea
+        ];
+        if (cursedLabel) cardContents.push(cursedLabel);
+        if (curseText) cardContents.push(curseText);
+
+        card.add(cardContents);
 
         // Events
         hitArea.on("pointerover", () => {

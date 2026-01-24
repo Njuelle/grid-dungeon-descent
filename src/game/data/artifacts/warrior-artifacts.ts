@@ -187,4 +187,47 @@ export const WARRIOR_ARTIFACTS: ArtifactDefinition[] = [
         classRestriction: "warrior",
         grantedSpellId: "judgment",
     },
+    // === CURSED WARRIOR ARTIFACTS ===
+    {
+        id: "artifact_blood_axe",
+        name: "Blood Axe",
+        description: "Cursed axe that heals through violence but drains your life",
+        icon: "icon_artifact_blood_axe",
+        iconDescription: "a bloody dripping axe with dark aura",
+        classRestriction: "warrior",
+        grantedSpellId: "hemorrhage",
+        curse: {
+            type: "damage_per_turn",
+            value: 2,
+            description: "Lose 2 HP at the start of each turn",
+        },
+    },
+    {
+        id: "artifact_berserker_mask",
+        name: "Berserker's Mask",
+        description: "Cursed mask that grants frenzy but blocks defensive magic",
+        icon: "icon_artifact_berserker_mask",
+        iconDescription: "a demonic berserker mask with glowing eyes",
+        classRestriction: "warrior",
+        grantedSpellId: "frenzy",
+        curse: {
+            type: "no_buff_spells",
+            description: "Cannot use buff spells",
+        },
+    },
+    {
+        id: "artifact_titans_fist",
+        name: "Titan's Fist",
+        description: "Cursed gauntlet of immense power but reduced mobility",
+        icon: "icon_artifact_titans_fist",
+        iconDescription: "a massive stone fist gauntlet",
+        classRestriction: "warrior",
+        grantedSpellId: "cursed_earthquake",
+        curse: {
+            type: "stat_penalty",
+            stat: "moveRange",
+            value: -3,
+            description: "-3 Movement permanently",
+        },
+    },
 ];

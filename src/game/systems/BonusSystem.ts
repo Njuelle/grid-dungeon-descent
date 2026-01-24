@@ -910,6 +910,417 @@ export class BonusSystem {
 
         return armor;
     }
+
+    // =========================================================================
+    // Risk/Reward Bonus Effects - Scaling
+    // =========================================================================
+
+    /**
+     * Get scaling damage bonus based on kills this battle.
+     */
+    public getScalingKillDamage(
+        appliedBonusIds: string[],
+        killsThisBattle: number
+    ): number {
+        let bonusDamage = 0;
+
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (effect.type === "scaling_per_kill" && effect.trigger) {
+                    if (effect.trigger.effect === "damage") {
+                        const maxValue = effect.trigger.maxValue || 999;
+                        const scaledDamage = Math.min(maxValue, killsThisBattle * effect.trigger.value);
+                        bonusDamage += scaledDamage;
+                    }
+                }
+            }
+        }
+
+        return bonusDamage;
+    }
+
+    /**
+     * Get scaling stat bonus based on damage taken this battle.
+     */
+    public getScalingDamageTakenBonus(
+        appliedBonusIds: string[],
+        damageInstancesThisBattle: number
+    ): Map<StatName, number> {
+        const statBonuses = new Map<StatName, number>();
+
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (effect.type === "scaling_per_damage" && effect.trigger) {
+                    if (effect.trigger.effect === "add_stat" && effect.trigger.stat) {
+                        const maxValue = effect.trigger.maxValue || 999;
+                        const scaledValue = Math.min(maxValue, damageInstancesThisBattle * effect.trigger.value);
+                        const current = statBonuses.get(effect.trigger.stat) || 0;
+                        statBonuses.set(effect.trigger.stat, current + scaledValue);
+                    }
+                }
+            }
+        }
+
+        return statBonuses;
+    }
+
+    /**
+     * Get momentum/consecutive attack damage bonus.
+     */
+    public getConsecutiveAttackBonus(
+        appliedBonusIds: string[],
+        consecutiveAttacks: number
+    ): number {
+        let bonusDamage = 0;
+
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (
+                    effect.type === "on_hit" &&
+                    effect.condition?.type === "consecutive_attacks" &&
+                    effect.trigger
+                ) {
+                    if (effect.trigger.effect === "damage") {
+                        const threshold = effect.condition.value || 1;
+                        if (consecutiveAttacks >= threshold) {
+                            const maxValue = effect.trigger.maxValue || 999;
+                            const bonusValue = Math.min(maxValue, consecutiveAttacks * effect.trigger.value);
+                            bonusDamage += bonusValue;
+                        }
+                    }
+                }
+            }
+        }
+
+        return bonusDamage;
+    }
+
+    /**
+     * Get rage accumulator bonus (damage stored when not attacking).
+     */
+    public getRageAccumulatorBonus(
+        appliedBonusIds: string[],
+        turnsWithoutAttack: number
+    ): number {
+        let bonusDamage = 0;
+
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (effect.type === "scaling_no_attack" && effect.trigger) {
+                    if (effect.trigger.effect === "damage") {
+                        const maxValue = effect.trigger.maxValue || 999;
+                        const scaledDamage = Math.min(maxValue, turnsWithoutAttack * effect.trigger.value);
+                        bonusDamage += scaledDamage;
+                    }
+                }
+            }
+        }
+
+        return bonusDamage;
+    }
+
+    // =========================================================================
+    // Risk/Reward Bonus Effects - Chance-Based
+    // =========================================================================
+
+    /**
+     * Roll chance-based effects on hit and return damage multiplier.
+     */
+    public rollChanceOnHitDamageMultiplier(
+        appliedBonusIds: string[],
+        spellType?: AttackType
+    ): number {
+        let multiplier = 1.0;
+
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (effect.type === "chance_on_hit" && effect.trigger) {
+                    // Check spell type condition
+                    if (effect.condition?.type === "is_magic_spell" && spellType !== "magic") {
+                        continue;
+                    }
+                    if (effect.condition?.type === "is_ranged_spell" && spellType !== "ranged") {
+                        continue;
+                    }
+                    if (effect.condition?.type === "is_melee_attack" && spellType !== "melee") {
+                        continue;
+                    }
+
+                    // Roll the chance
+                    const chance = effect.trigger.chance || 0;
+                    if (Math.random() * 100 < chance) {
+                        if (effect.trigger.effect === "damage_multiplier") {
+                            multiplier *= effect.trigger.value;
+                        }
+                    }
+                }
+            }
+        }
+
+        return multiplier;
+    }
+
+    /**
+     * Roll chance-based AP refund on cast.
+     */
+    public rollChanceOnCastAPRefund(appliedBonusIds: string[]): number {
+        let apRefund = 0;
+
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (effect.type === "chance_on_cast" && effect.trigger) {
+                    const chance = effect.trigger.chance || 0;
+                    if (Math.random() * 100 < chance) {
+                        if (effect.trigger.effect === "refund_ap") {
+                            apRefund += effect.trigger.value;
+                        }
+                    }
+                }
+            }
+        }
+
+        return apRefund;
+    }
+
+    /**
+     * Roll chance-based damage negation when taking damage.
+     */
+    public rollChanceOnDamageNegate(appliedBonusIds: string[]): boolean {
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (effect.type === "chance_on_damage" && effect.trigger) {
+                    const chance = effect.trigger.chance || 0;
+                    if (Math.random() * 100 < chance) {
+                        if (effect.trigger.effect === "negate_damage") {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Roll chance-based effects at battle start.
+     * Returns effects to apply: AP gain, HP loss, etc.
+     */
+    public rollChanceOnBattleStart(appliedBonusIds: string[]): {
+        apGained: number;
+        damageToSelf: number;
+    } {
+        const result = { apGained: 0, damageToSelf: 0 };
+
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (effect.type === "chance_on_battle_start" && effect.trigger) {
+                    const chance = effect.trigger.chance || 0;
+                    if (Math.random() * 100 < chance) {
+                        switch (effect.trigger.effect) {
+                            case "add_ap":
+                                result.apGained += effect.trigger.value;
+                                break;
+                            case "damage":
+                                result.damageToSelf += effect.trigger.value;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    // =========================================================================
+    // Risk/Reward Bonus Effects - First Attack
+    // =========================================================================
+
+    /**
+     * Get first attack bonus damage.
+     */
+    public getFirstAttackBonus(
+        appliedBonusIds: string[],
+        isFirstAttackOfTurn: boolean,
+        isFirstAttackOfBattle: boolean
+    ): number {
+        let bonusDamage = 0;
+
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (effect.type === "on_first_attack" && effect.trigger) {
+                    // Check if this is for battle or turn
+                    if (effect.condition?.type === "is_first_attack_battle") {
+                        if (isFirstAttackOfBattle && effect.trigger.effect === "damage") {
+                            bonusDamage += effect.trigger.value;
+                        }
+                    } else if (isFirstAttackOfTurn && effect.trigger.effect === "damage") {
+                        bonusDamage += effect.trigger.value;
+                    }
+                }
+            }
+        }
+
+        return bonusDamage;
+    }
+
+    // =========================================================================
+    // Risk/Reward Bonus Effects - Conditional Stats
+    // =========================================================================
+
+    /**
+     * Get conditional stat bonuses based on current situation.
+     */
+    public getConditionalStatBonuses(
+        appliedBonusIds: string[],
+        context: {
+            healthPercent: number;
+            adjacentEnemies: number;
+            distanceFromStart: number;
+            hasMovedThisTurn: boolean;
+        }
+    ): Map<StatName, number> {
+        const statBonuses = new Map<StatName, number>();
+
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (effect.type === "conditional" && effect.statModifier) {
+                    let conditionMet = false;
+
+                    if (effect.condition) {
+                        switch (effect.condition.type) {
+                            case "health_below":
+                                conditionMet = context.healthPercent * 100 <= (effect.condition.value || 0);
+                                break;
+                            case "health_above":
+                                conditionMet = context.healthPercent * 100 >= (effect.condition.value || 0);
+                                break;
+                            case "adjacent_enemies":
+                                conditionMet = context.adjacentEnemies >= (effect.condition.value || 0);
+                                break;
+                            case "distance_from_start":
+                                conditionMet = context.distanceFromStart >= (effect.condition.value || 0);
+                                break;
+                            case "has_not_moved":
+                                conditionMet = !context.hasMovedThisTurn;
+                                break;
+                            default:
+                                conditionMet = true;
+                        }
+                    } else {
+                        conditionMet = true;
+                    }
+
+                    if (conditionMet) {
+                        const current = statBonuses.get(effect.statModifier.stat) || 0;
+                        statBonuses.set(effect.statModifier.stat, current + effect.statModifier.value);
+                    }
+                }
+            }
+        }
+
+        return statBonuses;
+    }
+
+    /**
+     * Get conditional damage bonuses based on target state.
+     */
+    public getConditionalDamageBonus(
+        appliedBonusIds: string[],
+        targetHealthPercent: number
+    ): { flatBonus: number; multiplier: number } {
+        let flatBonus = 0;
+        let multiplier = 1.0;
+
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (effect.type === "conditional" && effect.condition && effect.trigger) {
+                    let conditionMet = false;
+
+                    switch (effect.condition.type) {
+                        case "target_health_below":
+                            conditionMet = targetHealthPercent * 100 <= (effect.condition.value || 0);
+                            break;
+                        case "target_health_above":
+                            conditionMet = targetHealthPercent * 100 >= (effect.condition.value || 0);
+                            break;
+                        default:
+                            conditionMet = false;
+                    }
+
+                    if (conditionMet) {
+                        if (effect.trigger.effect === "damage") {
+                            flatBonus += effect.trigger.value;
+                        } else if (effect.trigger.effect === "damage_multiplier") {
+                            multiplier *= effect.trigger.value;
+                        }
+                    }
+                }
+            }
+        }
+
+        return { flatBonus, multiplier };
+    }
+
+    // =========================================================================
+    // Risk/Reward - Battle Start Damage (Bloodlust, etc.)
+    // =========================================================================
+
+    /**
+     * Get damage to apply to self at battle start (for bonuses like Bloodlust).
+     */
+    public getBattleStartSelfDamage(appliedBonusIds: string[]): number {
+        let damage = 0;
+
+        for (const bonusId of appliedBonusIds) {
+            const bonus = this.getBonus(bonusId);
+            if (!bonus) continue;
+
+            for (const effect of bonus.effects) {
+                if (effect.type === "on_battle_start" && effect.trigger) {
+                    if (effect.trigger.effect === "damage") {
+                        damage += effect.trigger.value;
+                    }
+                }
+            }
+        }
+
+        return damage;
+    }
 }
 
 // =============================================================================

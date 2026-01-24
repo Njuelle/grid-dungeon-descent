@@ -55,6 +55,30 @@ export interface ClassDefinition {
 // Artifact Types
 // =============================================================================
 
+export type CurseType =
+    | "damage_per_turn"      // Lose HP at start of each turn
+    | "damage_on_cast"       // Lose HP when casting the granted spell
+    | "stat_penalty"         // Permanent stat reduction
+    | "healing_reduction"    // Reduced healing from all sources
+    | "miss_chance"          // Chance for attacks to miss
+    | "turn_limit_damage"    // Take damage after N turns
+    | "no_buff_spells"       // Cannot use buff spells
+    | "no_move_after_cast"   // Cannot move after casting
+    | "self_pull"            // Pulled toward target when casting
+    | "ap_penalty_on_miss";  // Lose AP if spell doesn't kill
+
+export interface CurseEffect {
+    type: CurseType;
+    /** Value for the curse (damage amount, stat reduction, percentage, etc.) */
+    value?: number;
+    /** Stat affected (for stat_penalty type) */
+    stat?: StatName;
+    /** Turn threshold (for turn_limit_damage) */
+    turnThreshold?: number;
+    /** Human-readable description of the curse */
+    description: string;
+}
+
 export interface ArtifactDefinition {
     id: string;
     name: string;
@@ -66,6 +90,8 @@ export interface ArtifactDefinition {
     classRestriction?: PlayerClass;
     /** The spell ID this artifact grants */
     grantedSpellId: string;
+    /** If present, this artifact is cursed with a drawback */
+    curse?: CurseEffect;
 }
 
 // =============================================================================
@@ -168,7 +194,16 @@ export type BonusEffectType =
     | "on_damage_taken"
     | "on_kill"
     | "on_battle_start"
-    | "conditional";
+    | "conditional"
+    | "on_first_attack"      // First attack of turn/battle
+    | "scaling_per_kill"     // Scales with kills this battle
+    | "scaling_per_damage"   // Scales when taking damage
+    | "scaling_per_spell"    // Scales with spell casts
+    | "scaling_no_attack"    // Scales when not attacking
+    | "chance_on_hit"        // Random chance effect on hit
+    | "chance_on_cast"       // Random chance effect on spell cast
+    | "chance_on_damage"     // Random chance when taking damage
+    | "chance_on_battle_start"; // Random effect at battle start
 
 export interface StatModifier {
     stat: StatName;
@@ -192,8 +227,13 @@ export interface TriggerCondition {
         | "is_melee_attack"
         | "is_magic_spell"
         | "is_ranged_spell"
-        | "random_chance";
-    value?: number; // percentage for health checks, chance for random
+        | "random_chance"
+        | "is_first_attack"         // First attack of the turn
+        | "is_first_attack_battle"  // First attack of the battle
+        | "adjacent_enemies"        // Number of adjacent enemies
+        | "distance_from_start"     // Distance from starting position
+        | "consecutive_attacks";    // Number of attacks without moving
+    value?: number; // percentage for health checks, chance for random, count for adjacents
     targetSpell?: string; // for spell-specific conditions
 }
 
@@ -203,9 +243,13 @@ export interface BonusEffect {
     statModifier?: StatModifier;
     spellModifier?: SpellModifier;
     trigger?: {
-        effect: "heal" | "damage" | "add_mp" | "add_ap" | "add_stat" | "refund_ap";
+        effect: "heal" | "damage" | "add_mp" | "add_ap" | "add_stat" | "refund_ap" | "damage_multiplier" | "negate_damage";
         value: number;
         stat?: StatName;
+        /** For scaling effects: max stacks or max bonus */
+        maxValue?: number;
+        /** For chance effects: percentage chance (0-100) */
+        chance?: number;
     };
     condition?: TriggerCondition;
 }

@@ -187,4 +187,48 @@ export const RANGER_ARTIFACTS: ArtifactDefinition[] = [
         classRestriction: "ranger",
         grantedSpellId: "ambush",
     },
+    // === CURSED RANGER ARTIFACTS ===
+    {
+        id: "artifact_shadow_bow",
+        name: "Shadow Bow",
+        description: "Cursed bow that fires soul-piercing arrows at the cost of vitality",
+        icon: "icon_artifact_shadow_bow",
+        iconDescription: "a ghostly bow with ethereal string",
+        classRestriction: "ranger",
+        grantedSpellId: "soul_arrow",
+        curse: {
+            type: "stat_penalty",
+            stat: "maxHealth",
+            value: -2,
+            description: "-2 Max HP permanently",
+        },
+    },
+    {
+        id: "artifact_venomfang_quiver",
+        name: "Venomfang Quiver",
+        description: "Cursed quiver of plague arrows that poison you too",
+        icon: "icon_artifact_venomfang_quiver",
+        iconDescription: "a quiver dripping with green plague",
+        classRestriction: "ranger",
+        grantedSpellId: "plague_shot",
+        curse: {
+            type: "damage_per_turn",
+            value: 1,
+            description: "Take 1 poison damage per turn in battle",
+        },
+    },
+    {
+        id: "artifact_gamblers_crossbow",
+        name: "Gambler's Crossbow",
+        description: "Cursed crossbow with unpredictable damage and accuracy",
+        icon: "icon_artifact_gamblers_crossbow",
+        iconDescription: "a golden crossbow with dice engravings",
+        classRestriction: "ranger",
+        grantedSpellId: "lucky_shot",
+        curse: {
+            type: "miss_chance",
+            value: 25,
+            description: "25% chance for any attack to miss",
+        },
+    },
 ];

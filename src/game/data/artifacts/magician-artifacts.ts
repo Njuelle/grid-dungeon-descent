@@ -187,4 +187,47 @@ export const MAGICIAN_ARTIFACTS: ArtifactDefinition[] = [
         classRestriction: "magician",
         grantedSpellId: "static_field",
     },
+    // === CURSED MAGICIAN ARTIFACTS ===
+    {
+        id: "artifact_chaos_orb",
+        name: "Chaos Orb",
+        description: "Cursed orb of pure chaos that affects caster and target",
+        icon: "icon_artifact_chaos_orb",
+        iconDescription: "a swirling orb of chaotic multicolored energy",
+        classRestriction: "magician",
+        grantedSpellId: "chaos_bolt",
+        curse: {
+            type: "damage_on_cast",
+            value: 1,
+            description: "Random debuff also applies to yourself",
+        },
+    },
+    {
+        id: "artifact_lichs_phylactery",
+        name: "Lich's Phylactery",
+        description: "Cursed vessel that rewards kills but punishes failure",
+        icon: "icon_artifact_lichs_phylactery",
+        iconDescription: "a dark phylactery with skull emblem",
+        classRestriction: "magician",
+        grantedSpellId: "death_coil",
+        curse: {
+            type: "ap_penalty_on_miss",
+            value: 1,
+            description: "Lose 1 AP if spell doesn't kill (gain +2 AP if it does)",
+        },
+    },
+    {
+        id: "artifact_void_crystal_cursed",
+        name: "Cursed Void Crystal",
+        description: "Powerful gravity magic that pulls you too",
+        icon: "icon_artifact_void_crystal_cursed",
+        iconDescription: "a cracked void crystal with dark energy",
+        classRestriction: "magician",
+        grantedSpellId: "void_rift",
+        curse: {
+            type: "self_pull",
+            value: 1,
+            description: "You are also pulled 1 tile toward the target",
+        },
+    },
 ];
