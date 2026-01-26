@@ -176,15 +176,6 @@ export class BuffSystem {
     }
 
     /**
-     * Get mark damage bonus (damage enemy takes extra).
-     */
-    public getMarkDamageBonus(activeBuffs: ActiveBuff[]): number {
-        return activeBuffs
-            .filter((b) => b.buffType === "mark")
-            .reduce((total, b) => total + b.value, 0);
-    }
-
-    /**
      * Consume shield to absorb damage.
      * Returns remaining damage after shield absorption and updated buffs.
      */
@@ -211,19 +202,6 @@ export class BuffSystem {
         }
 
         return { remainingDamage, updatedBuffs };
-    }
-
-    /**
-     * Consume mark after dealing damage (mark is one-time use per hit).
-     * Returns updated buffs with mark removed.
-     */
-    public consumeMark(activeBuffs: ActiveBuff[]): ActiveBuff[] {
-        // Remove first mark buff found
-        const markIndex = activeBuffs.findIndex((b) => b.buffType === "mark");
-        if (markIndex !== -1) {
-            return [...activeBuffs.slice(0, markIndex), ...activeBuffs.slice(markIndex + 1)];
-        }
-        return activeBuffs;
     }
 
     // =========================================================================
@@ -264,8 +242,6 @@ export class BuffSystem {
                     return `${sign}${buff.value} damage (${buff.remainingTurns} turns)`;
                 case "shield":
                     return `Shield: ${buff.value} HP (${buff.remainingTurns} turns)`;
-                case "mark":
-                    return `Marked: +${buff.value} damage taken (${buff.remainingTurns} turns)`;
                 default:
                     return `Buff (${buff.remainingTurns} turns)`;
             }

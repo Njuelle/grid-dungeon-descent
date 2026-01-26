@@ -34,6 +34,20 @@ export function calculateAttackDamage(
     // Base damage from spell
     const baseDamage = spell.damage;
 
+    // Status-only spells (damage: 0) should return 0 damage
+    if (baseDamage === 0) {
+        return {
+            baseDamage: 0,
+            statBonus: 0,
+            bonusEffects: 0,
+            randomFactor: 1,
+            totalRaw: 0,
+            resistance: 0,
+            finalDamage: 0,
+            isCritical: false,
+        };
+    }
+
     // Stat bonus based on attack type
     let statBonus = 0;
     switch (spell.type) {
@@ -112,6 +126,11 @@ export function calculateDamageRange(
 ): { min: number; max: number; resistance: number } {
     // Base damage from spell
     const baseDamage = spell.damage;
+
+    // Status-only spells (damage: 0) should return 0 damage range
+    if (baseDamage === 0) {
+        return { min: 0, max: 0, resistance: 0 };
+    }
 
     // Stat bonus based on attack type
     let statBonus = 0;

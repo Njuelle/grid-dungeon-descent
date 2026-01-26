@@ -14,6 +14,8 @@ import { getManhattanDistance } from "../core/CombatCalculator";
 import { MovementSystem } from "./MovementSystem";
 import { CombatSystem } from "./CombatSystem";
 import { getEnemySpellsByType } from "../data/spells/enemy-spells";
+import { getBossSpellsByType, BOSS_SPELLS_BY_TYPE } from "../data/spells/boss-spells";
+import { BossType } from "../classes/GameProgress";
 
 // =============================================================================
 // AI Action Types
@@ -87,8 +89,11 @@ export class AISystem {
     ): AITurnPlan {
         const actions: AIAction[] = [];
 
-        // Get enemy's available spells
-        const enemySpells = getEnemySpellsByType(enemy.enemyType || "Warrior");
+        // Get enemy's available spells (check if boss type first)
+        const isBoss = enemy.enemyType && enemy.enemyType in BOSS_SPELLS_BY_TYPE;
+        const enemySpells = isBoss 
+            ? getBossSpellsByType(enemy.enemyType as BossType)
+            : getEnemySpellsByType(enemy.enemyType || "Warrior");
         const currentAP = enemy.stats.actionPoints || 0;
 
         // Filter to alive targets only

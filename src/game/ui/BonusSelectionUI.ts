@@ -1,6 +1,6 @@
 /**
  * BonusSelectionUI - Handles the victory bonus selection screen.
- * 
+ *
  * This is a Phaser-dependent UI component that renders:
  * - Victory overlay
  * - Bonus cards for selection
@@ -48,7 +48,7 @@ export class BonusSelectionUI {
     public show(
         bonuses: BonusDefinition[],
         callbacks: BonusSelectionCallbacks,
-        canReroll: boolean = false
+        canReroll: boolean = false,
     ): void {
         this.callbacks = callbacks;
         this.isActive = true;
@@ -155,7 +155,7 @@ export class BonusSelectionUI {
     private createBonusCard(
         x: number,
         y: number,
-        bonus: BonusDefinition
+        bonus: BonusDefinition,
     ): Phaser.GameObjects.Container {
         const card = this.scene.add.container(x, y);
         card.setAlpha(0);
@@ -229,7 +229,15 @@ export class BonusSelectionUI {
         const hitArea = this.scene.add.rectangle(0, 0, 200, 300, 0x000000, 0);
         hitArea.setInteractive();
 
-        card.add([cardBg, hoverBg, iconDisplay, nameText, descText, selectHint, hitArea]);
+        card.add([
+            cardBg,
+            hoverBg,
+            iconDisplay,
+            nameText,
+            descText,
+            selectHint,
+            hitArea,
+        ]);
 
         // Events
         hitArea.on("pointerover", () => {
@@ -261,7 +269,11 @@ export class BonusSelectionUI {
         return card;
     }
 
-    private createRerollButton(x: number, y: number, _currentBonuses: BonusDefinition[]): void {
+    private createRerollButton(
+        x: number,
+        y: number,
+        _currentBonuses: BonusDefinition[],
+    ): void {
         this.rerollButton = this.scene.add.container(x, y);
 
         const buttonWidth = 320;
@@ -269,11 +281,29 @@ export class BonusSelectionUI {
 
         const bg = this.scene.add.graphics();
         bg.fillStyle(0x6b4423);
-        bg.fillRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+        bg.fillRoundedRect(
+            -buttonWidth / 2,
+            -buttonHeight / 2,
+            buttonWidth,
+            buttonHeight,
+            8,
+        );
         bg.lineStyle(4, 0x8b7355, 1);
-        bg.strokeRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+        bg.strokeRoundedRect(
+            -buttonWidth / 2,
+            -buttonHeight / 2,
+            buttonWidth,
+            buttonHeight,
+            8,
+        );
         bg.lineStyle(2, 0xd4af37, 0.6);
-        bg.strokeRoundedRect(-buttonWidth / 2 + 3, -buttonHeight / 2 + 3, buttonWidth - 6, buttonHeight - 6, 6);
+        bg.strokeRoundedRect(
+            -buttonWidth / 2 + 3,
+            -buttonHeight / 2 + 3,
+            buttonWidth - 6,
+            buttonHeight - 6,
+            6,
+        );
 
         const text = this.scene.add
             .text(0, 0, "🎲 Reroll Bonuses", {
@@ -297,11 +327,29 @@ export class BonusSelectionUI {
         this.rerollButton.on("pointerover", () => {
             bg.clear();
             bg.fillStyle(0x8b5a2b);
-            bg.fillRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+            bg.fillRoundedRect(
+                -buttonWidth / 2,
+                -buttonHeight / 2,
+                buttonWidth,
+                buttonHeight,
+                8,
+            );
             bg.lineStyle(4, 0xd4af37, 1);
-            bg.strokeRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+            bg.strokeRoundedRect(
+                -buttonWidth / 2,
+                -buttonHeight / 2,
+                buttonWidth,
+                buttonHeight,
+                8,
+            );
             bg.lineStyle(2, 0xffd700, 0.8);
-            bg.strokeRoundedRect(-buttonWidth / 2 + 3, -buttonHeight / 2 + 3, buttonWidth - 6, buttonHeight - 6, 6);
+            bg.strokeRoundedRect(
+                -buttonWidth / 2 + 3,
+                -buttonHeight / 2 + 3,
+                buttonWidth - 6,
+                buttonHeight - 6,
+                6,
+            );
             this.rerollButton!.setScale(1.01);
             text.setColor("#ffffff");
             this.scene.input.setDefaultCursor("pointer");
@@ -310,11 +358,29 @@ export class BonusSelectionUI {
         this.rerollButton.on("pointerout", () => {
             bg.clear();
             bg.fillStyle(0x6b4423);
-            bg.fillRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+            bg.fillRoundedRect(
+                -buttonWidth / 2,
+                -buttonHeight / 2,
+                buttonWidth,
+                buttonHeight,
+                8,
+            );
             bg.lineStyle(4, 0x8b7355, 1);
-            bg.strokeRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+            bg.strokeRoundedRect(
+                -buttonWidth / 2,
+                -buttonHeight / 2,
+                buttonWidth,
+                buttonHeight,
+                8,
+            );
             bg.lineStyle(2, 0xd4af37, 0.6);
-            bg.strokeRoundedRect(-buttonWidth / 2 + 3, -buttonHeight / 2 + 3, buttonWidth - 6, buttonHeight - 6, 6);
+            bg.strokeRoundedRect(
+                -buttonWidth / 2 + 3,
+                -buttonHeight / 2 + 3,
+                buttonWidth - 6,
+                buttonHeight - 6,
+                6,
+            );
             this.rerollButton!.setScale(1);
             text.setColor("#f5deb3");
             this.scene.input.setDefaultCursor("default");
@@ -324,7 +390,7 @@ export class BonusSelectionUI {
             if (this.callbacks?.onReroll) {
                 const newBonuses = this.callbacks.onReroll();
                 this.refreshBonusCards(newBonuses);
-                
+
                 // Hide reroll button after use
                 if (this.rerollButton) {
                     this.rerollButton.destroy();
@@ -408,3 +474,4 @@ export class BonusSelectionUI {
         this.container.destroy();
     }
 }
+

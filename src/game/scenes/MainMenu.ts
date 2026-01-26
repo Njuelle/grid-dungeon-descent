@@ -32,8 +32,8 @@ export class MainMenu extends Scene {
         this.background.setScale(
             Math.max(
                 this.scale.width / this.background.width,
-                this.scale.height / this.background.height
-            )
+                this.scale.height / this.background.height,
+            ),
         );
         this.background.setAlpha(0.4);
         this.background.setTint(0xd4af37); // Golden tint
@@ -113,7 +113,7 @@ export class MainMenu extends Scene {
                     GameProgress.getInstance().reset();
                     this.scene.start("ClassSelection");
                 }
-            }
+            },
         );
 
         // Continue button (only show if there's progress)
@@ -131,7 +131,7 @@ export class MainMenu extends Scene {
                 "#556b2f", // Dark olive green (lighter)
                 () => {
                     this.scene.start("TacticalBattle");
-                }
+                },
             );
         }
 
@@ -144,7 +144,7 @@ export class MainMenu extends Scene {
             "#6a5acd", // Slate blue
             () => {
                 this.showMedievalSettingsModal();
-            }
+            },
         );
 
         // Add buttons to container
@@ -168,7 +168,7 @@ export class MainMenu extends Scene {
                     color: "#8b7355",
                     fontFamily: "serif",
                     fontStyle: "italic",
-                }
+                },
             )
             .setOrigin(1, 1)
             .setDepth(100);
@@ -183,7 +183,7 @@ export class MainMenu extends Scene {
                     color: "#8b7355",
                     fontFamily: "serif",
                     fontStyle: "italic",
-                }
+                },
             )
             .setOrigin(0, 1)
             .setDepth(100);
@@ -247,7 +247,7 @@ export class MainMenu extends Scene {
         text: string,
         baseColor: string,
         hoverColor: string,
-        onClick: () => void
+        onClick: () => void,
     ): GameObjects.Container {
         const container = this.add.container(x, y);
 
@@ -261,7 +261,7 @@ export class MainMenu extends Scene {
             -buttonHeight / 2,
             buttonWidth,
             buttonHeight,
-            8
+            8,
         );
 
         // Add medieval border with metal studs look
@@ -271,7 +271,7 @@ export class MainMenu extends Scene {
             -buttonHeight / 2,
             buttonWidth,
             buttonHeight,
-            8
+            8,
         );
 
         // Add inner highlight
@@ -281,7 +281,7 @@ export class MainMenu extends Scene {
             -buttonHeight / 2 + 3,
             buttonWidth - 6,
             buttonHeight - 6,
-            6
+            6,
         );
 
         // Button text with medieval font - slightly smaller to fit better
@@ -306,14 +306,14 @@ export class MainMenu extends Scene {
         container.on("pointerover", () => {
             bg.clear();
             bg.fillStyle(
-                Phaser.Display.Color.HexStringToColor(hoverColor).color
+                Phaser.Display.Color.HexStringToColor(hoverColor).color,
             );
             bg.fillRoundedRect(
                 -buttonWidth / 2,
                 -buttonHeight / 2,
                 buttonWidth,
                 buttonHeight,
-                8
+                8,
             );
             bg.lineStyle(4, 0xd4af37, 1); // Gold border on hover
             bg.strokeRoundedRect(
@@ -321,7 +321,7 @@ export class MainMenu extends Scene {
                 -buttonHeight / 2,
                 buttonWidth,
                 buttonHeight,
-                8
+                8,
             );
             bg.lineStyle(2, 0xffd700, 0.8); // Brighter gold inner highlight
             bg.strokeRoundedRect(
@@ -329,7 +329,7 @@ export class MainMenu extends Scene {
                 -buttonHeight / 2 + 3,
                 buttonWidth - 6,
                 buttonHeight - 6,
-                6
+                6,
             );
 
             container.setScale(1.01);
@@ -340,14 +340,14 @@ export class MainMenu extends Scene {
         container.on("pointerout", () => {
             bg.clear();
             bg.fillStyle(
-                Phaser.Display.Color.HexStringToColor(baseColor).color
+                Phaser.Display.Color.HexStringToColor(baseColor).color,
             );
             bg.fillRoundedRect(
                 -buttonWidth / 2,
                 -buttonHeight / 2,
                 buttonWidth,
                 buttonHeight,
-                8
+                8,
             );
             bg.lineStyle(4, 0x8b7355, 1);
             bg.strokeRoundedRect(
@@ -355,7 +355,7 @@ export class MainMenu extends Scene {
                 -buttonHeight / 2,
                 buttonWidth,
                 buttonHeight,
-                8
+                8,
             );
             bg.lineStyle(2, 0xd4af37, 0.6);
             bg.strokeRoundedRect(
@@ -363,7 +363,7 @@ export class MainMenu extends Scene {
                 -buttonHeight / 2 + 3,
                 buttonWidth - 6,
                 buttonHeight - 6,
-                6
+                6,
             );
 
             container.setScale(1);
@@ -446,7 +446,7 @@ export class MainMenu extends Scene {
                     color: this.getDifficultyColor(difficulty),
                     fontFamily: "serif",
                     fontStyle: "italic",
-                }
+                },
             )
             .setDepth(100);
 
@@ -515,7 +515,7 @@ export class MainMenu extends Scene {
     }
 
     private createMedievalEntranceAnimations(
-        elements: GameObjects.GameObject[]
+        elements: GameObjects.GameObject[],
     ): void {
         elements.forEach((element, index) => {
             if ("setAlpha" in element) {
@@ -595,7 +595,7 @@ export class MainMenu extends Scene {
                     align: "center",
                     lineSpacing: 12,
                     fontFamily: "serif",
-                }
+                },
             )
             .setOrigin(0.5);
 
@@ -610,7 +610,7 @@ export class MainMenu extends Scene {
                 "#a52a2a", // Brown red
                 () => {
                     this.showMedievalResetConfirmation(modalContainer);
-                }
+                },
             );
         }
 
@@ -623,7 +623,7 @@ export class MainMenu extends Scene {
             "#556b2f",
             () => {
                 modalContainer.destroy();
-            }
+            },
         );
 
         // Add all elements to modal
@@ -657,7 +657,7 @@ export class MainMenu extends Scene {
     }
 
     private showMedievalResetConfirmation(
-        parentModal: GameObjects.Container
+        parentModal: GameObjects.Container,
     ): void {
         const centerX = this.scale.width / 2;
         const centerY = this.scale.height / 2;
@@ -709,7 +709,7 @@ export class MainMenu extends Scene {
                     color: "#ffd700",
                     fontFamily: "serif",
                     fontStyle: "italic",
-                }
+                },
             )
             .setOrigin(0.5);
 
@@ -725,7 +725,7 @@ export class MainMenu extends Scene {
                 confirmModal.destroy();
                 parentModal.destroy();
                 this.scene.restart();
-            }
+            },
         );
 
         const noButton = this.createMedievalButton(
@@ -736,7 +736,7 @@ export class MainMenu extends Scene {
             "#556b2f",
             () => {
                 confirmModal.destroy();
-            }
+            },
         );
 
         // Scale buttons down and store the scale for proper hover behavior
@@ -806,7 +806,7 @@ export class MainMenu extends Scene {
         // Modal container
         const modalContainer = this.add.container(
             this.scale.width / 2,
-            this.scale.height / 2
+            this.scale.height / 2,
         );
         modalContainer.setDepth(151);
 
@@ -855,7 +855,7 @@ export class MainMenu extends Scene {
                     fontStyle: "italic",
                     align: "center",
                     wordWrap: { width: 700 },
-                }
+                },
             )
             .setOrigin(0.5);
 
@@ -875,7 +875,7 @@ export class MainMenu extends Scene {
                     fontFamily: "serif",
                     align: "center",
                     lineSpacing: 5,
-                }
+                },
             )
             .setOrigin(0.5);
 
@@ -892,7 +892,7 @@ export class MainMenu extends Scene {
             () => {
                 modalContainer.destroy();
                 overlay.destroy();
-            }
+            },
         );
         cancelBtn.setScale(0.8);
 
@@ -908,7 +908,7 @@ export class MainMenu extends Scene {
                 overlay.destroy();
                 GameProgress.getInstance().reset();
                 this.scene.start("TacticalBattle");
-            }
+            },
         );
         confirmBtn.setScale(0.8);
 
@@ -977,9 +977,9 @@ export class MainMenu extends Scene {
                 0,
                 0,
                 this.scale.width,
-                this.scale.height
+                this.scale.height,
             ),
-            Phaser.Geom.Rectangle.Contains
+            Phaser.Geom.Rectangle.Contains,
         );
         overlay.on("pointerdown", () => {
             modalContainer.destroy();

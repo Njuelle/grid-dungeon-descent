@@ -258,6 +258,21 @@ export class CombatSystem {
             return result;
         }
 
+        // Check if this is a status-only spell (damage: 0)
+        // Status-only spells should not deal damage, only apply effects
+        if (spell.damage === 0) {
+            result.damage = 0;
+            
+            this.emitEvent({
+                type: "status_effect_applied",
+                attackerId: attacker.id,
+                targetId: target.id,
+                spellId: spell.id,
+            });
+
+            return result;
+        }
+
         // Calculate damage (with vulnerable multiplier applied)
         const damageCalc = calculateAttackDamage(
             spell,

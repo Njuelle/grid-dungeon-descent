@@ -137,7 +137,7 @@ export interface ArtifactDefinition {
 // Buff Types
 // =============================================================================
 
-export type BuffType = "stat_boost" | "damage_boost" | "mark" | "shield" | "instant";
+export type BuffType = "stat_boost" | "damage_boost" | "shield" | "instant";
 
 export interface ActiveBuff {
     id: string;

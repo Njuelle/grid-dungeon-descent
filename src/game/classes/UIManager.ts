@@ -59,7 +59,7 @@ export class UIManager {
                     this.refreshPlayerStatsDisplay(player);
                 }
             },
-            this
+            this,
         );
     }
 
@@ -91,7 +91,7 @@ export class UIManager {
                     stroke: "#000000",
                     strokeThickness: 3,
                     align: "center",
-                }
+                },
             )
             .setOrigin(0.5)
             .setDepth(50);
@@ -107,7 +107,7 @@ export class UIManager {
                     color: "#ffffff",
                     stroke: "#000000",
                     strokeThickness: 3,
-                }
+                },
             )
             .setOrigin(0.5)
             .setDepth(50);
@@ -143,7 +143,7 @@ export class UIManager {
             2,
             barY + 2,
             this.scene.scale.width - 4,
-            barHeight - 4
+            barHeight - 4,
         );
 
         this.uiBar.setDepth(50);
@@ -205,7 +205,7 @@ export class UIManager {
         // Position where the bonus history button was
         this.playerStatsContainer = this.scene.add.container(
             950, // Moved from 900 to add more margin between End Turn button
-            barY + 50
+            barY + 50,
         );
         this.playerStatsContainer.setDepth(50);
 
@@ -265,7 +265,7 @@ export class UIManager {
             46,
             30,
             0x000000,
-            0
+            0,
         );
         mpHitArea.setInteractive();
         mpHitArea.on("pointerover", () => {
@@ -273,7 +273,7 @@ export class UIManager {
                 -163,
                 statsY - 40,
                 "Movement Points",
-                "Points used to move around the battlefield.\nEach tile costs 1 MP to move."
+                "Points used to move around the battlefield.\nEach tile costs 1 MP to move.",
             );
         });
         mpHitArea.on("pointerout", () => {
@@ -302,7 +302,7 @@ export class UIManager {
             46,
             30,
             0x000000,
-            0
+            0,
         );
         apHitArea.setInteractive();
         apHitArea.on("pointerover", () => {
@@ -310,7 +310,7 @@ export class UIManager {
                 -108,
                 statsY - 40,
                 "Action Points",
-                "Points used to cast spells.\nEach spell has an AP cost."
+                "Points used to cast spells.\nEach spell has an AP cost.",
             );
         });
         apHitArea.on("pointerout", () => {
@@ -339,7 +339,7 @@ export class UIManager {
             46,
             30,
             0x000000,
-            0
+            0,
         );
         forceHitArea.setInteractive();
         forceHitArea.on("pointerover", () => {
@@ -347,7 +347,7 @@ export class UIManager {
                 -53,
                 statsY - 40,
                 "Force",
-                "Physical strength. Increases damage\nfor melee attacks and spells."
+                "Physical strength. Increases damage\nfor melee attacks and spells.",
             );
         });
         forceHitArea.on("pointerout", () => {
@@ -376,7 +376,7 @@ export class UIManager {
             46,
             30,
             0x000000,
-            0
+            0,
         );
         dexHitArea.setInteractive();
         dexHitArea.on("pointerover", () => {
@@ -384,7 +384,7 @@ export class UIManager {
                 2,
                 statsY - 40,
                 "Dexterity",
-                "Precision and agility. Increases damage\nfor ranged attacks and spells."
+                "Precision and agility. Increases damage\nfor ranged attacks and spells.",
             );
         });
         dexHitArea.on("pointerout", () => {
@@ -413,7 +413,7 @@ export class UIManager {
             46,
             30,
             0x000000,
-            0
+            0,
         );
         intHitArea.setInteractive();
         intHitArea.on("pointerover", () => {
@@ -421,7 +421,7 @@ export class UIManager {
                 57,
                 statsY - 40,
                 "Intelligence",
-                "Magical power. Increases damage\nfor magic attacks and spells."
+                "Magical power. Increases damage\nfor magic attacks and spells.",
             );
         });
         intHitArea.on("pointerout", () => {
@@ -450,7 +450,7 @@ export class UIManager {
             46,
             30,
             0x000000,
-            0
+            0,
         );
         armorHitArea.setInteractive();
         armorHitArea.on("pointerover", () => {
@@ -458,7 +458,7 @@ export class UIManager {
                 112,
                 statsY - 40,
                 "Armor",
-                "Physical defense. Reduces damage\nfrom melee and ranged attacks."
+                "Physical defense. Reduces damage\nfrom melee and ranged attacks.",
             );
         });
         armorHitArea.on("pointerout", () => {
@@ -487,7 +487,7 @@ export class UIManager {
             46,
             30,
             0x000000,
-            0
+            0,
         );
         mrHitArea.setInteractive();
         mrHitArea.on("pointerover", () => {
@@ -495,7 +495,7 @@ export class UIManager {
                 167,
                 statsY - 40,
                 "Magic Resistance",
-                "Magical defense. Reduces damage\nfrom magic attacks and spells."
+                "Magical defense. Reduces damage\nfrom magic attacks and spells.",
             );
         });
         mrHitArea.on("pointerout", () => {
@@ -551,31 +551,31 @@ export class UIManager {
         if (!this.playerStatsContainer) return;
 
         const healthBar = this.playerStatsContainer.getData(
-            "healthBar"
+            "healthBar",
         ) as Phaser.GameObjects.Graphics;
         const healthText = this.playerStatsContainer.getData(
-            "healthText"
+            "healthText",
         ) as Phaser.GameObjects.Text;
         const mpText = this.playerStatsContainer.getData(
-            "mpText"
+            "mpText",
         ) as Phaser.GameObjects.Text;
         const apText = this.playerStatsContainer.getData(
-            "apText"
+            "apText",
         ) as Phaser.GameObjects.Text;
         const forceText = this.playerStatsContainer.getData(
-            "forceText"
+            "forceText",
         ) as Phaser.GameObjects.Text;
         const dexText = this.playerStatsContainer.getData(
-            "dexText"
+            "dexText",
         ) as Phaser.GameObjects.Text;
         const intText = this.playerStatsContainer.getData(
-            "intText"
+            "intText",
         ) as Phaser.GameObjects.Text;
         const armorText = this.playerStatsContainer.getData(
-            "armorText"
+            "armorText",
         ) as Phaser.GameObjects.Text;
         const mrText = this.playerStatsContainer.getData(
-            "mrText"
+            "mrText",
         ) as Phaser.GameObjects.Text;
 
         // Add null checks for all elements
@@ -591,7 +591,7 @@ export class UIManager {
             !mrText
         ) {
             console.warn(
-                "[UIManager] Some UI elements are not initialized yet"
+                "[UIManager] Some UI elements are not initialized yet",
             );
             return;
         }
@@ -618,7 +618,7 @@ export class UIManager {
 
             // Update MP/AP
             mpText.setText(
-                `${player.movementPoints}/${player.maxMovementPoints}`
+                `${player.movementPoints}/${player.maxMovementPoints}`,
             );
             apText.setText(`${player.actionPoints}/${player.maxActionPoints}`);
 
@@ -630,9 +630,21 @@ export class UIManager {
             const mrBuffMod = player.getBuffStatModifier("magicResistance");
 
             // Update stat values with buff coloring
-            this.updateStatWithBuff(forceText, player.getEffectiveStat("force"), forceBuffMod);
-            this.updateStatWithBuff(dexText, player.getEffectiveStat("dexterity"), dexBuffMod);
-            this.updateStatWithBuff(intText, player.getEffectiveStat("intelligence"), intBuffMod);
+            this.updateStatWithBuff(
+                forceText,
+                player.getEffectiveStat("force"),
+                forceBuffMod,
+            );
+            this.updateStatWithBuff(
+                dexText,
+                player.getEffectiveStat("dexterity"),
+                dexBuffMod,
+            );
+            this.updateStatWithBuff(
+                intText,
+                player.getEffectiveStat("intelligence"),
+                intBuffMod,
+            );
 
             // Calculate effective armor including bonuses
             let effectiveArmor = player.getEffectiveStat("armor");
@@ -649,10 +661,18 @@ export class UIManager {
             }
 
             // Display effective armor with buff coloring
-            this.updateStatWithBuff(armorText, effectiveArmor, armorBuffModTotal);
+            this.updateStatWithBuff(
+                armorText,
+                effectiveArmor,
+                armorBuffModTotal,
+            );
 
             // Magic resistance with buff coloring
-            this.updateStatWithBuff(mrText, player.getEffectiveStat("magicResistance"), mrBuffMod);
+            this.updateStatWithBuff(
+                mrText,
+                player.getEffectiveStat("magicResistance"),
+                mrBuffMod,
+            );
         } else {
             // Clear everything if no player
             healthBar.clear();
@@ -671,9 +691,13 @@ export class UIManager {
      * Updates a stat text with buff coloring.
      * Green for positive buffs, red for negative buffs/debuffs.
      */
-    private updateStatWithBuff(text: Phaser.GameObjects.Text, value: number, buffMod: number): void {
+    private updateStatWithBuff(
+        text: Phaser.GameObjects.Text,
+        value: number,
+        buffMod: number,
+    ): void {
         text.setText(value.toString());
-        
+
         if (buffMod > 0) {
             text.setColor("#00ff00"); // Green for positive buff
         } else if (buffMod < 0) {
@@ -687,7 +711,7 @@ export class UIManager {
         x: number,
         y: number,
         spell: Spell,
-        _index: number
+        _index: number,
     ): Phaser.GameObjects.Container {
         const container = this.scene.add.container(x, y);
         container.setDepth(50);
@@ -734,7 +758,7 @@ export class UIManager {
         container.setData("selectionBorder", selectionBorder);
         container.setInteractive(
             new Phaser.Geom.Rectangle(-28, -28, 56, 56),
-            Phaser.Geom.Rectangle.Contains
+            Phaser.Geom.Rectangle.Contains,
         );
 
         container.on("pointerdown", () => {
@@ -748,7 +772,10 @@ export class UIManager {
 
         container.on("pointerover", () => {
             if (this.currentPlayer && this.currentPlayer.canCastSpell(spell)) {
-                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                if (
+                    isImageKey &&
+                    iconDisplay instanceof Phaser.GameObjects.Image
+                ) {
                     iconDisplay.setTint(0xccccff);
                 }
                 this.scene.input.setDefaultCursor("pointer");
@@ -762,7 +789,10 @@ export class UIManager {
 
         container.on("pointerout", () => {
             if (container.getData("spell") !== this.selectedSpell) {
-                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                if (
+                    isImageKey &&
+                    iconDisplay instanceof Phaser.GameObjects.Image
+                ) {
                     iconDisplay.clearTint();
                 }
             }
@@ -791,8 +821,8 @@ export class UIManager {
                 spell.type === "melee"
                     ? "FOR"
                     : spell.type === "magic"
-                    ? "INT"
-                    : "DEX"
+                      ? "INT"
+                      : "DEX"
             }\n` +
             `${rangeText} | AP: ${spell.apCost}`;
 
@@ -838,7 +868,7 @@ export class UIManager {
             -totalHeight / 2,
             maxWidth,
             totalHeight,
-            5
+            5,
         );
         bg.lineStyle(2, 0x444444);
         bg.strokeRoundedRect(
@@ -846,7 +876,7 @@ export class UIManager {
             -totalHeight / 2,
             maxWidth,
             totalHeight,
-            5
+            5,
         );
 
         // Adjust text positions based on background size
@@ -856,7 +886,7 @@ export class UIManager {
                 padding +
                 titleBounds.height +
                 10 +
-                descBounds.height / 2
+                descBounds.height / 2,
         );
 
         // Position tooltip above the bottom bar instead of potentially overlapping with buttons
@@ -902,7 +932,7 @@ export class UIManager {
                 startX + index * spacing,
                 buttonY,
                 spell,
-                index
+                index,
             );
             this.spellButtons.push(button);
 
@@ -912,18 +942,24 @@ export class UIManager {
                 | Phaser.GameObjects.Text;
             const isImageKey = button.getData("isImageKey") as boolean;
             const apCostText = button.getData(
-                "apCostText"
+                "apCostText",
             ) as Phaser.GameObjects.Text;
 
             if (!player.canCastSpell(spell)) {
                 // Disabled state
-                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                if (
+                    isImageKey &&
+                    iconDisplay instanceof Phaser.GameObjects.Image
+                ) {
                     iconDisplay.setTint(0x666666);
                 }
                 iconDisplay.setAlpha(0.5);
                 apCostText.setColor("#ff4444");
             } else {
-                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                if (
+                    isImageKey &&
+                    iconDisplay instanceof Phaser.GameObjects.Image
+                ) {
                     iconDisplay.clearTint();
                 }
                 iconDisplay.setAlpha(1);
@@ -951,12 +987,15 @@ export class UIManager {
             const isImageKey = button.getData("isImageKey") as boolean;
             const buttonSpell = button.getData("spell") as Spell;
             const selectionBorder = button.getData(
-                "selectionBorder"
+                "selectionBorder",
             ) as Phaser.GameObjects.Graphics;
 
             if (buttonSpell === spell) {
                 // Selected state - green border, same size icon
-                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                if (
+                    isImageKey &&
+                    iconDisplay instanceof Phaser.GameObjects.Image
+                ) {
                     iconDisplay.clearTint();
                     iconDisplay.setDisplaySize(56, 56);
                 } else if (iconDisplay instanceof Phaser.GameObjects.Text) {
@@ -974,7 +1013,10 @@ export class UIManager {
                 !this.currentPlayer.canCastSpell(buttonSpell)
             ) {
                 // Disabled state
-                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                if (
+                    isImageKey &&
+                    iconDisplay instanceof Phaser.GameObjects.Image
+                ) {
                     iconDisplay.setTint(0x666666);
                     iconDisplay.setDisplaySize(56, 56);
                 } else if (iconDisplay instanceof Phaser.GameObjects.Text) {
@@ -984,7 +1026,10 @@ export class UIManager {
                 selectionBorder.setVisible(false);
             } else {
                 // Normal state
-                if (isImageKey && iconDisplay instanceof Phaser.GameObjects.Image) {
+                if (
+                    isImageKey &&
+                    iconDisplay instanceof Phaser.GameObjects.Image
+                ) {
                     iconDisplay.clearTint();
                     iconDisplay.setDisplaySize(56, 56);
                 } else if (iconDisplay instanceof Phaser.GameObjects.Text) {
@@ -1021,7 +1066,7 @@ export class UIManager {
         // Check if UI is ready before updating
         if (!this.playerStatsContainer) {
             console.warn(
-                "[UIManager] refreshPlayerStatsDisplay called but playerStatsContainer not ready"
+                "[UIManager] refreshPlayerStatsDisplay called but playerStatsContainer not ready",
             );
             return;
         }
@@ -1200,7 +1245,7 @@ export class UIManager {
             centerY - 40,
             700,
             240, // Extended height to include button
-            12
+            12,
         );
 
         // Ornate border (same as main menu)
@@ -1210,7 +1255,7 @@ export class UIManager {
             centerY - 40,
             700,
             240, // Extended height to include button
-            12
+            12,
         );
         messagePanelBg.lineStyle(1, 0xd4af37, 0.7); // Gold inner line
         messagePanelBg.strokeRoundedRect(
@@ -1218,7 +1263,7 @@ export class UIManager {
             centerY - 37,
             694,
             234, // Extended height to include button
-            10
+            10,
         );
         messagePanelBg.setDepth(100);
 
@@ -1250,7 +1295,7 @@ export class UIManager {
                     fontStyle: "italic",
                     align: "center",
                     lineSpacing: 6, // Reduced from 8
-                }
+                },
             )
             .setOrigin(0.5)
             .setDepth(100);
@@ -1267,7 +1312,7 @@ export class UIManager {
 
                 // Game progress already reset at the start of showDefeatScreen
                 onRestart();
-            }
+            },
         );
 
         // Add medieval entrance animations
@@ -1325,7 +1370,7 @@ export class UIManager {
         text: string,
         baseColor: string,
         hoverColor: string,
-        onClick: () => void
+        onClick: () => void,
     ): Phaser.GameObjects.Container {
         const container = this.scene.add.container(x, y);
 
@@ -1339,7 +1384,7 @@ export class UIManager {
             -buttonHeight / 2,
             buttonWidth,
             buttonHeight,
-            8
+            8,
         );
 
         // Add medieval border with metal studs look
@@ -1349,7 +1394,7 @@ export class UIManager {
             -buttonHeight / 2,
             buttonWidth,
             buttonHeight,
-            8
+            8,
         );
 
         // Add inner highlight
@@ -1359,7 +1404,7 @@ export class UIManager {
             -buttonHeight / 2 + 3,
             buttonWidth - 6,
             buttonHeight - 6,
-            6
+            6,
         );
 
         // Button text with medieval font
@@ -1385,14 +1430,14 @@ export class UIManager {
         container.on("pointerover", () => {
             bg.clear();
             bg.fillStyle(
-                Phaser.Display.Color.HexStringToColor(hoverColor).color
+                Phaser.Display.Color.HexStringToColor(hoverColor).color,
             );
             bg.fillRoundedRect(
                 -buttonWidth / 2,
                 -buttonHeight / 2,
                 buttonWidth,
                 buttonHeight,
-                8
+                8,
             );
             bg.lineStyle(4, 0xd4af37, 1); // Gold border on hover
             bg.strokeRoundedRect(
@@ -1400,7 +1445,7 @@ export class UIManager {
                 -buttonHeight / 2,
                 buttonWidth,
                 buttonHeight,
-                8
+                8,
             );
             bg.lineStyle(2, 0xffd700, 0.8); // Brighter gold inner highlight
             bg.strokeRoundedRect(
@@ -1408,7 +1453,7 @@ export class UIManager {
                 -buttonHeight / 2 + 3,
                 buttonWidth - 6,
                 buttonHeight - 6,
-                6
+                6,
             );
 
             container.setScale(1.01);
@@ -1419,14 +1464,14 @@ export class UIManager {
         container.on("pointerout", () => {
             bg.clear();
             bg.fillStyle(
-                Phaser.Display.Color.HexStringToColor(baseColor).color
+                Phaser.Display.Color.HexStringToColor(baseColor).color,
             );
             bg.fillRoundedRect(
                 -buttonWidth / 2,
                 -buttonHeight / 2,
                 buttonWidth,
                 buttonHeight,
-                8
+                8,
             );
             bg.lineStyle(4, 0x8b7355, 1);
             bg.strokeRoundedRect(
@@ -1434,7 +1479,7 @@ export class UIManager {
                 -buttonHeight / 2,
                 buttonWidth,
                 buttonHeight,
-                8
+                8,
             );
             bg.lineStyle(2, 0xd4af37, 0.6);
             bg.strokeRoundedRect(
@@ -1442,7 +1487,7 @@ export class UIManager {
                 -buttonHeight / 2 + 3,
                 buttonWidth - 6,
                 buttonHeight - 6,
-                6
+                6,
             );
 
             container.setScale(1);
@@ -1466,7 +1511,7 @@ export class UIManager {
             | Phaser.GameObjects.Text
             | Phaser.GameObjects.Graphics
             | Phaser.GameObjects.Container
-        )[]
+        )[],
     ): void {
         elements.forEach((element, index) => {
             if ("setAlpha" in element) {
@@ -1520,7 +1565,7 @@ export class UIManager {
         // Create modal container
         this.bonusHistoryModal = this.scene.add.container(
             this.scene.scale.width / 2,
-            this.scene.scale.height / 2
+            this.scene.scale.height / 2,
         );
         this.bonusHistoryModal.setDepth(200);
 
@@ -1531,7 +1576,7 @@ export class UIManager {
             -this.scene.scale.width / 2,
             -this.scene.scale.height / 2,
             this.scene.scale.width,
-            this.scene.scale.height
+            this.scene.scale.height,
         );
 
         // Modal background - using expedition records colors
@@ -1542,7 +1587,7 @@ export class UIManager {
             -modalHeight / 2,
             modalWidth,
             modalHeight,
-            20
+            20,
         );
 
         // Bronze border (matching expedition records)
@@ -1552,7 +1597,7 @@ export class UIManager {
             -modalHeight / 2,
             modalWidth,
             modalHeight,
-            20
+            20,
         );
 
         // Gold inner border (matching expedition records)
@@ -1562,7 +1607,7 @@ export class UIManager {
             -modalHeight / 2 + 3,
             modalWidth - 6,
             modalHeight - 6,
-            17
+            17,
         );
 
         // Title - using expedition records gold color
@@ -1593,14 +1638,14 @@ export class UIManager {
             this.scene.scale.width / 2 - 280,
             this.scene.scale.height / 2 - modalHeight / 2 + headerHeight,
             560,
-            listHeight
+            listHeight,
         );
         const mask = maskShape.createGeometryMask();
 
         // Bonus list container - positioned for scrolling
         const listContainer = this.scene.add.container(
             0,
-            -modalHeight / 2 + headerHeight + listPadding
+            -modalHeight / 2 + headerHeight + listPadding,
         );
         listContainer.setMask(mask);
 
@@ -1645,7 +1690,7 @@ export class UIManager {
                     iconDisplay = this.scene.add.image(
                         -220,
                         yOffset,
-                        bonus.icon
+                        bonus.icon,
                     );
                     iconDisplay.setDisplaySize(32, 32);
                 } else {
@@ -1691,7 +1736,7 @@ export class UIManager {
                         {
                             fontSize: "14px",
                             color: "#888888",
-                        }
+                        },
                     )
                     .setOrigin(0.5);
                 this.bonusHistoryModal.add(scrollHint);
@@ -1703,13 +1748,13 @@ export class UIManager {
                         _pointer: any,
                         _gameObjects: any[],
                         _deltaX: number,
-                        deltaY: number
+                        deltaY: number,
                     ) => {
                         if (this.bonusHistoryModal) {
                             scrollY = Phaser.Math.Clamp(
                                 scrollY + deltaY * 0.5,
                                 0,
-                                maxScroll
+                                maxScroll,
                             );
                             listContainer.y =
                                 -modalHeight / 2 +
@@ -1717,7 +1762,7 @@ export class UIManager {
                                 listPadding -
                                 scrollY;
                         }
-                    }
+                    },
                 );
             }
         }
@@ -1742,12 +1787,12 @@ export class UIManager {
                 _pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 closeBtn.setBackgroundColor("#cc6666");
                 this.scene.input.setDefaultCursor("pointer");
                 if (event) event.stopPropagation();
-            }
+            },
         );
         closeBtn.on(
             "pointerout",
@@ -1755,12 +1800,12 @@ export class UIManager {
                 _pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 closeBtn.setBackgroundColor("#aa4444");
                 this.scene.input.setDefaultCursor("default");
                 if (event) event.stopPropagation();
-            }
+            },
         );
         closeBtn.on(
             "pointermove",
@@ -1768,11 +1813,11 @@ export class UIManager {
                 _pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 this.scene.input.setDefaultCursor("pointer");
                 if (event) event.stopPropagation();
-            }
+            },
         );
 
         // Add all elements to modal (except masked content and close button)
@@ -1787,9 +1832,9 @@ export class UIManager {
                 -this.scene.scale.width / 2,
                 -this.scene.scale.height / 2,
                 this.scene.scale.width,
-                this.scene.scale.height
+                this.scene.scale.height,
             ),
-            Phaser.Geom.Rectangle.Contains
+            Phaser.Geom.Rectangle.Contains,
         );
 
         // Consume all pointer events to prevent click-through to game tiles
@@ -1799,11 +1844,11 @@ export class UIManager {
                 _pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 event.stopPropagation(); // Prevent event from reaching game tiles
                 this.closeBonusHistoryModal();
-            }
+            },
         );
 
         overlay.on(
@@ -1812,7 +1857,7 @@ export class UIManager {
                 pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 event.stopPropagation(); // Prevent hover effects on game tiles
 
@@ -1820,13 +1865,13 @@ export class UIManager {
                 const closeBtnBounds = closeBtn.getBounds();
                 const isOverCloseBtn = closeBtnBounds.contains(
                     pointer.x,
-                    pointer.y
+                    pointer.y,
                 );
 
                 if (!isOverCloseBtn) {
                     this.scene.input.setDefaultCursor("default"); // Only set default cursor if not over close button
                 }
-            }
+            },
         );
 
         overlay.on(
@@ -1835,10 +1880,10 @@ export class UIManager {
                 _pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 event.stopPropagation();
-            }
+            },
         );
 
         overlay.on(
@@ -1847,10 +1892,10 @@ export class UIManager {
                 _pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 event.stopPropagation();
-            }
+            },
         );
 
         // Add close button AFTER setting up overlay events so it's on top
@@ -1886,7 +1931,7 @@ export class UIManager {
         // Create modal container
         this.bonusHistoryModal = this.scene.add.container(
             this.scene.scale.width / 2,
-            this.scene.scale.height / 2
+            this.scene.scale.height / 2,
         );
         this.bonusHistoryModal.setDepth(200);
 
@@ -1897,7 +1942,7 @@ export class UIManager {
             -this.scene.scale.width / 2,
             -this.scene.scale.height / 2,
             this.scene.scale.width,
-            this.scene.scale.height
+            this.scene.scale.height,
         );
 
         // Modal background - matching expedition records style
@@ -1908,7 +1953,7 @@ export class UIManager {
             -modalHeight / 2,
             modalWidth,
             modalHeight,
-            20
+            20,
         );
         modalBg.lineStyle(4, 0x8b7355, 0.9); // Bronze border
         modalBg.strokeRoundedRect(
@@ -1916,7 +1961,7 @@ export class UIManager {
             -modalHeight / 2,
             modalWidth,
             modalHeight,
-            20
+            20,
         );
 
         // Title
@@ -2038,7 +2083,7 @@ export class UIManager {
                     fontSize: "18px",
                     color: "#f5deb3",
                     fontFamily: "serif",
-                }
+                },
             )
             .setOrigin(0.5);
         yOffset += lineHeight;
@@ -2071,12 +2116,12 @@ export class UIManager {
                 _pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 closeBtn.setBackgroundColor("#cc6666");
                 this.scene.input.setDefaultCursor("pointer");
                 if (event) event.stopPropagation();
-            }
+            },
         );
         closeBtn.on(
             "pointerout",
@@ -2084,12 +2129,12 @@ export class UIManager {
                 _pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 closeBtn.setBackgroundColor("#aa4444");
                 this.scene.input.setDefaultCursor("default");
                 if (event) event.stopPropagation();
-            }
+            },
         );
         closeBtn.on(
             "pointermove",
@@ -2097,11 +2142,11 @@ export class UIManager {
                 _pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 this.scene.input.setDefaultCursor("pointer");
                 if (event) event.stopPropagation();
-            }
+            },
         );
 
         // Add all elements to modal (except close button)
@@ -2129,9 +2174,9 @@ export class UIManager {
                 -this.scene.scale.width / 2,
                 -this.scene.scale.height / 2,
                 this.scene.scale.width,
-                this.scene.scale.height
+                this.scene.scale.height,
             ),
-            Phaser.Geom.Rectangle.Contains
+            Phaser.Geom.Rectangle.Contains,
         );
         overlay.on(
             "pointerdown",
@@ -2139,11 +2184,11 @@ export class UIManager {
                 _pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 event.stopPropagation();
                 this.closeBonusHistoryModal();
-            }
+            },
         );
 
         overlay.on(
@@ -2152,7 +2197,7 @@ export class UIManager {
                 pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 event.stopPropagation();
 
@@ -2160,13 +2205,13 @@ export class UIManager {
                 const closeBtnBounds = closeBtn.getBounds();
                 const isOverCloseBtn = closeBtnBounds.contains(
                     pointer.x,
-                    pointer.y
+                    pointer.y,
                 );
 
                 if (!isOverCloseBtn) {
                     this.scene.input.setDefaultCursor("default"); // Only set default cursor if not over close button
                 }
-            }
+            },
         );
 
         overlay.on(
@@ -2175,10 +2220,10 @@ export class UIManager {
                 _pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 event.stopPropagation();
-            }
+            },
         );
 
         overlay.on(
@@ -2187,10 +2232,10 @@ export class UIManager {
                 _pointer: Phaser.Input.Pointer,
                 _localX: number,
                 _localY: number,
-                event: Phaser.Types.Input.EventData
+                event: Phaser.Types.Input.EventData,
             ) => {
                 event.stopPropagation();
-            }
+            },
         );
 
         // Add close button AFTER setting up overlay events so it's on top
@@ -2232,6 +2277,87 @@ export class UIManager {
         }
     }
 
+    /**
+     * Show boss battle intro banner.
+     */
+    public showBossBattleBanner(bossName: string): void {
+        const centerX = this.scene.scale.width / 2;
+        const centerY = this.scene.scale.height / 2;
+
+        // Create dark overlay
+        const overlay = this.scene.add.graphics();
+        overlay.fillStyle(0x000000, 0.7);
+        overlay.fillRect(0, centerY - 100, this.scene.scale.width, 200);
+        overlay.setDepth(200);
+
+        // "BOSS BATTLE" text
+        const bossText = this.scene.add
+            .text(centerX, centerY - 30, "BOSS BATTLE", {
+                fontSize: "64px",
+                color: "#ff4400",
+                fontStyle: "bold",
+                fontFamily: "serif",
+                stroke: "#000000",
+                strokeThickness: 8,
+            })
+            .setOrigin(0.5)
+            .setDepth(201);
+
+        // Boss name
+        const nameText = this.scene.add
+            .text(centerX, centerY + 40, this.formatBossName(bossName), {
+                fontSize: "36px",
+                color: "#ffd700",
+                fontStyle: "italic",
+                fontFamily: "serif",
+                stroke: "#000000",
+                strokeThickness: 4,
+            })
+            .setOrigin(0.5)
+            .setDepth(201);
+
+        // Animate in
+        bossText.setScale(0);
+        nameText.setAlpha(0);
+
+        this.scene.tweens.add({
+            targets: bossText,
+            scale: 1,
+            duration: 500,
+            ease: "Back.easeOut",
+        });
+
+        this.scene.tweens.add({
+            targets: nameText,
+            alpha: 1,
+            duration: 500,
+            delay: 300,
+        });
+
+        // Fade out after 2 seconds
+        this.scene.time.delayedCall(2000, () => {
+            this.scene.tweens.add({
+                targets: [overlay, bossText, nameText],
+                alpha: 0,
+                duration: 500,
+                onComplete: () => {
+                    overlay.destroy();
+                    bossText.destroy();
+                    nameText.destroy();
+                },
+            });
+        });
+    }
+
+    /**
+     * Format boss name for display (e.g., "DreadWarlord" -> "The Dread Warlord").
+     */
+    private formatBossName(bossType: string): string {
+        // Add spaces before capital letters and add "The" prefix
+        const withSpaces = bossType.replace(/([A-Z])/g, " $1").trim();
+        return `The ${withSpaces}`;
+    }
+
     private getBonus(bonusId: string): BonusDefinition | undefined {
         return getBonusById(bonusId);
     }
@@ -2240,7 +2366,7 @@ export class UIManager {
         x: number,
         _y: number,
         title: string,
-        description: string
+        description: string,
     ): void {
         if (this.statTooltip) return;
 
@@ -2286,7 +2412,7 @@ export class UIManager {
             -totalHeight / 2,
             maxWidth,
             totalHeight,
-            5
+            5,
         );
         bg.lineStyle(2, 0x444444);
         bg.strokeRoundedRect(
@@ -2294,7 +2420,7 @@ export class UIManager {
             -totalHeight / 2,
             maxWidth,
             totalHeight,
-            5
+            5,
         );
 
         // Adjust text positions based on background size
@@ -2304,7 +2430,7 @@ export class UIManager {
                 padding +
                 titleBounds.height +
                 10 +
-                descBounds.height / 2
+                descBounds.height / 2,
         );
 
         // Position tooltip above the bottom bar instead of potentially overlapping with stats
@@ -2366,7 +2492,7 @@ export class UIManager {
         this.scene.events.off(
             "playerDamaged",
             this.refreshPlayerStatsDisplay,
-            this
+            this,
         );
         // Nullify references
         this.currentPlayer = null;
@@ -2376,7 +2502,10 @@ export class UIManager {
         this.bonusSelectionActive = false;
     }
 
-    private showBonusSelection(onRestart: () => void, incrementWins: boolean = true): void {
+    private showBonusSelection(
+        onRestart: () => void,
+        incrementWins: boolean = true,
+    ): void {
         // Guard against duplicate calls
         if (this.bonusSelectionActive) {
             return;
@@ -2407,7 +2536,7 @@ export class UIManager {
             50,
             800,
             120,
-            20
+            20,
         );
         bannerBg.lineStyle(4, 0x8b7355, 0.9); // Bronze border (matching expedition records)
         bannerBg.strokeRoundedRect(
@@ -2415,7 +2544,7 @@ export class UIManager {
             50,
             800,
             120,
-            20
+            20,
         );
         bannerBg.setDepth(100);
 
@@ -2496,7 +2625,11 @@ export class UIManager {
 
         // Get 3 random bonuses filtered by player class
         const playerClass = progress.getClass() || "warrior";
-        const bonuses = bonusSystem.getRandomBonuses(3, progress.getAppliedBonuses(), playerClass);
+        const bonuses = bonusSystem.getRandomBonuses(
+            3,
+            progress.getAppliedBonuses(),
+            playerClass,
+        );
         const bonusContainers: Phaser.GameObjects.Container[] = [];
 
         // Create bonus cards
@@ -2586,7 +2719,7 @@ export class UIManager {
                 200,
                 300,
                 0x000000,
-                0
+                0,
             );
             hitArea.setInteractive();
 
@@ -2690,7 +2823,7 @@ export class UIManager {
                     const newBonuses = bonusSystem.getRandomBonuses(
                         3,
                         progress.getAppliedBonuses(),
-                        rerollPlayerClass
+                        rerollPlayerClass,
                     );
 
                     // Recreate bonus cards
@@ -2734,7 +2867,7 @@ export class UIManager {
                             iconDisplay = this.scene.add.image(
                                 0,
                                 -100,
-                                bonus.icon
+                                bonus.icon,
                             );
                             iconDisplay.setOrigin(0.5);
                             iconDisplay.setDisplaySize(64, 64);
@@ -2787,7 +2920,7 @@ export class UIManager {
                             200,
                             300,
                             0x000000,
-                            0
+                            0,
                         );
                         hitArea.setInteractive();
 
@@ -2856,7 +2989,7 @@ export class UIManager {
                             ease: "Power3.easeOut",
                         });
                     });
-                }
+                },
             );
 
             rerollButton.setDepth(100);

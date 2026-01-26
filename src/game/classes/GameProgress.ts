@@ -7,6 +7,15 @@ const MAX_ARTIFACTS = 3;
 /** Wins interval for artifact selection (every N wins) */
 const ARTIFACT_SELECTION_INTERVAL = 5;
 
+/** Boss battle interval - boss appears before artifact selection */
+const BOSS_BATTLE_INTERVAL = 5;
+
+/** Available boss types for random selection */
+export type BossType = "DreadWarlord" | "LichKing" | "StormTitan" | "VoidReaver" | "InfernalDragon";
+
+/** All available bosses */
+const ALL_BOSSES: BossType[] = ["DreadWarlord", "LichKing", "StormTitan", "VoidReaver", "InfernalDragon"];
+
 export class GameProgress {
     private static instance: GameProgress;
     private appliedBonuses: string[] = [];
@@ -159,6 +168,42 @@ export class GameProgress {
      */
     public getArtifactSelectionInterval(): number {
         return ARTIFACT_SELECTION_INTERVAL;
+    }
+
+    // =========================================================================
+    // Boss Battle Methods
+    // =========================================================================
+
+    /**
+     * Check if the NEXT battle should be a boss battle.
+     * Boss battles occur at battles 5, 10, 15, 20, 25... (before artifact selection)
+     * This checks if (wins + 1) is a multiple of BOSS_BATTLE_INTERVAL
+     */
+    public isBossBattle(): boolean {
+        return (this.wins + 1) % BOSS_BATTLE_INTERVAL === 0;
+    }
+
+    /**
+     * Get which boss encounter number this is (1st, 2nd, 3rd, etc.)
+     * Used for difficulty scaling.
+     */
+    public getBossEncounterNumber(): number {
+        return Math.ceil((this.wins + 1) / BOSS_BATTLE_INTERVAL);
+    }
+
+    /**
+     * Get a randomly selected boss type for the boss battle.
+     */
+    public getRandomBoss(): BossType {
+        const randomIndex = Math.floor(Math.random() * ALL_BOSSES.length);
+        return ALL_BOSSES[randomIndex];
+    }
+
+    /**
+     * Get all available boss types.
+     */
+    public getAllBossTypes(): BossType[] {
+        return [...ALL_BOSSES];
     }
 
     // =========================================================================

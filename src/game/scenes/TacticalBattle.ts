@@ -21,6 +21,7 @@ import {
 import { Magician } from "../classes/enemies/Magician";
 import { DifficultyScaling } from "../classes/DifficultyScaling";
 import { GameProgress } from "../classes/GameProgress";
+import { createBoss } from "../classes/enemies/bosses";
 
 export class TacticalBattle extends Scene {
     private grid: Grid;
@@ -111,9 +112,16 @@ export class TacticalBattle extends Scene {
             this.gameManager.addUnit(player);
         }
 
+        // Check if this is a boss battle
+        const progress = GameProgress.getInstance();
+        if (progress.isBossBattle()) {
+            this.createBossUnit();
+            return; // Boss battles only have the boss, no regular enemies
+        }
+
         // Get difficulty-based enemy configuration
         const modifiers = DifficultyScaling.getDifficultyModifiers();
-        const wins = GameProgress.getInstance().getWins();
+        const wins = progress.getWins();
         const enemyDistribution =
             DifficultyScaling.getEnemyTypeDistribution(wins);
 
@@ -311,6 +319,82 @@ export class TacticalBattle extends Scene {
         console.log(
             `Placed ${enemiesPlaced} enemies out of ${modifiers.enemyCount} requested`
         );
+    }
+
+    private createBossUnit() {
+        const progress = GameProgress.getInstance();
+        const bossType = progress.getRandomBoss();
+        const encounterNumber = progress.getBossEncounterNumber();
+        
+        console.log(`[TacticalBattle] Boss Battle! Spawning ${bossType} (Encounter #${encounterNumber})`);
+        
+        // Find valid spawn position for 2x2 boss (right side of grid)
+        // Boss needs 2x2 space, so we check if all 4 tiles are valid
+        const bossSpawnPositions = [
+            { x: 7, y: 4 },
+            { x: 7, y: 3 },
+            { x: 7, y: 5 },
+            { x: 6, y: 4 },
+            { x: 8, y: 4 },
+        ];
+        
+        let bossPlaced = false;
+        for (const pos of bossSpawnPositions) {
+            // Check if 2x2 area is valid
+            const canFit = this.canFitLargeUnit(pos.x, pos.y, 2);
+            if (canFit) {
+                const boss = createBoss(this, bossType, pos.x, pos.y);
+                this.gameManager.addUnit(boss);
+                boss.updatePosition();
+                bossPlaced = true;
+                console.log(`[TacticalBattle] Boss placed at (${pos.x}, ${pos.y})`);
+                
+                // Show boss battle banner
+                this.uiManager.showBossBattleBanner(bossType);
+                break;
+            }
+        }
+        
+        if (!bossPlaced) {
+            // Fallback - try to find any valid 2x2 position on right side
+            for (let x = 5; x < 8; x++) {
+                for (let y = 1; y < 8; y++) {
+                    if (this.canFitLargeUnit(x, y, 2)) {
+                        const boss = createBoss(this, bossType, x, y);
+                        this.gameManager.addUnit(boss);
+                        boss.updatePosition();
+                        bossPlaced = true;
+                        console.log(`[TacticalBattle] Boss placed at fallback (${x}, ${y})`);
+                        
+                        // Show boss battle banner
+                        this.uiManager.showBossBattleBanner(bossType);
+                        break;
+                    }
+                }
+                if (bossPlaced) break;
+            }
+        }
+        
+        if (!bossPlaced) {
+            console.error("[TacticalBattle] Failed to place boss!");
+        }
+    }
+
+    /**
+     * Check if a large unit (2x2) can fit at position.
+     */
+    private canFitLargeUnit(x: number, y: number, size: number): boolean {
+        for (let dx = 0; dx < size; dx++) {
+            for (let dy = 0; dy < size; dy++) {
+                const checkX = x + dx;
+                const checkY = y + dy;
+                
+                if (!this.grid.isValidPosition(checkX, checkY)) return false;
+                if (this.grid.isWall(checkX, checkY)) return false;
+                if (this.isPositionOccupied(checkX, checkY)) return false;
+            }
+        }
+        return true;
     }
 
     private generateEnemySpawnPositions(

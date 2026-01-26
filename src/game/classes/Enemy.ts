@@ -10,10 +10,10 @@ import { getEnemySpellsByType, getDefaultEnemySpell } from "../data/spells/enemy
  * Target state information for smart spell selection.
  */
 export interface EnemyTargetState {
-    isMarked: boolean;
-    markValue: number;
     healthPercent: number;
     activeDebuffs: string[]; // spell IDs of active debuffs
+    isVulnerable: boolean;
+    vulnerableMultiplier: number;
 }
 
 export abstract class Enemy extends Unit {
@@ -205,8 +205,8 @@ export abstract class Enemy extends Unit {
 
         bg.fillRoundedRect(-halfWidth, bgY, tooltipWidth, bgHeight, 16);
         
-        // Change border color if marked
-        const borderColor = this.isMarked() ? 0xff6600 : 0xaa4444;
+        // Change border color if vulnerable
+        const borderColor = this.isVulnerable() ? 0xff0000 : 0xaa4444;
         bg.lineStyle(4, borderColor);
         bg.strokeRoundedRect(-halfWidth, bgY, tooltipWidth, bgHeight, 16);
 
@@ -217,7 +217,7 @@ export abstract class Enemy extends Unit {
         const titleText = this.scene.add
             .text(0, yPos, this.enemyType.toUpperCase(), {
                 fontSize: "18px",
-                color: this.isMarked() ? "#ff8844" : "#ffaaaa",
+                color: this.isVulnerable() ? "#ff4444" : "#ffaaaa",
                 fontStyle: "bold",
             })
             .setOrigin(0.5);
@@ -526,18 +526,15 @@ export abstract class Enemy extends Unit {
                 overloadDamage = 1;
             }
 
-            // Add mark bonus if enemy is marked
-            let markBonus = 0;
-            if (this.isMarked()) {
-                markBonus = this.getMarkDamageBonus();
-            }
+            // Apply vulnerable multiplier if target is vulnerable
+            const vulnerableMultiplier = this.getVulnerableMultiplier();
 
             // Calculate min and max damage (0.8x to 1.2x)
             const rawDamageMin = Math.round(
-                (baseDamage + statBonus + overloadDamage + markBonus) * 0.8
+                (baseDamage + statBonus + overloadDamage) * 0.8 * vulnerableMultiplier
             );
             const rawDamageMax = Math.round(
-                (baseDamage + statBonus + overloadDamage + markBonus) * 1.2
+                (baseDamage + statBonus + overloadDamage) * 1.2 * vulnerableMultiplier
             );
 
             // Apply resistance
@@ -594,15 +591,15 @@ export abstract class Enemy extends Unit {
                 container.add(reductionText);
             }
 
-            // Show mark bonus if applicable
-            if (markBonus > 0) {
-                const markBonusText = this.scene.add
-                    .text(120, spellPreviewY, `+${markBonus}🎯`, {
+            // Show vulnerable bonus if applicable
+            if (vulnerableMultiplier > 1) {
+                const vulnerableBonusText = this.scene.add
+                    .text(120, spellPreviewY, `×${vulnerableMultiplier.toFixed(1)}💔`, {
                         fontSize: "11px",
-                        color: "#ff8844",
+                        color: "#ff4444",
                     })
                     .setOrigin(0, 0.5);
-                container.add(markBonusText);
+                container.add(vulnerableBonusText);
             }
 
             container.add([separator, spellNameText, damageRangeText]);
@@ -628,9 +625,7 @@ export abstract class Enemy extends Unit {
             // Effect description
             const buffEffect = selectedSpell.buffEffect;
             let effectText = "";
-            if (buffEffect.type === "mark") {
-                effectText = `🎯 Mark +${buffEffect.value} dmg (${buffEffect.duration}t)`;
-            } else if (buffEffect.type === "stat_boost") {
+            if (buffEffect.type === "stat_boost") {
                 effectText = `${buffEffect.value > 0 ? "+" : ""}${buffEffect.value} ${buffEffect.stat} (${buffEffect.duration}t)`;
             }
 
@@ -758,28 +753,6 @@ export abstract class Enemy extends Unit {
 
         this.refreshTooltip();
         return result.tickEffects;
-    }
-
-    /**
-     * Check if enemy is marked (takes extra damage).
-     */
-    public isMarked(): boolean {
-        return buffSystem.hasBuffType(this.activeBuffs, "mark");
-    }
-
-    /**
-     * Get mark damage bonus (extra damage taken).
-     */
-    public getMarkDamageBonus(): number {
-        return buffSystem.getMarkDamageBonus(this.activeBuffs);
-    }
-
-    /**
-     * Consume mark after being hit.
-     */
-    public consumeMark(): void {
-        this.activeBuffs = buffSystem.consumeMark(this.activeBuffs);
-        this.refreshTooltip();
     }
 
     /**
@@ -939,10 +912,10 @@ export abstract class Enemy extends Unit {
      */
     public getBestSpellForDistance(distance: number): SpellDefinition | null {
         return this.getBestSpellForSituation(distance, {
-            isMarked: false,
-            markValue: 0,
             healthPercent: 1,
             activeDebuffs: [],
+            isVulnerable: false,
+            vulnerableMultiplier: 1,
         });
     }
 
@@ -981,15 +954,15 @@ export abstract class Enemy extends Unit {
             const baseDamage = spell.damage + statBonus;
             score += baseDamage * 10; // Weight damage heavily
             
-            // Bonus for hitting a marked target
-            if (targetState.isMarked && spell.damage > 0) {
-                score += targetState.markValue * 10;
+            // Bonus for hitting a vulnerable target
+            if (targetState.isVulnerable && spell.damage > 0) {
+                score += (targetState.vulnerableMultiplier - 1) * 50; // e.g., 1.5x = +25 score
             }
             
-            // Value mark spells highly if target isn't marked
-            if (spell.buffEffect?.type === "mark" && !targetState.isMarked) {
-                // Mark spells are valuable - mark value * 2 turns of potential use
-                score += (spell.buffEffect.value || 3) * 15;
+            // Value vulnerable-applying spells highly if target isn't vulnerable
+            if (spell.statusEffect?.type === "vulnerable" && !targetState.isVulnerable) {
+                // Vulnerable spells are valuable
+                score += (spell.statusEffect.value || 1.5) * 20;
             }
             
             // Value debuff spells

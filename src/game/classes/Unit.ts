@@ -345,13 +345,21 @@ export abstract class Unit {
             }
         }
 
+        // Apply vulnerable multiplier (damage taken increase)
+        let modifiedDamage = damage;
+        const vulnerableMultiplier = this.getVulnerableMultiplier();
+        if (vulnerableMultiplier > 1.0) {
+            modifiedDamage = Math.round(damage * vulnerableMultiplier);
+            console.log(`[Unit] Vulnerable: damage ${damage} -> ${modifiedDamage} (x${vulnerableMultiplier})`);
+        }
+
         // Apply armor reduction for physical damage or magic resistance for magic damage
         const baseResistance =
             damageType === "magic"
                 ? this.stats.magicResistance || 0
                 : this.stats.armor;
         const resistance = baseResistance + fortifiedBonus;
-        const actualDamage = Math.max(1, damage - resistance);
+        const actualDamage = Math.max(1, modifiedDamage - resistance);
         this.stats.health = Math.max(0, this.stats.health - actualDamage);
 
         // Track last damage type for adaptive armor

@@ -26,8 +26,8 @@ export class Preloader extends Scene {
         this.background.setScale(
             Math.max(
                 this.scale.width / this.background.width,
-                this.scale.height / this.background.height
-            )
+                this.scale.height / this.background.height,
+            ),
         );
         this.background.setAlpha(0.4);
         this.background.setTint(0xd4af37); // Golden tint
@@ -129,7 +129,7 @@ export class Preloader extends Scene {
             centerY + 130,
             500,
             30,
-            8
+            8,
         );
         progressInner.setDepth(100);
 
@@ -160,7 +160,7 @@ export class Preloader extends Scene {
                     centerY + 132,
                     barWidth,
                     26,
-                    6
+                    6,
                 );
 
                 // Add gold highlight
@@ -170,7 +170,7 @@ export class Preloader extends Scene {
                     centerY + 132,
                     barWidth,
                     8,
-                    6
+                    6,
                 );
             }
 
@@ -249,31 +249,31 @@ export class Preloader extends Scene {
         this.load.image("border_wall_top", "walls/borders/border_wall_top.png");
         this.load.image(
             "border_wall_bottom",
-            "walls/borders/border_wall_bottom.png"
+            "walls/borders/border_wall_bottom.png",
         );
         this.load.image(
             "border_wall_left",
-            "walls/borders/border_wall_left.png"
+            "walls/borders/border_wall_left.png",
         );
         this.load.image(
             "border_wall_right",
-            "walls/borders/border_wall_right.png"
+            "walls/borders/border_wall_right.png",
         );
         this.load.image(
             "border_wall_corner_top_left",
-            "walls/borders/border_wall_corner_top_left.png"
+            "walls/borders/border_wall_corner_top_left.png",
         );
         this.load.image(
             "border_wall_corner_top_right",
-            "walls/borders/border_wall_worner_top_right.png"
+            "walls/borders/border_wall_worner_top_right.png",
         );
         this.load.image(
             "border_wall_corner_bottom_left",
-            "walls/borders/border_wall_corner_bottom_left.png"
+            "walls/borders/border_wall_corner_bottom_left.png",
         );
         this.load.image(
             "border_wall_corner_bottom_right",
-            "walls/borders/border_wall_corner_bottom_right.png"
+            "walls/borders/border_wall_corner_bottom_right.png",
         );
 
         // Load floor sprites
@@ -284,36 +284,67 @@ export class Preloader extends Scene {
         // Load enemy sprites
         this.load.image(
             "skeleton_archer",
-            "mobs/archer/skeleton_archer_idle.png"
+            "mobs/archer/skeleton_archer_idle.png",
         );
         this.load.image(
             "skeleton_warrior",
-            "mobs/warrior/skeleton_warrior_idle.png"
+            "mobs/warrior/skeleton_warrior_idle.png",
         );
         this.load.image("skeleton_tank", "mobs/tank/skeleton_tank_idle.png");
         this.load.image(
             "skeleton_magician_idle",
-            "mobs/magician/skeleton_magician_idle.png"
+            "mobs/magician/skeleton_magician_idle.png",
         );
         this.load.image("gobelin_idle", "mobs/gobelin/gobelin_idle.png");
         this.load.image(
             "necromancer_idle",
-            "mobs/necromancer/necromancer_idle.png"
+            "mobs/necromancer/necromancer_idle.png",
         );
         this.load.image("ogre_idle", "mobs/ogre/ogre_idle.png");
         this.load.image("troll_idle", "mobs/troll/troll_idle.png");
-        
+
         // Load new enemy sprites
         this.load.image("assassin_idle", "mobs/assassin/assassin_idle.png");
         this.load.image("berserker_idle", "mobs/berserker/berserker_idle.png");
         this.load.image("shaman_idle", "mobs/shaman/shaman_idle.png");
-        this.load.image("frost_mage_idle", "mobs/frost_mage/frost_mage_idle.png");
-        this.load.image("dark_knight_idle", "mobs/dark_knight/dark_knight_idle.png");
+        this.load.image(
+            "frost_mage_idle",
+            "mobs/frost_mage/frost_mage_idle.png",
+        );
+        this.load.image(
+            "dark_knight_idle",
+            "mobs/dark_knight/dark_knight_idle.png",
+        );
+
+        // Load boss sprites (2x2 size)
+        this.load.image(
+            "dread_warlord_idle",
+            "bosses/dread_warlord/dread_warlord_idle.png",
+        );
+        this.load.image(
+            "lich_king_idle",
+            "bosses/lich_king/lich_king_idle.png",
+        );
+        this.load.image(
+            "storm_titan_idle",
+            "bosses/storm_titan/storm_titan_idle.png",
+        );
+        this.load.image(
+            "void_reaver_idle",
+            "bosses/void_reaver/void_reaver_idle.png",
+        );
+        this.load.image(
+            "infernal_dragon_idle",
+            "bosses/infernal_dragon/infernal_dragon_idle.png",
+        );
 
         // Load player sprites for all classes
         this.load.image("hero_warrior", "heros/warrior/hero_warrior_idle.png");
         this.load.image("hero_ranger", "heros/ranger/hero_ranger_idle.png");
-        this.load.image("hero_magician", "heros/magician/hero_magician_idle.png");
+        this.load.image(
+            "hero_magician",
+            "heros/magician/hero_magician_idle.png",
+        );
 
         // Load all icons dynamically from game data
         this.loadAllIcons();
@@ -344,7 +375,10 @@ export class Preloader extends Scene {
 
         // Load spell icons
         for (const spell of PLAYER_SPELLS) {
-            if (spell.icon.startsWith("icon_") && !loadedIcons.has(spell.icon)) {
+            if (
+                spell.icon.startsWith("icon_") &&
+                !loadedIcons.has(spell.icon)
+            ) {
                 loadedIcons.add(spell.icon);
                 this.load.image(spell.icon, `icons/spells/${spell.icon}.png`);
             }
@@ -352,7 +386,10 @@ export class Preloader extends Scene {
 
         // Load bonus icons
         for (const bonus of ALL_BONUSES) {
-            if (bonus.icon.startsWith("icon_") && !loadedIcons.has(bonus.icon)) {
+            if (
+                bonus.icon.startsWith("icon_") &&
+                !loadedIcons.has(bonus.icon)
+            ) {
                 loadedIcons.add(bonus.icon);
                 this.load.image(bonus.icon, `icons/bonuses/${bonus.icon}.png`);
             }
@@ -360,9 +397,15 @@ export class Preloader extends Scene {
 
         // Load artifact icons
         for (const artifact of ALL_ARTIFACTS) {
-            if (artifact.icon.startsWith("icon_") && !loadedIcons.has(artifact.icon)) {
+            if (
+                artifact.icon.startsWith("icon_") &&
+                !loadedIcons.has(artifact.icon)
+            ) {
                 loadedIcons.add(artifact.icon);
-                this.load.image(artifact.icon, `icons/artifacts/${artifact.icon}.png`);
+                this.load.image(
+                    artifact.icon,
+                    `icons/artifacts/${artifact.icon}.png`,
+                );
             }
         }
 

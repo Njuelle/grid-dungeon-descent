@@ -76,9 +76,21 @@ export class ArtifactBagUI {
 
         const panelBg = this.scene.add.graphics();
         panelBg.fillStyle(0x2a1d16, 0.9);
-        panelBg.fillRoundedRect(startX - spacing, startY - 25, panelWidth, panelHeight, 8);
+        panelBg.fillRoundedRect(
+            startX - spacing,
+            startY - 25,
+            panelWidth,
+            panelHeight,
+            8,
+        );
         panelBg.lineStyle(2, 0x8b7355, 0.8);
-        panelBg.strokeRoundedRect(startX - spacing, startY - 25, panelWidth, panelHeight, 8);
+        panelBg.strokeRoundedRect(
+            startX - spacing,
+            startY - 25,
+            panelWidth,
+            panelHeight,
+            8,
+        );
         this.container.add(panelBg);
 
         // Title
@@ -112,10 +124,12 @@ export class ArtifactBagUI {
         y: number,
         size: number,
         artifact: ArtifactDefinition | undefined,
-        _index: number
+        _index: number,
     ): Phaser.GameObjects.Container {
         const slot = this.scene.add.container(x + size / 2, y + size / 2);
-        const isCursed = artifact ? CurseSystem.isCursedArtifact(artifact) : false;
+        const isCursed = artifact
+            ? CurseSystem.isCursedArtifact(artifact)
+            : false;
 
         // Slot background - purple for cursed artifacts
         const slotBg = this.scene.add.graphics();
@@ -126,7 +140,11 @@ export class ArtifactBagUI {
         }
         slotBg.fillRoundedRect(-size / 2, -size / 2, size, size, 6);
         // Purple border for cursed, gold for normal, gray for empty
-        const borderColor = artifact ? (isCursed ? 0x9932cc : 0xd4af37) : 0x4a4a4a;
+        const borderColor = artifact
+            ? isCursed
+                ? 0x9932cc
+                : 0xd4af37
+            : 0x4a4a4a;
         slotBg.lineStyle(2, borderColor, 0.8);
         slotBg.strokeRoundedRect(-size / 2, -size / 2, size, size, 6);
         slot.add(slotBg);
@@ -150,7 +168,14 @@ export class ArtifactBagUI {
             slot.add(iconDisplay);
 
             // Hit area for tooltip
-            const hitArea = this.scene.add.rectangle(0, 0, size, size, 0x000000, 0);
+            const hitArea = this.scene.add.rectangle(
+                0,
+                0,
+                size,
+                size,
+                0x000000,
+                0,
+            );
             hitArea.setInteractive();
             slot.add(hitArea);
 
@@ -189,7 +214,11 @@ export class ArtifactBagUI {
     // Tooltip
     // =========================================================================
 
-    private showTooltip(artifact: ArtifactDefinition, x: number, y: number): void {
+    private showTooltip(
+        artifact: ArtifactDefinition,
+        x: number,
+        y: number,
+    ): void {
         this.hideTooltip();
 
         const tooltipWidth = 250;
@@ -237,9 +266,21 @@ export class ArtifactBagUI {
         // Background - purple border for cursed
         const bg = this.scene.add.graphics();
         bg.fillStyle(isCursed ? 0x1a1a2a : 0x1a1a1a, 0.95);
-        bg.fillRoundedRect(-tooltipWidth / 2, 0, tooltipWidth, tooltipHeight, 8);
+        bg.fillRoundedRect(
+            -tooltipWidth / 2,
+            0,
+            tooltipWidth,
+            tooltipHeight,
+            8,
+        );
         bg.lineStyle(2, isCursed ? 0x9932cc : 0xd4af37, 0.9);
-        bg.strokeRoundedRect(-tooltipWidth / 2, 0, tooltipWidth, tooltipHeight, 8);
+        bg.strokeRoundedRect(
+            -tooltipWidth / 2,
+            0,
+            tooltipWidth,
+            tooltipHeight,
+            8,
+        );
 
         // Name - purple for cursed
         const nameText = this.scene.add
@@ -298,7 +339,7 @@ export class ArtifactBagUI {
                         fontSize: "11px",
                         color: "#c0c0c0",
                         fontFamily: "serif",
-                    }
+                    },
                 )
                 .setOrigin(0.5, 0);
 
@@ -341,3 +382,4 @@ export class ArtifactBagUI {
         this.container.destroy();
     }
 }
+

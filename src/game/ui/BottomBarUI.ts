@@ -1,6 +1,6 @@
 /**
  * BottomBarUI - Handles the bottom bar UI including stats and spell buttons.
- * 
+ *
  * This is a Phaser-dependent UI component that renders:
  * - Player stats display (health, MP, AP, combat stats)
  * - Spell buttons
@@ -86,7 +86,12 @@ export class BottomBarUI {
         this.uiBar.lineStyle(3, 0x8b7355, 0.9);
         this.uiBar.strokeRect(0, barY, this.scene.scale.width, barHeight);
         this.uiBar.lineStyle(1, 0xd4af37, 0.7);
-        this.uiBar.strokeRect(2, barY + 2, this.scene.scale.width - 4, barHeight - 4);
+        this.uiBar.strokeRect(
+            2,
+            barY + 2,
+            this.scene.scale.width - 4,
+            barHeight - 4,
+        );
         this.container.add(this.uiBar);
 
         // Turn indicator
@@ -190,13 +195,69 @@ export class BottomBarUI {
 
         // Stats row
         const statsY = 15;
-        this.createStatDisplay(this.playerStatsContainer, "👟", -175, statsY, "mpText", "#00ff00", "Movement Points");
-        this.createStatDisplay(this.playerStatsContainer, "⚡", -120, statsY, "apText", "#ffff00", "Action Points");
-        this.createStatDisplay(this.playerStatsContainer, "⚔️", -65, statsY, "forceText", "#ff6666", "Force");
-        this.createStatDisplay(this.playerStatsContainer, "🏹", -10, statsY, "dexText", "#66ff66", "Dexterity");
-        this.createStatDisplay(this.playerStatsContainer, "🧠", 45, statsY, "intText", "#ff66ff", "Intelligence");
-        this.createStatDisplay(this.playerStatsContainer, "🛡️", 100, statsY, "armorText", "#6666ff", "Armor");
-        this.createStatDisplay(this.playerStatsContainer, "✨", 155, statsY, "mrText", "#cc99ff", "Magic Resistance");
+        this.createStatDisplay(
+            this.playerStatsContainer,
+            "👟",
+            -175,
+            statsY,
+            "mpText",
+            "#00ff00",
+            "Movement Points",
+        );
+        this.createStatDisplay(
+            this.playerStatsContainer,
+            "⚡",
+            -120,
+            statsY,
+            "apText",
+            "#ffff00",
+            "Action Points",
+        );
+        this.createStatDisplay(
+            this.playerStatsContainer,
+            "⚔️",
+            -65,
+            statsY,
+            "forceText",
+            "#ff6666",
+            "Force",
+        );
+        this.createStatDisplay(
+            this.playerStatsContainer,
+            "🏹",
+            -10,
+            statsY,
+            "dexText",
+            "#66ff66",
+            "Dexterity",
+        );
+        this.createStatDisplay(
+            this.playerStatsContainer,
+            "🧠",
+            45,
+            statsY,
+            "intText",
+            "#ff66ff",
+            "Intelligence",
+        );
+        this.createStatDisplay(
+            this.playerStatsContainer,
+            "🛡️",
+            100,
+            statsY,
+            "armorText",
+            "#6666ff",
+            "Armor",
+        );
+        this.createStatDisplay(
+            this.playerStatsContainer,
+            "✨",
+            155,
+            statsY,
+            "mrText",
+            "#cc99ff",
+            "Magic Resistance",
+        );
     }
 
     private createStatDisplay(
@@ -206,13 +267,15 @@ export class BottomBarUI {
         y: number,
         dataKey: string,
         color: string,
-        _tooltipTitle: string
+        _tooltipTitle: string,
     ): void {
-        const iconText = this.scene.add.text(x, y, icon, { fontSize: "22px" }).setOrigin(0.5);
+        const iconText = this.scene.add
+            .text(x, y, icon, { fontSize: "22px" })
+            .setOrigin(0.5);
         const valueText = this.scene.add
             .text(x + 23, y, "", { fontSize: "15px", color, fontStyle: "bold" })
             .setOrigin(0.5);
-        
+
         container.add([iconText, valueText]);
         container.setData(dataKey, valueText);
     }
@@ -224,7 +287,10 @@ export class BottomBarUI {
     /**
      * Updates spell buttons with current spells and availability.
      */
-    public updateSpellButtons(spells: SpellDefinition[], canCast: (spell: SpellDefinition) => boolean): void {
+    public updateSpellButtons(
+        spells: SpellDefinition[],
+        canCast: (spell: SpellDefinition) => boolean,
+    ): void {
         // Clear existing buttons
         this.spellButtons.forEach((button) => button.destroy());
         this.spellButtons = [];
@@ -238,7 +304,7 @@ export class BottomBarUI {
                 startX + index * spacing,
                 buttonY,
                 spell,
-                canCast(spell)
+                canCast(spell),
             );
             this.spellButtons.push(button);
             this.container.add(button);
@@ -249,7 +315,7 @@ export class BottomBarUI {
         x: number,
         y: number,
         spell: SpellDefinition,
-        canCastSpell: boolean
+        canCastSpell: boolean,
     ): Phaser.GameObjects.Container {
         const buttonContainer = this.scene.add.container(x, y);
 
@@ -281,7 +347,7 @@ export class BottomBarUI {
         buttonContainer.setData("selectionBorder", selectionBorder);
         buttonContainer.setInteractive(
             new Phaser.Geom.Rectangle(-24, -24, 48, 48),
-            Phaser.Geom.Rectangle.Contains
+            Phaser.Geom.Rectangle.Contains,
         );
 
         // Set initial state
@@ -328,9 +394,13 @@ export class BottomBarUI {
         this.selectedSpell = spell;
 
         this.spellButtons.forEach((button) => {
-            const iconSprite = button.getData("iconSprite") as Phaser.GameObjects.Image;
+            const iconSprite = button.getData(
+                "iconSprite",
+            ) as Phaser.GameObjects.Image;
             const buttonSpell = button.getData("spell") as SpellDefinition;
-            const selectionBorder = button.getData("selectionBorder") as Phaser.GameObjects.Graphics;
+            const selectionBorder = button.getData(
+                "selectionBorder",
+            ) as Phaser.GameObjects.Graphics;
 
             if (buttonSpell.id === spell.id) {
                 iconSprite.clearTint();
@@ -355,16 +425,37 @@ export class BottomBarUI {
     /**
      * Updates the player stats display.
      */
-    public updatePlayerStats(data: PlayerDisplayData, appliedBonuses: string[]): void {
-        const healthBar = this.playerStatsContainer.getData("healthBar") as Phaser.GameObjects.Graphics;
-        const healthText = this.playerStatsContainer.getData("healthText") as Phaser.GameObjects.Text;
-        const mpText = this.playerStatsContainer.getData("mpText") as Phaser.GameObjects.Text;
-        const apText = this.playerStatsContainer.getData("apText") as Phaser.GameObjects.Text;
-        const forceText = this.playerStatsContainer.getData("forceText") as Phaser.GameObjects.Text;
-        const dexText = this.playerStatsContainer.getData("dexText") as Phaser.GameObjects.Text;
-        const intText = this.playerStatsContainer.getData("intText") as Phaser.GameObjects.Text;
-        const armorText = this.playerStatsContainer.getData("armorText") as Phaser.GameObjects.Text;
-        const mrText = this.playerStatsContainer.getData("mrText") as Phaser.GameObjects.Text;
+    public updatePlayerStats(
+        data: PlayerDisplayData,
+        appliedBonuses: string[],
+    ): void {
+        const healthBar = this.playerStatsContainer.getData(
+            "healthBar",
+        ) as Phaser.GameObjects.Graphics;
+        const healthText = this.playerStatsContainer.getData(
+            "healthText",
+        ) as Phaser.GameObjects.Text;
+        const mpText = this.playerStatsContainer.getData(
+            "mpText",
+        ) as Phaser.GameObjects.Text;
+        const apText = this.playerStatsContainer.getData(
+            "apText",
+        ) as Phaser.GameObjects.Text;
+        const forceText = this.playerStatsContainer.getData(
+            "forceText",
+        ) as Phaser.GameObjects.Text;
+        const dexText = this.playerStatsContainer.getData(
+            "dexText",
+        ) as Phaser.GameObjects.Text;
+        const intText = this.playerStatsContainer.getData(
+            "intText",
+        ) as Phaser.GameObjects.Text;
+        const armorText = this.playerStatsContainer.getData(
+            "armorText",
+        ) as Phaser.GameObjects.Text;
+        const mrText = this.playerStatsContainer.getData(
+            "mrText",
+        ) as Phaser.GameObjects.Text;
 
         // Update health bar
         healthBar.clear();
@@ -381,34 +472,57 @@ export class BottomBarUI {
         healthText.setText(`${data.health} / ${data.maxHealth}`);
         mpText.setText(`${data.movementPoints}/${data.maxMovementPoints}`);
         apText.setText(`${data.actionPoints}/${data.maxActionPoints}`);
-        
+
         // Get buff modifiers for stat coloring
         const buffMods = data.buffModifiers;
-        
+
         // Update stats with buff coloring
-        this.updateStatWithBuff(forceText, data.force, buffMods?.get("force") || 0);
-        this.updateStatWithBuff(dexText, data.dexterity, buffMods?.get("dexterity") || 0);
-        this.updateStatWithBuff(intText, data.intelligence, buffMods?.get("intelligence") || 0);
+        this.updateStatWithBuff(
+            forceText,
+            data.force,
+            buffMods?.get("force") || 0,
+        );
+        this.updateStatWithBuff(
+            dexText,
+            data.dexterity,
+            buffMods?.get("dexterity") || 0,
+        );
+        this.updateStatWithBuff(
+            intText,
+            data.intelligence,
+            buffMods?.get("intelligence") || 0,
+        );
 
         // Calculate effective armor including bonuses
         let effectiveArmor = data.armor;
         let armorBuffMod = buffMods?.get("armor") || 0;
-        if (!data.hasMovedThisTurn && appliedBonuses.includes("fortified_position")) {
+        if (
+            !data.hasMovedThisTurn &&
+            appliedBonuses.includes("fortified_position")
+        ) {
             armorBuffMod += 3;
         }
         this.updateStatWithBuff(armorText, effectiveArmor, armorBuffMod);
-        
+
         // Magic resistance
-        this.updateStatWithBuff(mrText, data.magicResistance, buffMods?.get("magicResistance") || 0);
+        this.updateStatWithBuff(
+            mrText,
+            data.magicResistance,
+            buffMods?.get("magicResistance") || 0,
+        );
     }
 
     /**
      * Updates a stat text with buff coloring.
      * Green for positive buffs, red for negative buffs/debuffs.
      */
-    private updateStatWithBuff(text: Phaser.GameObjects.Text, value: number, buffMod: number): void {
+    private updateStatWithBuff(
+        text: Phaser.GameObjects.Text,
+        value: number,
+        buffMod: number,
+    ): void {
         text.setText(value.toString());
-        
+
         if (buffMod > 0) {
             text.setColor("#00ff00"); // Green for positive buff
         } else if (buffMod < 0) {
@@ -422,7 +536,11 @@ export class BottomBarUI {
     // Tooltips
     // =========================================================================
 
-    private showSpellTooltip(spell: SpellDefinition, x: number, _y: number): void {
+    private showSpellTooltip(
+        spell: SpellDefinition,
+        x: number,
+        _y: number,
+    ): void {
         if (this.spellTooltip) return;
 
         let rangeText = `Range: ${spell.range}`;
@@ -430,7 +548,12 @@ export class BottomBarUI {
             rangeText = `Range: ${spell.minRange}-${spell.range}`;
         }
 
-        const statLabel = spell.type === "melee" ? "FOR" : spell.type === "magic" ? "INT" : "DEX";
+        const statLabel =
+            spell.type === "melee"
+                ? "FOR"
+                : spell.type === "magic"
+                  ? "INT"
+                  : "DEX";
         let descText = `${spell.description}\nDamage: ${spell.damage} + ${statLabel}\n${rangeText} | AP: ${spell.apCost}`;
 
         if (spell.aoeShape && spell.aoeRadius) {
@@ -459,21 +582,45 @@ export class BottomBarUI {
         const padding = 20;
         const titleBounds = titleText.getBounds();
         const descBounds = descTextObj.getBounds();
-        const maxWidth = Math.max(titleBounds.width, descBounds.width) + padding * 2;
-        const totalHeight = titleBounds.height + descBounds.height + padding * 2 + 10;
+        const maxWidth =
+            Math.max(titleBounds.width, descBounds.width) + padding * 2;
+        const totalHeight =
+            titleBounds.height + descBounds.height + padding * 2 + 10;
 
         const bg = this.scene.add.graphics();
         bg.fillStyle(0x000000, 0.9);
-        bg.fillRoundedRect(-maxWidth / 2, -totalHeight / 2, maxWidth, totalHeight, 5);
+        bg.fillRoundedRect(
+            -maxWidth / 2,
+            -totalHeight / 2,
+            maxWidth,
+            totalHeight,
+            5,
+        );
         bg.lineStyle(2, 0x444444);
-        bg.strokeRoundedRect(-maxWidth / 2, -totalHeight / 2, maxWidth, totalHeight, 5);
+        bg.strokeRoundedRect(
+            -maxWidth / 2,
+            -totalHeight / 2,
+            maxWidth,
+            totalHeight,
+            5,
+        );
 
         titleText.setY(-totalHeight / 2 + padding + titleBounds.height / 2);
-        descTextObj.setY(-totalHeight / 2 + padding + titleBounds.height + 10 + descBounds.height / 2);
+        descTextObj.setY(
+            -totalHeight / 2 +
+                padding +
+                titleBounds.height +
+                10 +
+                descBounds.height / 2,
+        );
 
         const tooltipY = this.scene.scale.height - 100 - totalHeight / 2 - 10;
 
-        this.spellTooltip = this.scene.add.container(x, tooltipY, [bg, titleText, descTextObj]);
+        this.spellTooltip = this.scene.add.container(x, tooltipY, [
+            bg,
+            titleText,
+            descTextObj,
+        ]);
         this.spellTooltip.setDepth(100);
     }
 
@@ -508,7 +655,9 @@ export class BottomBarUI {
     // Event Registration
     // =========================================================================
 
-    public setOnSpellSelected(callback: (spell: SpellDefinition) => void): void {
+    public setOnSpellSelected(
+        callback: (spell: SpellDefinition) => void,
+    ): void {
         this.onSpellSelected = callback;
     }
 
@@ -529,3 +678,4 @@ export class BottomBarUI {
         this.container.destroy();
     }
 }
+

@@ -317,14 +317,13 @@ export const SHADOW_ASSASSIN_ENEMY_SPELLS: SpellDefinition[] = [
         apCost: 1,
         range: 3,
         damage: 0,
-        description: "Marks the target for +3 bonus damage on next hit",
+        description: "Marks the target, making them vulnerable (+50% damage taken) for 2 turns",
         type: "melee",
         spellCategory: "buff",
-        buffEffect: {
-            type: "mark",
-            value: 3,
+        statusEffect: {
+            type: "vulnerable",
             duration: 2,
-            targetSelf: false,
+            value: 1.5,
         },
         animation: "vfx_debuff_attack",
     },

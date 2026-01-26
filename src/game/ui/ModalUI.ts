@@ -1,6 +1,6 @@
 /**
  * ModalUI - Generic modal system for displaying overlays.
- * 
+ *
  * This is a Phaser-dependent UI component that handles:
  * - Bonus history modal
  * - Player stats modal
@@ -72,7 +72,11 @@ export class ModalUI {
     /**
      * Shows the bonus history modal.
      */
-    public showBonusHistory(bonuses: BonusDefinition[], wins: number, _getBonusById: (id: string) => BonusDefinition | undefined): void {
+    public showBonusHistory(
+        bonuses: BonusDefinition[],
+        wins: number,
+        _getBonusById: (id: string) => BonusDefinition | undefined,
+    ): void {
         if (this.isShowing()) return;
 
         const modalWidth = 600;
@@ -86,7 +90,8 @@ export class ModalUI {
         const neededListHeight = actualItemCount * itemHeight;
         const maxListHeight = maxVisibleItems * itemHeight;
         const listHeight = Math.min(neededListHeight, maxListHeight);
-        const modalHeight = headerHeight + listHeight + footerHeight + listPadding * 2;
+        const modalHeight =
+            headerHeight + listHeight + footerHeight + listPadding * 2;
 
         this.createModalBase(modalWidth, modalHeight);
 
@@ -115,7 +120,7 @@ export class ModalUI {
 
         // Bonus list
         const listY = -modalHeight / 2 + headerHeight + listPadding;
-        
+
         if (bonuses.length === 0) {
             const noBonusText = this.scene.add
                 .text(0, listY + 30, "No bonuses acquired yet", {
@@ -179,18 +184,28 @@ export class ModalUI {
         const lineHeight = 35;
 
         // Combat Stats
-        yOffset = this.createStatSection("Combat Statistics", yOffset, lineHeight, [
-            `Max Health: ${stats.maxHealth}`,
-            `Force: ${stats.force}`,
-            `Dexterity: ${stats.dexterity}`,
-            `Intelligence: ${stats.intelligence || 0}`,
-        ]);
+        yOffset = this.createStatSection(
+            "Combat Statistics",
+            yOffset,
+            lineHeight,
+            [
+                `Max Health: ${stats.maxHealth}`,
+                `Force: ${stats.force}`,
+                `Dexterity: ${stats.dexterity}`,
+                `Intelligence: ${stats.intelligence || 0}`,
+            ],
+        );
 
         // Defense Stats
-        yOffset = this.createStatSection("Defense Statistics", yOffset + 20, lineHeight, [
-            `Armor: ${stats.armor}`,
-            `Magic Resistance: ${stats.magicResistance || 0}`,
-        ]);
+        yOffset = this.createStatSection(
+            "Defense Statistics",
+            yOffset + 20,
+            lineHeight,
+            [
+                `Armor: ${stats.armor}`,
+                `Magic Resistance: ${stats.magicResistance || 0}`,
+            ],
+        );
 
         // Action Economy
         this.createStatSection("Action Economy", yOffset + 20, lineHeight, [
@@ -218,7 +233,12 @@ export class ModalUI {
         // Full overlay
         this.overlay = this.scene.add.graphics();
         this.overlay.fillStyle(0x2a1d16, 1);
-        this.overlay.fillRect(0, 0, this.scene.scale.width, this.scene.scale.height);
+        this.overlay.fillRect(
+            0,
+            0,
+            this.scene.scale.width,
+            this.scene.scale.height,
+        );
         this.overlay.setDepth(99);
 
         this.container = this.scene.add.container(centerX, centerY);
@@ -281,7 +301,7 @@ export class ModalUI {
                     fontStyle: "italic",
                     align: "center",
                     lineSpacing: 6,
-                }
+                },
             )
             .setOrigin(0.5);
         this.container.add(message);
@@ -304,11 +324,21 @@ export class ModalUI {
         // Background overlay
         this.overlay = this.scene.add.graphics();
         this.overlay.fillStyle(0x000000, 0.7);
-        this.overlay.fillRect(0, 0, this.scene.scale.width, this.scene.scale.height);
+        this.overlay.fillRect(
+            0,
+            0,
+            this.scene.scale.width,
+            this.scene.scale.height,
+        );
         this.overlay.setDepth(199);
         this.overlay.setInteractive(
-            new Phaser.Geom.Rectangle(0, 0, this.scene.scale.width, this.scene.scale.height),
-            Phaser.Geom.Rectangle.Contains
+            new Phaser.Geom.Rectangle(
+                0,
+                0,
+                this.scene.scale.width,
+                this.scene.scale.height,
+            ),
+            Phaser.Geom.Rectangle.Contains,
         );
         this.overlay.on("pointerdown", () => this.close());
 
@@ -323,11 +353,22 @@ export class ModalUI {
         modalBg.lineStyle(3, 0x8b7355, 0.9);
         modalBg.strokeRoundedRect(-width / 2, -height / 2, width, height, 20);
         modalBg.lineStyle(1, 0xd4af37, 0.7);
-        modalBg.strokeRoundedRect(-width / 2 + 3, -height / 2 + 3, width - 6, height - 6, 17);
+        modalBg.strokeRoundedRect(
+            -width / 2 + 3,
+            -height / 2 + 3,
+            width - 6,
+            height - 6,
+            17,
+        );
         this.container.add(modalBg);
     }
 
-    private createBonusListItem(bonus: BonusDefinition, _x: number, y: number, _modalWidth: number): void {
+    private createBonusListItem(
+        bonus: BonusDefinition,
+        _x: number,
+        y: number,
+        _modalWidth: number,
+    ): void {
         const itemBg = this.scene.add.graphics();
         itemBg.fillStyle(0x4a332a, 0.8);
         itemBg.fillRoundedRect(-250, y - 25, 500, 50, 10);
@@ -371,7 +412,7 @@ export class ModalUI {
         title: string,
         startY: number,
         lineHeight: number,
-        stats: string[]
+        stats: string[],
     ): number {
         const titleText = this.scene.add
             .text(0, startY, title, {
@@ -423,7 +464,12 @@ export class ModalUI {
         this.container!.add(closeBtn);
     }
 
-    private createMedievalButton(x: number, y: number, text: string, onClick: () => void): void {
+    private createMedievalButton(
+        x: number,
+        y: number,
+        text: string,
+        onClick: () => void,
+    ): void {
         const buttonWidth = 320;
         const buttonHeight = 60;
 
@@ -431,11 +477,29 @@ export class ModalUI {
 
         const bg = this.scene.add.graphics();
         bg.fillStyle(0x8b4513);
-        bg.fillRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+        bg.fillRoundedRect(
+            -buttonWidth / 2,
+            -buttonHeight / 2,
+            buttonWidth,
+            buttonHeight,
+            8,
+        );
         bg.lineStyle(4, 0x8b7355, 1);
-        bg.strokeRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+        bg.strokeRoundedRect(
+            -buttonWidth / 2,
+            -buttonHeight / 2,
+            buttonWidth,
+            buttonHeight,
+            8,
+        );
         bg.lineStyle(2, 0xd4af37, 0.6);
-        bg.strokeRoundedRect(-buttonWidth / 2 + 3, -buttonHeight / 2 + 3, buttonWidth - 6, buttonHeight - 6, 6);
+        bg.strokeRoundedRect(
+            -buttonWidth / 2 + 3,
+            -buttonHeight / 2 + 3,
+            buttonWidth - 6,
+            buttonHeight - 6,
+            6,
+        );
 
         const buttonText = this.scene.add
             .text(0, 0, text, {
@@ -456,9 +520,21 @@ export class ModalUI {
         buttonContainer.on("pointerover", () => {
             bg.clear();
             bg.fillStyle(0xa0522d);
-            bg.fillRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+            bg.fillRoundedRect(
+                -buttonWidth / 2,
+                -buttonHeight / 2,
+                buttonWidth,
+                buttonHeight,
+                8,
+            );
             bg.lineStyle(4, 0xd4af37, 1);
-            bg.strokeRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+            bg.strokeRoundedRect(
+                -buttonWidth / 2,
+                -buttonHeight / 2,
+                buttonWidth,
+                buttonHeight,
+                8,
+            );
             buttonContainer.setScale(1.01);
             buttonText.setColor("#ffffff");
             this.scene.input.setDefaultCursor("pointer");
@@ -467,9 +543,21 @@ export class ModalUI {
         buttonContainer.on("pointerout", () => {
             bg.clear();
             bg.fillStyle(0x8b4513);
-            bg.fillRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+            bg.fillRoundedRect(
+                -buttonWidth / 2,
+                -buttonHeight / 2,
+                buttonWidth,
+                buttonHeight,
+                8,
+            );
             bg.lineStyle(4, 0x8b7355, 1);
-            bg.strokeRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+            bg.strokeRoundedRect(
+                -buttonWidth / 2,
+                -buttonHeight / 2,
+                buttonWidth,
+                buttonHeight,
+                8,
+            );
             buttonContainer.setScale(1);
             buttonText.setColor("#f5deb3");
             this.scene.input.setDefaultCursor("default");
@@ -494,3 +582,4 @@ export class ModalUI {
         this.close();
     }
 }
+

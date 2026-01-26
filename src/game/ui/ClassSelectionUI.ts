@@ -124,12 +124,17 @@ export class ClassSelectionUI {
 
         // Subtitle
         const subtitleText = this.scene.add
-            .text(centerX, 130, "Each class has unique abilities and playstyle", {
-                fontSize: "24px",
-                color: "#f5deb3",
-                fontFamily: "serif",
-                fontStyle: "italic",
-            })
+            .text(
+                centerX,
+                130,
+                "Each class has unique abilities and playstyle",
+                {
+                    fontSize: "24px",
+                    color: "#f5deb3",
+                    fontFamily: "serif",
+                    fontStyle: "italic",
+                },
+            )
             .setOrigin(0.5)
             .setAlpha(0);
         this.container.add(subtitleText);
@@ -146,7 +151,7 @@ export class ClassSelectionUI {
     private createClassCard(
         x: number,
         y: number,
-        classDef: ClassDefinition
+        classDef: ClassDefinition,
     ): Phaser.GameObjects.Container {
         const card = this.scene.add.container(x, y);
         card.setAlpha(0);
@@ -157,20 +162,56 @@ export class ClassSelectionUI {
         // Card background
         const cardBg = this.scene.add.graphics();
         cardBg.fillStyle(0x3e2723, 0.95);
-        cardBg.fillRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 15);
+        cardBg.fillRoundedRect(
+            -cardWidth / 2,
+            -cardHeight / 2,
+            cardWidth,
+            cardHeight,
+            15,
+        );
         cardBg.lineStyle(3, 0x8b7355, 0.9);
-        cardBg.strokeRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 15);
+        cardBg.strokeRoundedRect(
+            -cardWidth / 2,
+            -cardHeight / 2,
+            cardWidth,
+            cardHeight,
+            15,
+        );
         cardBg.lineStyle(1, 0xd4af37, 0.7);
-        cardBg.strokeRoundedRect(-cardWidth / 2 + 3, -cardHeight / 2 + 3, cardWidth - 6, cardHeight - 6, 13);
+        cardBg.strokeRoundedRect(
+            -cardWidth / 2 + 3,
+            -cardHeight / 2 + 3,
+            cardWidth - 6,
+            cardHeight - 6,
+            13,
+        );
 
         // Hover background
         const hoverBg = this.scene.add.graphics();
         hoverBg.fillStyle(0x4a332a, 0.95);
-        hoverBg.fillRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 15);
+        hoverBg.fillRoundedRect(
+            -cardWidth / 2,
+            -cardHeight / 2,
+            cardWidth,
+            cardHeight,
+            15,
+        );
         hoverBg.lineStyle(3, 0xd4af37, 1);
-        hoverBg.strokeRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 15);
+        hoverBg.strokeRoundedRect(
+            -cardWidth / 2,
+            -cardHeight / 2,
+            cardWidth,
+            cardHeight,
+            15,
+        );
         hoverBg.lineStyle(1, 0xffd700, 0.8);
-        hoverBg.strokeRoundedRect(-cardWidth / 2 + 3, -cardHeight / 2 + 3, cardWidth - 6, cardHeight - 6, 13);
+        hoverBg.strokeRoundedRect(
+            -cardWidth / 2 + 3,
+            -cardHeight / 2 + 3,
+            cardWidth - 6,
+            cardHeight - 6,
+            13,
+        );
         hoverBg.setVisible(false);
 
         // Class portrait (sprite)
@@ -224,7 +265,7 @@ export class ClassSelectionUI {
                     fontFamily: "serif",
                     align: "center",
                     lineSpacing: 4,
-                }
+                },
             )
             .setOrigin(0.5);
 
@@ -239,7 +280,14 @@ export class ClassSelectionUI {
             .setOrigin(0.5);
 
         // Hit area
-        const hitArea = this.scene.add.rectangle(0, 0, cardWidth, cardHeight, 0x000000, 0);
+        const hitArea = this.scene.add.rectangle(
+            0,
+            0,
+            cardWidth,
+            cardHeight,
+            0x000000,
+            0,
+        );
         hitArea.setInteractive();
 
         card.add([
@@ -311,3 +359,4 @@ export class ClassSelectionUI {
         this.container.destroy();
     }
 }
+

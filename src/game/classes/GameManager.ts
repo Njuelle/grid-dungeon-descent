@@ -14,6 +14,7 @@ import { buffSystem } from "../systems/BuffSystem";
 import { curseSystem } from "../systems/CurseSystem";
 import { SpellDefinition } from "../core/types";
 import { getArtifactById } from "../data/artifacts";
+import { Boss } from "./enemies/bosses";
 
 export class GameManager {
     private scene: Scene;
@@ -651,12 +652,17 @@ export class GameManager {
         // First check if clicking on a unit
         const clickedUnit = this.getUnitAt(gridX, gridY);
 
-        // If clicking on a unit, the unit's own click handler will process it
-        // Don't double-process here to avoid double casting spells
+        // If clicking on a unit, handle the click
         if (clickedUnit) {
+            // For Boss units (2x2), the sprite click area might not cover all tiles
+            // So we need to handle the click explicitly here
+            if (clickedUnit instanceof Boss) {
+                console.log("Clicked on boss tile - handling click directly");
+                this.onUnitClick(clickedUnit);
+                return;
+            }
+            // For regular units, the sprite's own click handler will process it
             console.log("Clicked on a unit - delegating to unit click handler");
-            // Only call onUnitClick if the unit doesn't have its own interactive handler
-            // Player and other units have their own handlers set up via enableClickHandler
             return;
         }
 
@@ -1077,12 +1083,16 @@ export class GameManager {
 
         // Calculate damage - but for pure debuff spells with 0 base damage, don't deal damage
         let damage: number;
-        const isPureDebuffSpell = spell.damage === 0 && 
-            spell.buffEffect && 
-            spell.buffEffect.targetSelf === false;
+        // A spell is a "pure debuff" if it has 0 base damage and has either:
+        // - a buffEffect that targets the enemy (targetSelf === false)
+        // - a statusEffect (like poison, stun, root, etc.)
+        const isPureDebuffSpell = spell.damage === 0 && (
+            (spell.buffEffect && spell.buffEffect.targetSelf === false) ||
+            spell.statusEffect !== undefined
+        );
         
         if (isPureDebuffSpell) {
-            // This is a pure debuff spell (like marks), no damage should be dealt
+            // This is a pure debuff spell (like marks, curses), no damage should be dealt
             damage = 0;
             console.log(`[GameManager] Pure debuff spell ${spell.name}, no damage`);
         } else {
@@ -1375,10 +1385,8 @@ export class GameManager {
         }
 
         // Different tints based on debuff type
-        let tintColor = 0xff8844; // Default orange for marks
-        if (debuffType === "mark") {
-            tintColor = 0xff6600; // Orange for marks
-        } else if (debuffType === "stat_boost" || debuffType === "slow") {
+        let tintColor = 0x4488ff; // Default blue for debuffs
+        if (debuffType === "stat_boost" || debuffType === "slow") {
             tintColor = 0x4488ff; // Blue for movement/stat debuffs (like freeze)
         }
 
@@ -1405,11 +1413,10 @@ export class GameManager {
         });
 
         // Show floating debuff indicator text
-        const debuffText = debuffType === "mark" ? "MARKED!" : "SLOWED!";
         const floatingText = this.scene.add
-            .text(sprite.x, sprite.y - 40, debuffText, {
+            .text(sprite.x, sprite.y - 40, "DEBUFFED!", {
                 fontSize: "16px",
-                color: debuffType === "mark" ? "#ff8844" : "#4488ff",
+                color: "#4488ff",
                 stroke: "#000000",
                 strokeThickness: 3,
                 fontStyle: "bold",
@@ -1464,22 +1471,6 @@ export class GameManager {
 
         // Only apply damage if damage > 0
         if (damage > 0) {
-            // Check if enemy is marked (takes extra damage) - only for actual attacks
-            if (target instanceof Enemy && (target as Enemy).isMarked()) {
-                const markBonus = (target as Enemy).getMarkDamageBonus();
-                damage += markBonus;
-                console.log(`[GameManager] Mark bonus: +${markBonus} damage`);
-                
-                if (this.uiManager) {
-                    this.uiManager.addCombatLogMessage(
-                        `Marked target takes +${markBonus} extra damage!`
-                    );
-                }
-                
-                // Consume the mark after applying bonus damage
-                (target as Enemy).consumeMark();
-            }
-
             const actualDamage = Math.max(1, damage - resistance);
             if (this.uiManager) {
                 const stat =
@@ -1574,9 +1565,7 @@ export class GameManager {
                 enemy.addBuff(result.buff);
                 
                 if (this.uiManager) {
-                    const effectDesc = buffEffect.type === "mark" 
-                        ? `marked (+${buffEffect.value} damage taken)`
-                        : `${buffEffect.stat} ${buffEffect.value > 0 ? "+" : ""}${buffEffect.value}`;
+                    const effectDesc = `${buffEffect.stat} ${buffEffect.value > 0 ? "+" : ""}${buffEffect.value}`;
                     this.uiManager.addCombatLogMessage(
                         `${spell.name}: Enemy ${effectDesc} for ${buffEffect.duration} turns!`
                     );
@@ -1591,17 +1580,37 @@ export class GameManager {
     }
 
     private getUnitAt(gridX: number, gridY: number): Unit | null {
-        return (
-            this.units.find(
-                (unit) => unit.gridX === gridX && unit.gridY === gridY
-            ) || null
-        );
+        for (const unit of this.units) {
+            // Check if unit is a Boss (2x2)
+            if (unit instanceof Boss) {
+                if (unit.occupiesTile(gridX, gridY)) {
+                    return unit;
+                }
+            } else {
+                // Regular 1x1 unit
+                if (unit.gridX === gridX && unit.gridY === gridY) {
+                    return unit;
+                }
+            }
+        }
+        return null;
     }
 
     private isOccupied(gridX: number, gridY: number): boolean {
-        return this.units.some(
-            (unit) => unit.gridX === gridX && unit.gridY === gridY
-        );
+        for (const unit of this.units) {
+            // Check if unit is a Boss (2x2)
+            if (unit instanceof Boss) {
+                if (unit.occupiesTile(gridX, gridY)) {
+                    return true;
+                }
+            } else {
+                // Regular 1x1 unit
+                if (unit.gridX === gridX && unit.gridY === gridY) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public startTurn(): void {
@@ -2063,25 +2072,25 @@ export class GameManager {
     /**
      * Get target state for smart spell selection.
      */
-    private getTargetState(target: Unit): { isMarked: boolean; markValue: number; healthPercent: number; activeDebuffs: string[] } {
+    private getTargetState(target: Unit): { healthPercent: number; activeDebuffs: string[]; isVulnerable: boolean; vulnerableMultiplier: number } {
         const healthPercent = target.health / target.maxHealth;
         
         if (target instanceof Player) {
             return {
-                isMarked: target.isMarked(),
-                markValue: target.getMarkDamageBonus(),
                 healthPercent,
                 activeDebuffs: target.getActiveBuffs()
                     .filter(b => b.sourceSpellId)
                     .map(b => b.sourceSpellId as string),
+                isVulnerable: target.isVulnerable(),
+                vulnerableMultiplier: target.getVulnerableMultiplier(),
             };
         }
         
         return {
-            isMarked: false,
-            markValue: 0,
             healthPercent,
             activeDebuffs: [],
+            isVulnerable: false,
+            vulnerableMultiplier: 1,
         };
     }
 
@@ -2151,9 +2160,7 @@ export class GameManager {
                     console.log(`[GameManager] Applied debuff to player: ${buffEffect.stat} ${buffEffect.value}`);
 
                     if (this.uiManager) {
-                        const effectDesc = buffEffect.type === "mark"
-                            ? `Marked! (+${buffEffect.value} damage taken)`
-                            : `${buffEffect.stat} ${buffEffect.value}`;
+                        const effectDesc = `${buffEffect.stat} ${buffEffect.value}`;
                         this.uiManager.addCombatLogMessage(
                             `${spell.name}: Player ${effectDesc} for ${buffEffect.duration} turns!`
                         );

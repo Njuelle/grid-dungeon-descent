@@ -283,8 +283,8 @@ export class Player extends Unit {
 
         bg.fillRoundedRect(-halfWidth, bgY, tooltipWidth, bgHeight, 16);
         
-        // Border color - gold for player
-        const borderColor = this.isMarked() ? 0xff6600 : 0xd4af37;
+        // Border color - gold for player, red if vulnerable
+        const borderColor = this.isVulnerable() ? 0xff0000 : 0xd4af37;
         bg.lineStyle(4, borderColor);
         bg.strokeRoundedRect(-halfWidth, bgY, tooltipWidth, bgHeight, 16);
 
@@ -478,12 +478,10 @@ export class Player extends Unit {
 
             // Display buff icons and text below separator
             const buffDescriptions = this.getBuffDescriptions();
-            const buffIcon = this.isMarked() ? "🎯" : "✨";
-            const buffColor = this.isMarked() ? "#ff8844" : "#44ff88";
             const buffText = this.scene.add
-                .text(-160, yPos + 20, buffIcon + " " + buffDescriptions.join(", "), {
+                .text(-160, yPos + 20, "✨ " + buffDescriptions.join(", "), {
                     fontSize: "12px",
-                    color: buffColor,
+                    color: "#44ff88",
                     fontStyle: "bold",
                     wordWrap: { width: 320 },
                 })
@@ -1026,27 +1024,6 @@ export class Player extends Unit {
         const result = buffSystem.consumeShield(this.activeBuffs, incomingDamage);
         this.activeBuffs = result.updatedBuffs;
         return result.remainingDamage;
-    }
-
-    /**
-     * Check if player is marked (takes extra damage).
-     */
-    public isMarked(): boolean {
-        return buffSystem.hasBuffType(this.activeBuffs, "mark");
-    }
-
-    /**
-     * Get mark damage bonus (extra damage taken).
-     */
-    public getMarkDamageBonus(): number {
-        return buffSystem.getMarkDamageBonus(this.activeBuffs);
-    }
-
-    /**
-     * Consume mark after being hit.
-     */
-    public consumeMark(): void {
-        this.activeBuffs = buffSystem.consumeMark(this.activeBuffs);
     }
 
     /**

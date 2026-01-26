@@ -10,6 +10,14 @@ export interface DifficultyModifiers {
     enemyMPBonus: number;
 }
 
+export interface BossDifficultyModifiers {
+    healthMultiplier: number;
+    damageMultiplier: number;
+    armorBonus: number;
+    magicResistBonus: number;
+    minionHealthMultiplier: number;
+}
+
 export class DifficultyScaling {
     public static getDifficultyModifiers(): DifficultyModifiers {
         const progress = GameProgress.getInstance();
@@ -66,6 +74,34 @@ export class DifficultyScaling {
         if (wins <= 26) return "Inferno";
         if (wins <= 30) return "Apocalypse";
         return "Legendary";
+    }
+
+    /**
+     * Get difficulty modifiers for boss battles.
+     * Scaling is based on which boss encounter it is (1st, 2nd, 3rd, etc.)
+     * All bosses are equally balanced, scaling applies uniformly.
+     * 
+     * Damage scales slowly to avoid one-shotting players.
+     * 
+     * | Encounter | HP Mult | Dmg Mult | Armor | MR |
+     * |-----------|---------|----------|-------|-----|
+     * | 1st       | 1.0x    | 1.0x     | +0    | +0  |
+     * | 2nd       | 1.15x   | 1.05x    | +0    | +0  |
+     * | 3rd       | 1.30x   | 1.10x    | +1    | +1  |
+     * | 4th       | 1.45x   | 1.15x    | +1    | +1  |
+     * | 5th       | 1.60x   | 1.20x    | +2    | +2  |
+     */
+    public static getBossDifficultyModifiers(encounterNumber?: number): BossDifficultyModifiers {
+        const progress = GameProgress.getInstance();
+        const encounter = encounterNumber ?? progress.getBossEncounterNumber();
+
+        return {
+            healthMultiplier: 1.0 + (encounter - 1) * 0.15,
+            damageMultiplier: 1.0 + (encounter - 1) * 0.05,
+            armorBonus: Math.floor((encounter - 1) / 2),
+            magicResistBonus: Math.floor((encounter - 1) / 2),
+            minionHealthMultiplier: 1.0 + (encounter - 1) * 0.10,
+        };
     }
 
     public static getEnemyTypeDistribution(wins: number): {

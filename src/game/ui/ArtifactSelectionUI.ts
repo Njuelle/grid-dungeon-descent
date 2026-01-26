@@ -81,12 +81,17 @@ export class ArtifactSelectionUI {
 
         // Instruction text
         const instructionText = this.scene.add
-            .text(centerX, 200, "Choose an artifact to add to your collection:", {
-                fontSize: "28px",
-                color: "#f5deb3",
-                fontStyle: "bold",
-                fontFamily: "serif",
-            })
+            .text(
+                centerX,
+                200,
+                "Choose an artifact to add to your collection:",
+                {
+                    fontSize: "28px",
+                    color: "#f5deb3",
+                    fontStyle: "bold",
+                    fontFamily: "serif",
+                },
+            )
             .setOrigin(0.5)
             .setAlpha(0);
         this.container.add(instructionText);
@@ -167,12 +172,17 @@ export class ArtifactSelectionUI {
 
         // Subtitle
         const subtitleText = this.scene.add
-            .text(centerX, 140, "Every 5 victories grants you a powerful artifact", {
-                fontSize: "20px",
-                color: "#f5deb3",
-                fontFamily: "serif",
-                fontStyle: "italic",
-            })
+            .text(
+                centerX,
+                140,
+                "Every 5 victories grants you a powerful artifact",
+                {
+                    fontSize: "20px",
+                    color: "#f5deb3",
+                    fontFamily: "serif",
+                    fontStyle: "italic",
+                },
+            )
             .setOrigin(0.5)
             .setAlpha(0);
         this.container.add(subtitleText);
@@ -189,7 +199,7 @@ export class ArtifactSelectionUI {
     private createArtifactCard(
         x: number,
         y: number,
-        artifact: ArtifactDefinition
+        artifact: ArtifactDefinition,
     ): Phaser.GameObjects.Container {
         const card = this.scene.add.container(x, y);
         card.setAlpha(0);
@@ -201,20 +211,56 @@ export class ArtifactSelectionUI {
         // Card background - purple tint for cursed artifacts
         const cardBg = this.scene.add.graphics();
         cardBg.fillStyle(isCursed ? 0x2d1f3d : 0x3e2723, 0.95);
-        cardBg.fillRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 15);
+        cardBg.fillRoundedRect(
+            -cardWidth / 2,
+            -cardHeight / 2,
+            cardWidth,
+            cardHeight,
+            15,
+        );
         cardBg.lineStyle(3, isCursed ? 0x8b008b : 0x8b7355, 0.9);
-        cardBg.strokeRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 15);
+        cardBg.strokeRoundedRect(
+            -cardWidth / 2,
+            -cardHeight / 2,
+            cardWidth,
+            cardHeight,
+            15,
+        );
         cardBg.lineStyle(1, isCursed ? 0x9932cc : 0xd4af37, 0.7);
-        cardBg.strokeRoundedRect(-cardWidth / 2 + 3, -cardHeight / 2 + 3, cardWidth - 6, cardHeight - 6, 13);
+        cardBg.strokeRoundedRect(
+            -cardWidth / 2 + 3,
+            -cardHeight / 2 + 3,
+            cardWidth - 6,
+            cardHeight - 6,
+            13,
+        );
 
         // Hover background - purple tint for cursed
         const hoverBg = this.scene.add.graphics();
         hoverBg.fillStyle(isCursed ? 0x3d2a4d : 0x4a332a, 0.95);
-        hoverBg.fillRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 15);
+        hoverBg.fillRoundedRect(
+            -cardWidth / 2,
+            -cardHeight / 2,
+            cardWidth,
+            cardHeight,
+            15,
+        );
         hoverBg.lineStyle(3, isCursed ? 0x9932cc : 0xd4af37, 1);
-        hoverBg.strokeRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 15);
+        hoverBg.strokeRoundedRect(
+            -cardWidth / 2,
+            -cardHeight / 2,
+            cardWidth,
+            cardHeight,
+            15,
+        );
         hoverBg.lineStyle(1, isCursed ? 0xda70d6 : 0xffd700, 0.8);
-        hoverBg.strokeRoundedRect(-cardWidth / 2 + 3, -cardHeight / 2 + 3, cardWidth - 6, cardHeight - 6, 13);
+        hoverBg.strokeRoundedRect(
+            -cardWidth / 2 + 3,
+            -cardHeight / 2 + 3,
+            cardWidth - 6,
+            cardHeight - 6,
+            13,
+        );
         hoverBg.setVisible(false);
 
         // Cursed label with skull (only for cursed artifacts)
@@ -284,9 +330,11 @@ export class ArtifactSelectionUI {
             .setOrigin(0.5);
 
         const spell = getSpellById(artifact.grantedSpellId);
-        
+
         // Spell icon as image
-        let spellIconDisplay: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
+        let spellIconDisplay:
+            | Phaser.GameObjects.Image
+            | Phaser.GameObjects.Text;
         if (spell && spell.icon.startsWith("icon_")) {
             spellIconDisplay = this.scene.add.image(0, 60, spell.icon);
             spellIconDisplay.setOrigin(0.5);
@@ -297,7 +345,7 @@ export class ArtifactSelectionUI {
                 .text(0, 60, spell?.icon || "?", { fontSize: "32px" })
                 .setOrigin(0.5);
         }
-        
+
         // Spell name
         const spellNameText = this.scene.add
             .text(0, 85, spell?.name || "Unknown spell", {
@@ -312,7 +360,9 @@ export class ArtifactSelectionUI {
         // Spell stats (AP, Range, Damage)
         let spellStatsStr = "Unknown";
         if (spell) {
-            const rangeStr = spell.minRange ? `${spell.minRange}-${spell.range}` : `${spell.range}`;
+            const rangeStr = spell.minRange
+                ? `${spell.minRange}-${spell.range}`
+                : `${spell.range}`;
             spellStatsStr = `AP: ${spell.apCost} | Range: ${rangeStr} | Dmg: ${spell.damage}`;
         }
         const spellStats = this.scene.add
@@ -364,7 +414,14 @@ export class ArtifactSelectionUI {
             .setOrigin(0.5);
 
         // Hit area
-        const hitArea = this.scene.add.rectangle(0, 0, cardWidth, cardHeight, 0x000000, 0);
+        const hitArea = this.scene.add.rectangle(
+            0,
+            0,
+            cardWidth,
+            cardHeight,
+            0x000000,
+            0,
+        );
         hitArea.setInteractive();
 
         // Build card contents
@@ -421,23 +478,33 @@ export class ArtifactSelectionUI {
 
     private showNoArtifactsMessage(centerX: number, centerY: number): void {
         const messageText = this.scene.add
-            .text(centerX, centerY, "No more artifacts available!\nYou've collected them all.", {
-                fontSize: "28px",
-                color: "#f5deb3",
-                fontFamily: "serif",
-                align: "center",
-                lineSpacing: 10,
-            })
+            .text(
+                centerX,
+                centerY,
+                "No more artifacts available!\nYou've collected them all.",
+                {
+                    fontSize: "28px",
+                    color: "#f5deb3",
+                    fontFamily: "serif",
+                    align: "center",
+                    lineSpacing: 10,
+                },
+            )
             .setOrigin(0.5);
         this.container.add(messageText);
 
         // Continue button
-        const continueBtn = this.createButton(centerX, centerY + 100, "Continue", () => {
-            if (this.callbacks?.onSkip) {
-                this.callbacks.onSkip();
-            }
-            this.hide();
-        });
+        const continueBtn = this.createButton(
+            centerX,
+            centerY + 100,
+            "Continue",
+            () => {
+                if (this.callbacks?.onSkip) {
+                    this.callbacks.onSkip();
+                }
+                this.hide();
+            },
+        );
         this.container.add(continueBtn);
     }
 
@@ -493,17 +560,22 @@ export class ArtifactSelectionUI {
         });
 
         // Cancel button - keep current artifacts and continue
-        const cancelBtn = this.createButton(centerX, centerY + 250, "Cancel (Keep Current)", () => {
-            this.swapContainer?.destroy();
-            this.swapContainer = undefined;
-            this.pendingArtifact = undefined;
-            
-            // Call onSkip callback to properly close the artifact selection and continue the game
-            if (this.callbacks?.onSkip) {
-                this.callbacks.onSkip();
-            }
-            this.hide();
-        });
+        const cancelBtn = this.createButton(
+            centerX,
+            centerY + 250,
+            "Cancel (Keep Current)",
+            () => {
+                this.swapContainer?.destroy();
+                this.swapContainer = undefined;
+                this.pendingArtifact = undefined;
+
+                // Call onSkip callback to properly close the artifact selection and continue the game
+                if (this.callbacks?.onSkip) {
+                    this.callbacks.onSkip();
+                }
+                this.hide();
+            },
+        );
         this.swapContainer.add(cancelBtn);
 
         this.container.add(this.swapContainer);
@@ -513,7 +585,7 @@ export class ArtifactSelectionUI {
         x: number,
         y: number,
         artifact: ArtifactDefinition,
-        index: number
+        index: number,
     ): Phaser.GameObjects.Container {
         const card = this.scene.add.container(x, y);
 
@@ -524,16 +596,40 @@ export class ArtifactSelectionUI {
         // Card background - purple tint for cursed
         const cardBg = this.scene.add.graphics();
         cardBg.fillStyle(isCursed ? 0x2d1f3d : 0x3e2723, 0.95);
-        cardBg.fillRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 12);
+        cardBg.fillRoundedRect(
+            -cardWidth / 2,
+            -cardHeight / 2,
+            cardWidth,
+            cardHeight,
+            12,
+        );
         cardBg.lineStyle(2, isCursed ? 0x8b008b : 0x8b7355, 0.9);
-        cardBg.strokeRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 12);
+        cardBg.strokeRoundedRect(
+            -cardWidth / 2,
+            -cardHeight / 2,
+            cardWidth,
+            cardHeight,
+            12,
+        );
 
         // Hover background
         const hoverBg = this.scene.add.graphics();
         hoverBg.fillStyle(0x8b0000, 0.95);
-        hoverBg.fillRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 12);
+        hoverBg.fillRoundedRect(
+            -cardWidth / 2,
+            -cardHeight / 2,
+            cardWidth,
+            cardHeight,
+            12,
+        );
         hoverBg.lineStyle(2, 0xff6b6b, 1);
-        hoverBg.strokeRoundedRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight, 12);
+        hoverBg.strokeRoundedRect(
+            -cardWidth / 2,
+            -cardHeight / 2,
+            cardWidth,
+            cardHeight,
+            12,
+        );
         hoverBg.setVisible(false);
 
         // Cursed label
@@ -582,9 +678,11 @@ export class ArtifactSelectionUI {
 
         // Spell info
         const spell = getSpellById(artifact.grantedSpellId);
-        
+
         // Spell icon as image
-        let spellIconDisplay2: Phaser.GameObjects.Image | Phaser.GameObjects.Text;
+        let spellIconDisplay2:
+            | Phaser.GameObjects.Image
+            | Phaser.GameObjects.Text;
         if (spell && spell.icon.startsWith("icon_")) {
             spellIconDisplay2 = this.scene.add.image(-40, 30, spell.icon);
             spellIconDisplay2.setOrigin(0.5);
@@ -594,7 +692,7 @@ export class ArtifactSelectionUI {
                 .text(-40, 30, spell?.icon || "?", { fontSize: "18px" })
                 .setOrigin(0.5);
         }
-        
+
         const spellName = spell ? spell.name : "Unknown";
         const spellText = this.scene.add
             .text(10, 30, spellName, {
@@ -629,11 +727,25 @@ export class ArtifactSelectionUI {
             .setOrigin(0.5);
 
         // Hit area
-        const hitArea = this.scene.add.rectangle(0, 0, cardWidth, cardHeight, 0x000000, 0);
+        const hitArea = this.scene.add.rectangle(
+            0,
+            0,
+            cardWidth,
+            cardHeight,
+            0x000000,
+            0,
+        );
         hitArea.setInteractive();
 
         const cardContents: Phaser.GameObjects.GameObject[] = [
-            cardBg, hoverBg, iconDisplay, nameText, spellIconDisplay2, spellText, replaceHint, hitArea
+            cardBg,
+            hoverBg,
+            iconDisplay,
+            nameText,
+            spellIconDisplay2,
+            spellText,
+            replaceHint,
+            hitArea,
         ];
         if (cursedLabel) cardContents.push(cursedLabel);
         if (curseText) cardContents.push(curseText);
@@ -659,7 +771,9 @@ export class ArtifactSelectionUI {
             if (this.pendingArtifact) {
                 // Replace this artifact with the new one
                 artifactSystem.replaceArtifact(index, this.pendingArtifact.id);
-                console.log(`[ArtifactSelectionUI] Replaced ${artifact.name} with ${this.pendingArtifact.name}`);
+                console.log(
+                    `[ArtifactSelectionUI] Replaced ${artifact.name} with ${this.pendingArtifact.name}`,
+                );
 
                 if (this.callbacks?.onArtifactSelected) {
                     this.callbacks.onArtifactSelected(this.pendingArtifact);
@@ -679,7 +793,7 @@ export class ArtifactSelectionUI {
         x: number,
         y: number,
         text: string,
-        onClick: () => void
+        onClick: () => void,
     ): Phaser.GameObjects.Container {
         const btn = this.scene.add.container(x, y);
 
@@ -688,9 +802,21 @@ export class ArtifactSelectionUI {
 
         const bg = this.scene.add.graphics();
         bg.fillStyle(0x6b4423);
-        bg.fillRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+        bg.fillRoundedRect(
+            -buttonWidth / 2,
+            -buttonHeight / 2,
+            buttonWidth,
+            buttonHeight,
+            8,
+        );
         bg.lineStyle(3, 0x8b7355, 1);
-        bg.strokeRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+        bg.strokeRoundedRect(
+            -buttonWidth / 2,
+            -buttonHeight / 2,
+            buttonWidth,
+            buttonHeight,
+            8,
+        );
 
         const btnText = this.scene.add
             .text(0, 0, text, {
@@ -708,9 +834,21 @@ export class ArtifactSelectionUI {
         btn.on("pointerover", () => {
             bg.clear();
             bg.fillStyle(0x8b5a2b);
-            bg.fillRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+            bg.fillRoundedRect(
+                -buttonWidth / 2,
+                -buttonHeight / 2,
+                buttonWidth,
+                buttonHeight,
+                8,
+            );
             bg.lineStyle(3, 0xd4af37, 1);
-            bg.strokeRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+            bg.strokeRoundedRect(
+                -buttonWidth / 2,
+                -buttonHeight / 2,
+                buttonWidth,
+                buttonHeight,
+                8,
+            );
             btn.setScale(1.02);
             this.scene.input.setDefaultCursor("pointer");
         });
@@ -718,9 +856,21 @@ export class ArtifactSelectionUI {
         btn.on("pointerout", () => {
             bg.clear();
             bg.fillStyle(0x6b4423);
-            bg.fillRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+            bg.fillRoundedRect(
+                -buttonWidth / 2,
+                -buttonHeight / 2,
+                buttonWidth,
+                buttonHeight,
+                8,
+            );
             bg.lineStyle(3, 0x8b7355, 1);
-            bg.strokeRoundedRect(-buttonWidth / 2, -buttonHeight / 2, buttonWidth, buttonHeight, 8);
+            bg.strokeRoundedRect(
+                -buttonWidth / 2,
+                -buttonHeight / 2,
+                buttonWidth,
+                buttonHeight,
+                8,
+            );
             btn.setScale(1);
             this.scene.input.setDefaultCursor("default");
         });
@@ -754,7 +904,7 @@ export class ArtifactSelectionUI {
 
     private animateEntrance(
         instructionText: Phaser.GameObjects.Text,
-        inventoryText: Phaser.GameObjects.Text
+        inventoryText: Phaser.GameObjects.Text,
     ): void {
         // Animate instruction text
         this.scene.tweens.add({
@@ -787,3 +937,4 @@ export class ArtifactSelectionUI {
         this.container.destroy();
     }
 }
+
